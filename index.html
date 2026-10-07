@@ -136,15 +136,18 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* table */
 .tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto;box-shadow:var(--shadow)}
-table{border-collapse:collapse;width:100%;min-width:920px}
-th{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+table{border-collapse:collapse;width:100%;min-width:1080px}
+.cell-txt{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:86px}
+.cell-txt:hover{border-color:var(--accent)}
+.field input:disabled,.field select:disabled{opacity:.6;cursor:not-allowed}
+th{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:not(.subrow) td:last-child{position:sticky;right:0;background:var(--surface)}
 th:last-child{position:sticky;right:0}
 tr:last-child td{border-bottom:0}
 th.r,td.r{text-align:right}
-td.task{min-width:200px;max-width:360px;overflow-wrap:anywhere}
-.cell-in{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:76px;text-align:right;font-variant-numeric:tabular-nums}
+td.task{min-width:150px;max-width:360px;overflow-wrap:anywhere}
+.cell-in{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:62px;text-align:right;font-variant-numeric:tabular-nums}
 .cell-in:hover,.reason-in:hover{border-color:var(--accent)}
 tr.has-sub td{border-bottom:0;padding-bottom:5px}
 tr.subrow td{padding-top:0;padding-bottom:10px}
@@ -387,8 +390,10 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <label class="field"><span>Discipline</span><select id="f-discipline"></select></label>
       <label class="field"><span>Engineer</span><select id="f-engineer"></select></label>
       <label class="field full"><span>Project</span><select id="f-project"></select></label>
+      <label class="field"><span>Level</span><input type="text" id="f-level" maxlength="60" autocomplete="off" placeholder="e.g. L02"></label>
+      <label class="field"><span>Element</span><input type="text" id="f-element" maxlength="60" autocomplete="off" placeholder="e.g. Slab"></label>
       <label class="field full"><span>Task</span><textarea id="f-task" rows="2" maxlength="500" placeholder="e.g. Level 2 slab reinforcement shop drawings"></textarea></label>
-      <label class="field"><span>Estimated hours</span><input type="number" id="f-est" min="0" step="0.5" inputmode="decimal"></label>
+      <label class="field"><span id="estLabel">Estimated hours</span><input type="number" id="f-est" min="0" step="0.5" inputmode="decimal"></label>
       <label class="field"><span>Actual hours</span><input type="number" id="f-actual" min="0" step="0.5" inputmode="decimal"></label>
       <label class="field"><span>Remaining hours (calculated)</span><output id="f-remaining"></output></label>
       <label class="field"><span>Status</span><select id="f-status"></select></label>
@@ -495,7 +500,7 @@ function editAll(){return !!me&&(me.role==="admin"||me.role==="manager");}
 function canAdd(){return editAll()||(!!me&&me.role==="engineer"&&!!me.engineer);}
 function canEdit(t){return editAll()||(!!me&&me.role==="engineer"&&!!me.engineer&&t.engineer===me.engineer);}
 function row2task(o){return {id:String(o.id),date:String(o.date||"").slice(0,10),engineer:String(o.engineer||""),discipline:String(o.discipline||""),project:String(o.project||""),
-  task:String(o.task||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||"")};}
+  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||"")};}
 function upsertLocal(t){var i,found=false;for(i=0;i<S.tasks.length;i++){if(S.tasks[i].id===t.id){S.tasks[i]=t;found=true;break;}}if(!found)S.tasks.push(t);}
 function dropLocal(id){S.tasks=S.tasks.filter(function(x){return x.id!==id;});}
 function run(q){return Promise.resolve(q).then(function(r){if(r&&r.error)throw r.error;return r?r.data:null;});}
@@ -654,16 +659,16 @@ function changeStatus(t,sel){
 function commitField(t,field,inp){
   if(rebuilding||!sb||inp.disabled)return;
   var v=field==="actual"?num(inp.value):inp.value.trim();
-  if(v===t[field]){inp.value=field==="actual"?fmt(t.actual):t.reason;return;}
+  if(v===t[field]){inp.value=field==="actual"?fmt(t.actual):t[field];return;}
   var patch={};patch[field]=v;inp.disabled=true;
-  updTask(t.id,patch).then(function(){t[field]=v;toast(field==="actual"?"Actual hours saved":"Reason saved");render();})
+  updTask(t.id,patch).then(function(){t[field]=v;toast({actual:"Actual hours saved",reason:"Reason saved",level:"Level saved",element:"Element saved"}[field]||"Saved");render();})
     .catch(function(e){toast(writeError(e),true);render();});
 }
 function inlineInput(t,field,props){
   props["data-tid"]=t.id;props["data-field"]=field;
   var inp=h("input",props);
   inp.addEventListener("blur",function(){commitField(t,field,inp);});
-  inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();inp.blur();}else if(ev.key==="Escape"){inp.value=field==="actual"?fmt(t.actual):t.reason;inp.blur();}});
+  inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();inp.blur();}else if(ev.key==="Escape"){inp.value=field==="actual"?fmt(t.actual):t[field];inp.blur();}});
   return inp;
 }
 function renderTable(rows){
@@ -688,7 +693,7 @@ function buildTable(host,rows){
   if(!rows.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks match these filters."})));return;}
   var flashing=flashId&&Date.now()-flashAt<4000;
   var sorted=rows.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:String(a.engineer).localeCompare(String(b.engineer));});
-  var head=["Date","Engineer","Project","Disc.","Task",["Est. h","r"],["Actual h","r"],["Remaining h","r"],"Status",""];
+  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h","r"],["Remaining h","r"],"Status",""];
   var tb=h("tbody");
   sorted.forEach(function(t){
     var ov=overrun(t);
@@ -698,13 +703,15 @@ function buildTable(host,rows){
       h("td",{class:"nowrap"},h("strong",{text:t.engineer||"—"})),
       h("td",{class:"nowrap"},t.project?h("span",{class:"tag",text:t.project}):"—"),
       h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
+      h("td",null,canEdit(t)?inlineInput(t,"level",{class:"cell-txt",type:"text",maxlength:"60",value:t.level,"aria-label":"Level for "+(t.task||"task")}):(t.level||"—")),
+      h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
       h("td",{class:"task",text:t.task||""}),
       h("td",{class:"r num",text:fmt(num(t.est))}),
       h("td",{class:"r num"},canEdit(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:fmt(num(t.actual)),"aria-label":"Actual hours for "+(t.task||"task")}):fmt(num(t.actual))),
       h("td",{class:"r num"},fmt(remaining(t)),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
       h("td",null,statusCell(t)),
       h("td",{class:"r"},canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null)));
-    if(delayed)tb.append(h("tr",{class:("subrow is-delayed"+fl)},h("td",{colspan:"10"},h("div",{class:"reason-line"},
+    if(delayed)tb.append(h("tr",{class:("subrow is-delayed"+fl)},h("td",{colspan:"12"},h("div",{class:"reason-line"},
       h("span",{class:"label",text:"Reason for delay"}),
       canEdit(t)?inlineInput(t,"reason",{class:"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:"Write why this task is delayed","aria-label":"Reason for delay for "+(t.task||"task")})
         :h("span",{class:"reason-text",text:t.reason||"No reason written yet."})))));
@@ -862,13 +869,14 @@ function renderMgmt(){
     h("td",{class:"nowrap num"},niceDate(t.date)),
     h("td",{class:"nowrap"},t.project?h("span",{class:"tag",text:t.project}):"—"),
     h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
+    h("td",{text:t.level||"—"}),h("td",{text:t.element||"—"}),
     h("td",{class:"nowrap"},h("strong",{text:t.engineer||"—"})),
     h("td",{class:"task",text:t.task||""}),
     h("td",{class:"r num",text:fmt(num(t.est))}),h("td",{class:"r num",text:fmt(num(t.actual))}),
     h("td",{class:"r num",text:ov>0?fmt(ov)+" h":"—"}),
     h("td",{class:"why",text:t.reason||"No reason written yet"})));});
   md.append(h("div",{class:"tablewrap"},h("table",{class:"plain"},h("thead",null,h("tr",null,
-    ["Date","Project","Disc.","Engineer","Task",["Est. h","r"],["Actual h","r"],["Over by","r"],"Reason for delay"].map(function(c){return Array.isArray(c)?h("th",{class:c[1],text:c[0]}):h("th",{text:c});}))),tb)));
+    ["Date","Project","Disc.","Level","Element","Engineer","Task",["Est. h","r"],["Actual h","r"],["Over by","r"],"Reason for delay"].map(function(c){return Array.isArray(c)?h("th",{class:c[1],text:c[0]}):h("th",{text:c});}))),tb)));
 }
 function saveView(){try{localStorage.setItem("stt.view",S.view);}catch(e){}}
 function setView(v){S.view=v;saveView();render();}
@@ -877,7 +885,7 @@ function render(){
   renderFilters();
   if(S.view==="management"&&!editAll())S.view="tracker";
   var rows=S.tasks.filter(match),v=S.view;
-  $("tabMgmt").hidden=!editAll();$("btnUsers").hidden=!isAdmin();
+  $("tabMgmt").hidden=!editAll();$("btnUsers").hidden=!isAdmin();$("fEngineer").parentNode.hidden=!editAll();
   $("viewTracker").hidden=v!=="tracker";$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
   $("filtersBox").hidden=v==="management";$("stats").hidden=v==="management";
   $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
@@ -923,6 +931,9 @@ function openTask(t,preset){
   fillSelect($("f-project"),S.settings.projects,t?t.project:S.f.project,"Select project");
   $("f-task").value=t?(t.task||""):"";
   $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";
+  $("f-level").value=t?(t.level||""):"";$("f-element").value=t?(t.element||""):"";
+  var lockEst=!!t&&!editAll()&&num(t.est)>0;$("f-est").disabled=lockEst;
+  $("estLabel").textContent=lockEst?"Estimated hours (locked)":(!editAll()?"Estimated hours (set once, cannot be changed later)":"Estimated hours");
   fillSelect($("f-status"),STATUS,preset||(t?t.status:"Not Started"));
   $("f-reason").value=t?(t.reason||""):"";
   syncDerived();$("taskDlg").showModal();
@@ -930,6 +941,7 @@ function openTask(t,preset){
 function writeError(e){
   var m=(e&&e.message)||"",c=(e&&e.code)||"";
   if(e&&e.plain)return m;
+  if(/only once/i.test(m))return "Estimated hours are locked after they are first set. Ask a manager or the admin to change them.";
   if(c==="42501"||c==="PGRST116"||/row-level security/i.test(m))return "You do not have permission for this. Engineers can change only the tasks under their own name.";
   if(/JWT|not authenticated|session/i.test(m))return "Your session ended. Sign in again.";
   if(/Failed to fetch|NetworkError|Load failed/i.test(m))return "No connection. Check the internet and try again.";
@@ -938,13 +950,14 @@ function writeError(e){
 function saveTask(ev){
   ev.preventDefault();if(busy||!sb)return;
   var d={date:$("f-date").value,discipline:$("f-discipline").value,engineer:$("f-engineer").value,project:$("f-project").value,
-    task:$("f-task").value.trim(),est:num($("f-est").value),actual:num($("f-actual").value),status:$("f-status").value,
+    task:$("f-task").value.trim(),level:$("f-level").value.trim(),element:$("f-element").value.trim(),est:num($("f-est").value),actual:num($("f-actual").value),status:$("f-status").value,
     reason:$("f-reason").value.trim()};
   var err="";
   if(!parseDate(d.date))err="Pick the date.";
   else if(!d.engineer)err="Select the engineer.";
   else if(!d.project)err="Select the project.";
   else if(!d.task)err="Describe the task.";
+  else if(!editing&&!editAll()&&!(d.est>0))err="Enter the estimated hours. You cannot change them after saving.";
   else if(d.status==="Delayed"&&!d.reason)err="Add the reason for the delay.";
   if(err){$("taskErr").textContent=err;return;}
   busy=true;$("btnSave").disabled=true;$("taskErr").textContent="";
@@ -973,12 +986,14 @@ function loadSettings(){
                       run(sb.from("tt_engineers").select("name,discipline,sort").order("sort").order("name"))]).then(function(r){
     S.settings={projects:(r[0]||[]).map(function(p){return String(p.name);}),
                 engineers:(r[1]||[]).map(function(e){return {name:String(e.name),discipline:String(e.discipline||"")};})};
+    /* an engineer works only with their own name and tasks */
+    if(!editAll())S.settings.engineers=S.settings.engineers.filter(function(e){return !!me&&e.name===me.engineer;});
     S.settingsLoaded=true;});
 }
 function loadTasks(){
   var out=[],size=1000;
   function page(from){
-    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,est,actual,status,reason").order("date",{ascending:false}).order("id").range(from,from+size-1))
+    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason").order("date",{ascending:false}).order("id").range(from,from+size-1))
       .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});
   }
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
@@ -1033,8 +1048,8 @@ function csvCell(v){var s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;ret
 function exportCsv(){
   var rows=S.tasks.filter(match).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:String(a.engineer).localeCompare(String(b.engineer));});
   if(!rows.length){toast("There are no tasks in this view to export.",true);return;}
-  var lines=[["Date","Day","Engineer","Discipline","Project","Task","Estimated Hours","Actual Hours","Remaining Hours","Status","Reason for Delay"].join(",")];
-  rows.forEach(function(t){lines.push([t.date,dayName(t.date),t.engineer,t.discipline,t.project,t.task,fmt(num(t.est)),fmt(num(t.actual)),fmt(remaining(t)),t.status,t.reason].map(csvCell).join(","));});
+  var lines=[["Date","Day","Engineer","Discipline","Level","Element","Project","Task","Estimated Hours","Actual Hours","Remaining Hours","Status","Reason for Delay"].join(",")];
+  rows.forEach(function(t){lines.push([t.date,dayName(t.date),t.engineer,t.discipline,t.level,t.element,t.project,t.task,fmt(num(t.est)),fmt(num(t.actual)),fmt(remaining(t)),t.status,t.reason].map(csvCell).join(","));});
   var name="ibims-tasks-"+(S.f.project||"all-projects").toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+today()+".csv";
   var url=URL.createObjectURL(new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));
   var a=h("a",{href:url,download:name});document.body.append(a);a.click();
