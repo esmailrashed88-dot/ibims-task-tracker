@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IBIMS Task Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: navy title-block band on top, then filter rail (project > discipline > fine filters),
+   a stat strip, the engineer board grouped by discipline, and the task log table. */
+:root{
+  --bg:#EDF1F4; --surface:#FFFFFF; --surface-2:#F5F8FA; --ink:#10263A; --muted:#566879; --line:#D2DCE4;
+  --band:#0F2A44; --band-ink:#EAF2F8; --band-muted:#9DB4C8; --band-line:#294765;
+  --accent:#0B7F82; --accent-ink:#FFFFFF; --accent-soft:#DDF1F0;
+  --ok:#1B7446; --ok-soft:#DCF1E5; --warn:#8A5800; --warn-soft:#FBEDCF;
+  --bad:#B3261E; --bad-soft:#FBE2DF; --info:#1D5FA8; --info-soft:#DEEBFA; --idle:#566879; --idle-soft:#E5EBF0;
+  --c-done:#1B8A52; --c-prog:#2A78D6; --c-hold:#E0A021; --c-todo:#8C9DAD; --c-late:#D03B3B; --c-est:#5C7A99;
+  --shadow:0 1px 2px rgba(16,38,58,.06),0 6px 18px rgba(16,38,58,.06);
+  --font-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1620; --surface:#11212E; --surface-2:#162A3A; --ink:#E4EDF4; --muted:#93A6B7; --line:#24394B;
+    --band:#081A2B; --band-ink:#EAF2F8; --band-muted:#8FA8BE; --band-line:#1E3852;
+    --accent:#35BDB8; --accent-ink:#06201F; --accent-soft:#123A3C;
+    --ok:#5FCB92; --ok-soft:#143524; --warn:#E9B657; --warn-soft:#3A2C0E;
+    --bad:#F28B82; --bad-soft:#40191A; --info:#7FB4F0; --info-soft:#15304D; --idle:#93A6B7; --idle-soft:#1D3040;
+  --c-done:#2FA86A; --c-prog:#3987E5; --c-hold:#C98500; --c-todo:#7A8FA3; --c-late:#E66767; --c-est:#6F8FB0;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1620; --surface:#11212E; --surface-2:#162A3A; --ink:#E4EDF4; --muted:#93A6B7; --line:#24394B;
+  --band:#081A2B; --band-ink:#EAF2F8; --band-muted:#8FA8BE; --band-line:#1E3852;
+  --accent:#35BDB8; --accent-ink:#06201F; --accent-soft:#123A3C;
+  --ok:#5FCB92; --ok-soft:#143524; --warn:#E9B657; --warn-soft:#3A2C0E;
+  --bad:#F28B82; --bad-soft:#40191A; --info:#7FB4F0; --info-soft:#15304D; --idle:#93A6B7; --idle-soft:#1D3040;
+  --c-done:#2FA86A; --c-prog:#3987E5; --c-hold:#C98500; --c-todo:#7A8FA3; --c-late:#E66767; --c-est:#6F8FB0;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.label{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* band */
+.band{background:var(--band);color:var(--band-ink);border-bottom:3px solid var(--accent)}
+.band-in{max-width:1320px;margin:0 auto;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-width:0}
+.brand b{font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.14em;line-height:1}
+.brand span{font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:.08em;text-transform:uppercase;color:var(--band-muted);padding-left:14px;border-left:1px solid var(--band-line)}
+.band-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.conn{font-size:12px;color:var(--band-muted);display:flex;align-items:center;gap:6px;margin-right:6px}
+.conn i{width:8px;height:8px;border-radius:50%;background:var(--band-muted);display:inline-block}
+.conn.live i{background:#3ED3A0}
+.conn.off i{background:#F2A65A}
+
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:500;line-height:1.2}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:var(--band-line);color:var(--band-ink)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.small{padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.55;cursor:default}
+
+.wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+@media (max-width:520px){.wrap{padding-inline:16px}.band-in{padding-inline:16px}}
+
+/* filters */
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:14px}
+.frow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.frow > .label{width:92px;flex:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.seg button{font-family:var(--font-display);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);padding:6px 16px;border-radius:5px;cursor:pointer;line-height:1.25}
+.seg button:hover{border-color:var(--accent)}
+.seg button[aria-pressed="true"]{background:var(--band);border-color:var(--band);color:var(--band-ink);box-shadow:inset 0 -3px 0 var(--accent)}
+.seg button small{font-family:var(--font-body);font-weight:500;font-size:12px;letter-spacing:0;opacity:.7;margin-left:6px}
+.fine{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;border-top:1px solid var(--line);padding-top:14px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field > span{font-size:12px;color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 9px;min-width:0;max-width:100%}
+.fine .field select,.fine .field input{min-width:150px}
+.fine .grow{flex:1 1 auto}
+.fine .actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat b em{font-style:normal;font-size:18px;color:var(--muted);margin-left:3px}
+.stat small{color:var(--muted);font-size:12px}
+.stat.alert b{color:var(--bad)}
+@media (max-width:860px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:last-child{grid-column:1/-1}}
+
+/* sections */
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:10px}
+.sec-head h2{font-family:var(--font-display);font-weight:600;font-size:24px;letter-spacing:.04em;text-transform:uppercase;margin:0;text-wrap:balance}
+.sec-head p{margin:0;color:var(--muted);font-size:13px}
+.group{margin-top:14px}
+.group:first-child{margin-top:0}
+.group-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.group-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-name{font-family:var(--font-display);font-weight:600;font-size:21px;letter-spacing:.04em;line-height:1.1;background:none;border:0;padding:0;cursor:pointer;text-align:left;color:var(--ink);overflow-wrap:anywhere}
+.card-name:hover{color:var(--accent)}
+.code{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.1em;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:11.5px;font-weight:600;letter-spacing:.04em;background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:1px 7px}
+.tlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.tlist li{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:13px}
+.tlist li span.t{overflow-wrap:anywhere}
+.tlist li span.h{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--idle);transform:translateY(-1px)}
+.dot.info{background:var(--info)}.dot.ok{background:var(--ok)}.dot.bad{background:var(--bad)}.dot.warn{background:var(--warn)}
+.card-none{color:var(--muted);font-size:13px;margin:0}
+.card-foot{margin-top:auto;display:flex;flex-direction:column;gap:5px}
+.bar{height:5px;border-radius:3px;background:var(--idle-soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.bar.over i{background:var(--bad)}
+.card-foot div.n{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:8px;padding:22px 16px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty p{margin:0;max-width:60ch}
+
+/* table */
+.tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:920px}
+th{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:not(.subrow) td:last-child{position:sticky;right:0;background:var(--surface)}
+th:last-child{position:sticky;right:0}
+tr:last-child td{border-bottom:0}
+th.r,td.r{text-align:right}
+td.task{min-width:200px;max-width:360px;overflow-wrap:anywhere}
+.cell-in{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:76px;text-align:right;font-variant-numeric:tabular-nums}
+.cell-in:hover,.reason-in:hover{border-color:var(--accent)}
+tr.has-sub td{border-bottom:0;padding-bottom:5px}
+tr.subrow td{padding-top:0;padding-bottom:10px}
+.reason-line{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;max-width:760px;background:var(--bad-soft);border-radius:6px;padding:6px 10px}
+.reason-line .label{color:var(--bad);flex:none}
+.reason-in{flex:1 1 260px;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:5px 8px}
+.reason-in.missing{border-color:var(--bad)}
+.reason-text{flex:1 1 260px;min-width:0;overflow-wrap:anywhere}
+td.nowrap{white-space:nowrap}
+td .sub{display:block;font-size:12px;color:var(--muted)}
+td .over{display:block;font-size:11.5px;color:var(--bad);white-space:nowrap}
+tr.is-delayed td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;white-space:nowrap;background:var(--idle-soft);color:var(--idle)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+select.pill-sel{border:1px solid transparent;padding:3px 6px 3px 10px;cursor:pointer;font-family:var(--font-body)}
+select.pill-sel:hover{border-color:currentColor}
+select.pill-sel option{background:var(--surface);color:var(--ink);font-weight:400}
+.notice{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-weight:500}
+.notice span{min-width:0;overflow-wrap:anywhere}
+@keyframes flash{from{background:var(--accent-soft)}to{background:transparent}}
+tr.flash td{animation:flash 3.5s ease-out}
+@media (prefers-reduced-motion:reduce){tr.flash td{animation:none}}
+.field.on select,.field.on input{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.morebtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;text-align:left}
+.morebtn:hover{text-decoration:underline}
+
+/* dialogs */
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:0;width:min(600px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(8,20,32,.55)}
+.dlg-h{background:var(--band);color:var(--band-ink);padding:12px 18px;border-bottom:3px solid var(--accent);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.dlg-h h3{font-family:var(--font-display);font-weight:600;font-size:22px;letter-spacing:.06em;text-transform:uppercase;margin:0}
+.dlg-b{padding:16px 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.dlg-b .full{grid-column:1/-1}
+.dlg-b output{border:1px dashed var(--line);border-radius:6px;padding:7px 9px;background:var(--surface-2);font-variant-numeric:tabular-nums;min-height:36px}
+.dlg-f{padding:12px 18px 16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center;border-top:1px solid var(--line)}
+.dlg-f .left{margin-right:auto}
+.err{color:var(--bad);font-size:13px;margin:0}
+@media (max-width:520px){.dlg-b{grid-template-columns:1fr}}
+.team-b{padding:16px 18px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:5px;padding:3px 4px 3px 9px;font-weight:500;font-size:13px}
+.chip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:2px 5px;border-radius:4px}
+.chip button:hover{color:var(--bad);background:var(--bad-soft)}
+.addrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.addrow .field{flex:1 1 150px}
+.team-block{display:flex;flex-direction:column;gap:8px}
+.team-disc{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px;align-items:start}
+@media (max-width:520px){.team-disc{grid-template-columns:1fr}}
+.hint{color:var(--muted);font-size:12.5px;margin:0}
+
+.views{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.views button{white-space:nowrap}
+@media (max-width:520px){.views button{font-size:15px;padding:5px 9px}.views button.exec{padding:5px 10px;margin-right:4px}}
+.views button{font-family:var(--font-display);font-weight:600;font-size:17px;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:0;border-bottom:3px solid transparent;color:var(--band-muted);padding:6px 12px;cursor:pointer}
+.views button:hover{color:var(--band-ink)}
+.views button[aria-pressed="true"]{color:var(--band-ink);border-bottom-color:var(--accent)}
+.view{display:flex;flex-direction:column;gap:20px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px;color:var(--muted)}
+.legend span,.counts span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block;flex:none}
+.seg-done{background:var(--c-done)}.seg-prog{background:var(--c-prog)}.seg-hold{background:var(--c-hold)}.seg-todo{background:var(--c-todo)}.seg-late{background:var(--c-late)}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel-t{font-family:var(--font-display);font-weight:600;font-size:21px;letter-spacing:.04em;line-height:1.1;margin:0;overflow-wrap:anywhere}
+.psub{margin:0;color:var(--muted);font-size:12.5px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:8px}
+.kpi{display:flex;flex-direction:column;min-width:0}
+.kpi span{font-size:11.5px;color:var(--muted)}
+.kpi b{font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1.1}
+.kpi.alert b{color:var(--bad)}
+.pblock{display:flex;flex-direction:column;gap:6px}
+.plabel{font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stack{display:flex;gap:2px;height:12px}
+.stack i{display:block;min-width:6px;border-radius:2px}
+.stack i:hover,.stack i:focus-visible,.hb:hover,.hb:focus-visible{filter:brightness(1.15)}
+.counts{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:12px;color:var(--muted)}
+.hrow{display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12px}
+.hl{color:var(--muted)}
+.ht{height:10px;display:flex}
+.hb{display:block;height:10px;border-radius:0 4px 4px 0}
+.hb.est{background:var(--c-est)}.hb.act{background:var(--accent)}
+.hv{min-width:48px;text-align:right}
+.hn{display:flex;justify-content:space-between;gap:4px 8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.overtxt{color:var(--bad);font-weight:600}
+.pbtn{align-self:flex-start;margin-top:auto}
+.views button.exec{border:1px solid var(--accent);border-radius:5px;color:var(--band-ink);margin-right:8px;padding:6px 14px}
+.views button.exec[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.mhead{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:flex-end;justify-content:space-between}
+.mhead h2{font-family:var(--font-display);font-weight:600;font-size:30px;letter-spacing:.04em;text-transform:uppercase;margin:0;line-height:1.1}
+.mhead p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.stat.hero b{font-size:52px}
+.stat .meter{margin-block:4px 2px}
+.meter{height:8px;background:var(--accent-soft);border-radius:4px;overflow:hidden;min-width:60px}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.meter.big{height:14px;border-radius:7px}.meter.big i{border-radius:7px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:14px}
+.panel.proj{padding:18px;gap:14px}
+.proj-t{font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.05em;line-height:1.05;margin:0;overflow-wrap:anywhere}
+.prog{display:flex;flex-direction:column;gap:6px}
+.prog-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.prog-pct{font-family:var(--font-display);font-weight:600;font-size:30px;line-height:1}
+.kpis.k4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpis.k4 .kpi b{font-size:22px}
+.mini{overflow-x:auto}
+.mini table{min-width:400px}
+.mini th,.mini td{padding:6px 8px;background:transparent}
+.mini th{border-bottom:1px solid var(--line);font-size:12px}
+.mcell{display:grid;grid-template-columns:minmax(60px,1fr) 40px;gap:8px;align-items:center}
+.mcell span{text-align:right}
+table.plain tr td:last-child,table.plain th:last-child{position:static}
+td.why{min-width:180px;max-width:320px;overflow-wrap:anywhere}
+.overnote{margin:0;font-size:12.5px;color:var(--bad);font-weight:600}
+.auth{min-height:100vh;display:grid;place-items:center;padding-inline:16px;padding-block:24px;background:var(--band)}
+.auth-card{background:var(--surface);color:var(--ink);border-radius:12px;border-top:4px solid var(--accent);padding:28px;width:min(410px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.auth-brand{display:flex;flex-direction:column;gap:2px}
+.auth-brand b{font-family:var(--font-display);font-weight:700;font-size:36px;letter-spacing:.14em;line-height:1}
+.auth-brand span{font-family:var(--font-display);font-weight:500;font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.auth-card form{display:flex;flex-direction:column;gap:14px}
+.auth-card .btn.primary{padding:10px 14px;font-size:15px}
+.auth-note{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.auth-note p{margin:0;overflow-wrap:anywhere}
+.auth-note ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.auth-note code{background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12.5px}
+.acct{display:inline-flex;align-items:center;gap:8px;max-width:240px}
+.acct span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct small{font-family:var(--font-display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;color:var(--band-muted)}
+dialog.wide{width:min(980px,calc(100vw - 32px))}
+#usersList table{min-width:820px}
+#usersList td{vertical-align:middle}
+#usersList select,#usersList input[type="text"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;max-width:170px}
+.uact{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.ok-msg{color:var(--ok);font-size:13px;margin:0}
+.info-p{margin:4px 0 0;overflow-wrap:anywhere}
+#tip{position:fixed;z-index:60;background:var(--band);color:var(--band-ink);border:1px solid var(--band-line);border-radius:6px;padding:5px 9px;font-size:12px;pointer-events:none;white-space:nowrap}
+#tip strong{font-weight:600}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--band);color:var(--band-ink);padding:10px 16px;border-radius:8px;border:1px solid var(--band-line);box-shadow:var(--shadow);max-width:calc(100vw - 32px);z-index:50}
+#toast.bad{border-color:var(--bad)}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth">
+  <div class="auth-card">
+    <div class="auth-brand"><b>IBIMS</b><span>Team Task Tracker</span></div>
+    <form id="loginForm" novalidate hidden>
+      <label class="field"><span>Email</span><input type="email" id="loginEmail" autocomplete="username" required></label>
+      <label class="field"><span>Password</span><input type="password" id="loginPass" autocomplete="current-password" required></label>
+      <p class="err" id="loginErr" role="alert"></p>
+      <button class="btn primary" id="btnLogin" type="submit">Sign in</button>
+      <p class="hint">Logins are created by the admin. Ask the admin if you need a login or a new password.</p>
+    </form>
+    <div class="auth-note" id="authNote"><p id="authNoteText">Loading…</p><div id="authNoteExtra"></div><button class="btn" id="btnAuthOut" type="button" hidden>Sign in with another account</button></div>
+  </div>
+</div>
+
+<header class="band" id="appBand" hidden>
+  <div class="band-in">
+    <div class="brand"><b>IBIMS</b><span>Team Task Tracker</span></div>
+    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button></nav>
+    <div class="band-tools">
+      <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
+      <button class="btn ghost" id="btnUsers" type="button" hidden>Users</button>
+      <button class="btn ghost" id="btnTeam" type="button" hidden>Team &amp; projects</button>
+      <button class="btn ghost" id="btnExport" type="button" hidden>Export CSV</button>
+      <button class="btn primary" id="btnAdd" type="button" hidden>+ Add task</button>
+      <button class="btn ghost acct" id="btnAccount" type="button" title="My account"><span id="acctName"></span><small id="acctRole"></small></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="appMain" hidden>
+  <section class="filters" id="filtersBox" aria-label="Filters">
+    <div class="frow"><span class="label">Project</span><div class="seg" id="projSeg" role="group" aria-label="Project"></div></div>
+    <div class="frow"><span class="label">Discipline</span><div class="seg" id="discSeg" role="group" aria-label="Discipline"></div></div>
+    <div class="fine">
+      <label class="field"><span>Engineer</span><select id="fEngineer"></select></label>
+      <label class="field"><span>Status</span><select id="fStatus"></select></label>
+      <label class="field"><span>From date</span><input type="date" id="fFrom"></label>
+      <label class="field"><span>To date</span><input type="date" id="fTo"></label>
+      <div class="actions">
+        <button class="btn" id="btnToday" type="button">Today</button>
+        <button class="btn" id="btnClear" type="button">Clear filters</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats" id="stats" aria-label="Summary"></section>
+
+  <div id="viewMgmt" class="view" hidden>
+    <div class="mhead">
+      <div><h2>All projects</h2><p id="mAsOf"></p></div>
+      <div class="seg" id="mPeriod" role="group" aria-label="Period"></div>
+    </div>
+    <section class="stats" id="mStats" aria-label="Overall summary"></section>
+    <section>
+      <div class="sec-head"><h2>Progress by project</h2><p>Progress = estimated hours of completed tasks ÷ all estimated hours</p></div>
+      <div id="mProjects"></div>
+    </section>
+    <section>
+      <div class="sec-head"><h2>Delayed tasks</h2><p id="mDelaySub"></p></div>
+      <div id="mDelays"></div>
+    </section>
+  </div>
+
+  <div id="viewTracker" class="view">
+  <section>
+    <div class="sec-head"><h2 id="boardTitle">Who is on what</h2><p id="boardSub"></p></div>
+    <div id="board"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Task log</h2><p id="tableSub"></p></div>
+    <div id="tableHost"></div>
+  </section>
+  </div>
+
+  <div id="viewDash" class="view" hidden>
+    <div class="legend" id="dashLegend" aria-label="Status colours"></div>
+    <section>
+      <div class="sec-head"><h2>By discipline</h2><p id="discSub"></p></div>
+      <div id="dashDisc"></div>
+    </section>
+    <section>
+      <div class="sec-head"><h2>By engineer</h2><p id="engSub"></p></div>
+      <div id="dashEng"></div>
+    </section>
+  </div>
+</main>
+<div id="tip" role="tooltip" hidden></div>
+
+<dialog id="taskDlg" aria-labelledby="taskTitle">
+  <form id="taskForm" novalidate>
+    <div class="dlg-h"><h3 id="taskTitle">Add task</h3></div>
+    <div class="dlg-b">
+      <label class="field"><span>Date</span><input type="date" id="f-date" required></label>
+      <label class="field"><span>Day</span><output id="f-day"></output></label>
+      <label class="field"><span>Discipline</span><select id="f-discipline"></select></label>
+      <label class="field"><span>Engineer</span><select id="f-engineer"></select></label>
+      <label class="field full"><span>Project</span><select id="f-project"></select></label>
+      <label class="field full"><span>Task</span><textarea id="f-task" rows="2" maxlength="500" placeholder="e.g. Level 2 slab reinforcement shop drawings"></textarea></label>
+      <label class="field"><span>Estimated hours</span><input type="number" id="f-est" min="0" step="0.5" inputmode="decimal"></label>
+      <label class="field"><span>Actual hours</span><input type="number" id="f-actual" min="0" step="0.5" inputmode="decimal"></label>
+      <label class="field"><span>Remaining hours (calculated)</span><output id="f-remaining"></output></label>
+      <label class="field"><span>Status</span><select id="f-status"></select></label>
+      <label class="field full" id="reasonField"><span id="reasonLabel">Reason for delay</span><textarea id="f-reason" rows="2" maxlength="500"></textarea></label>
+    </div>
+    <div class="dlg-f">
+      <button class="btn danger left" id="btnDelete" type="button" hidden>Delete</button>
+      <p class="err" id="taskErr" role="alert"></p>
+      <button class="btn" id="btnCancel" type="button">Cancel</button>
+      <button class="btn primary" id="btnSave" type="submit">Save task</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="teamDlg" aria-labelledby="teamTitle">
+  <div class="dlg-h"><h3 id="teamTitle">Team &amp; projects</h3></div>
+  <div class="team-b">
+    <div class="team-block">
+      <span class="label">Projects</span>
+      <div class="chips" id="projChips"></div>
+      <form class="addrow" id="projForm">
+        <label class="field"><span>New project name</span><input id="newProject" maxlength="60" autocomplete="off"></label>
+        <button class="btn" type="submit">Add project</button>
+      </form>
+    </div>
+    <div class="team-block">
+      <span class="label">Engineers</span>
+      <div id="engLists" class="team-block"></div>
+      <form class="addrow" id="engForm">
+        <label class="field"><span>New engineer name</span><input id="newEngineer" maxlength="60" autocomplete="off"></label>
+        <label class="field"><span>Discipline</span><select id="newEngDisc"></select></label>
+        <button class="btn" type="submit">Add engineer</button>
+      </form>
+      <p class="hint">Removing a name only takes it off the pick list. Tasks already logged stay in the log.</p>
+    </div>
+    <p class="err" id="teamErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn primary" id="btnTeamClose" type="button">Done</button></div>
+</dialog>
+
+<dialog id="acctDlg" aria-labelledby="acctTitle">
+  <div class="dlg-h"><h3 id="acctTitle">My account</h3></div>
+  <div class="team-b">
+    <div><span class="label">Signed in as</span><p class="info-p" id="acctInfo"></p></div>
+    <form class="team-block" id="pwForm" novalidate>
+      <span class="label">Change my password</span>
+      <div class="addrow">
+        <label class="field"><span>New password (at least 6 characters)</span><input type="password" id="newPw" autocomplete="new-password"></label>
+        <button class="btn" type="submit">Change password</button>
+      </div>
+      <p class="err" id="pwErr" role="alert"></p>
+    </form>
+  </div>
+  <div class="dlg-f"><button class="btn danger left" id="btnSignOut" type="button">Sign out</button><button class="btn primary" id="btnAcctClose" type="button">Done</button></div>
+</dialog>
+
+<dialog id="usersDlg" class="wide" aria-labelledby="usersTitle">
+  <div class="dlg-h"><h3 id="usersTitle">Users</h3></div>
+  <div class="team-b">
+    <div class="mini" id="usersList"></div>
+    <form class="team-block" id="userForm" novalidate>
+      <span class="label">Add a user</span>
+      <div class="addrow">
+        <label class="field"><span>Email</span><input type="email" id="uEmail" autocomplete="off" maxlength="120"></label>
+        <label class="field"><span>Full name</span><input type="text" id="uName" autocomplete="off" maxlength="80"></label>
+        <label class="field"><span>Password</span><input type="text" id="uPass" autocomplete="off" maxlength="72"></label>
+      </div>
+      <div class="addrow">
+        <label class="field"><span>Role</span><select id="uRole"><option value="engineer">Engineer</option><option value="manager">Manager</option><option value="admin">Admin</option></select></label>
+        <label class="field"><span>Engineer name on the tracker</span><select id="uEng"></select></label>
+        <button class="btn primary" id="btnUserAdd" type="submit">Add user</button>
+      </div>
+    </form>
+    <p class="err" id="usersErr" role="alert"></p>
+    <p class="ok-msg" id="usersOk" role="status"></p>
+    <p class="hint">Engineer: adds and edits only the tasks under the linked name. Manager: edits any task and sees the Management dashboard. Admin: everything, including users, team and projects. Give each person their email and password yourself; the app does not send emails.</p>
+  </div>
+  <div class="dlg-f"><button class="btn primary" id="btnUsersClose" type="button">Done</button></div>
+</dialog>
+
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script>
+(function(){
+"use strict";
+var DISC=[{k:"STRUCTURE",c:"STR"},{k:"ARCHITECTURE",c:"ARC"},{k:"ELECTRICAL",c:"ELE"},{k:"MECHANICAL",c:"MEC"}];
+var STATUS=["Not Started","In Progress","Completed","Delayed","On Hold"];
+var SCLS={"Not Started":"idle","In Progress":"info","Completed":"ok","Delayed":"bad","On Hold":"warn"};
+var SORDER={"Delayed":0,"In Progress":1,"Not Started":2,"On Hold":3,"Completed":4};
+var S={view:"tracker",period:"all",tasks:[],settings:{projects:[],engineers:[]},tasksLoaded:false,settingsLoaded:false,conn:"wait",canWrite:false,
+       f:{project:"",discipline:"",engineer:"",status:"",from:"",to:""}};
+/* ====== CONNECTION SETTINGS: paste your two values from Supabase > Project Settings > API ====== */
+var CFG={
+  url:"https://YOUR-PROJECT.supabase.co",
+  key:"YOUR-ANON-PUBLIC-KEY"
+};
+/* ================================================================================================ */
+var sb=null,me=null,users=[],chan=null,pollTimer=null,editing=null,deleteArmed=false,busy=false,toastTimer=null,flashId="",flashAt=0,rebuilding=false,focusReq=null;
+
+function $(id){return document.getElementById(id);}
+function isAdmin(){return !!me&&me.role==="admin";}
+function editAll(){return !!me&&(me.role==="admin"||me.role==="manager");}
+function canAdd(){return editAll()||(!!me&&me.role==="engineer"&&!!me.engineer);}
+function canEdit(t){return editAll()||(!!me&&me.role==="engineer"&&!!me.engineer&&t.engineer===me.engineer);}
+function row2task(o){return {id:String(o.id),date:String(o.date||"").slice(0,10),engineer:String(o.engineer||""),discipline:String(o.discipline||""),project:String(o.project||""),
+  task:String(o.task||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||"")};}
+function upsertLocal(t){var i,found=false;for(i=0;i<S.tasks.length;i++){if(S.tasks[i].id===t.id){S.tasks[i]=t;found=true;break;}}if(!found)S.tasks.push(t);}
+function dropLocal(id){S.tasks=S.tasks.filter(function(x){return x.id!==id;});}
+function run(q){return Promise.resolve(q).then(function(r){if(r&&r.error)throw r.error;return r?r.data:null;});}
+function updTask(id,patch){return run(sb.from("tt_tasks").update(patch).eq("id",id).select().single()).then(function(d){var t=row2task(d);upsertLocal(t);return t;});}
+function h(tag,props){
+  var e=document.createElement(tag),i,k,v;
+  if(props){for(k in props){v=props[k];if(v==null||v===false)continue;
+    if(k==="class")e.className=v;else if(k==="text")e.textContent=v;
+    else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),v);
+    else e.setAttribute(k,v===true?"":v);}}
+  for(i=2;i<arguments.length;i++){var kid=arguments[i];
+    if(Array.isArray(kid)){kid.forEach(function(x){if(x!=null&&x!==false)e.append(x.nodeType?x:document.createTextNode(String(x)));});}
+    else if(kid!=null&&kid!==false)e.append(kid.nodeType?kid:document.createTextNode(String(kid)));}
+  return e;
+}
+function clear(n){while(n.firstChild)n.removeChild(n.firstChild);return n;}
+function num(v){var n=parseFloat(v);return isFinite(n)&&n>0?n:0;}
+function fmt(n){return String(Math.round(n*100)/100);}
+function pad(n){return n<10?"0"+n:""+n;}
+function today(){var d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function parseDate(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+function dayName(s,style){var d=parseDate(s);return d?d.toLocaleDateString("en-US",{weekday:style||"long"}):"";}
+function niceDate(s){var d=parseDate(s);return d?d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):(s||"");}
+function remaining(t){return t.status==="Completed"?0:Math.max(0,num(t.est)-num(t.actual));}
+function overrun(t){return Math.max(0,num(t.actual)-num(t.est));}
+function discCode(k){for(var i=0;i<DISC.length;i++)if(DISC[i].k===k)return DISC[i].c;return (k||"").slice(0,3);}
+function titleCase(k){return k?k.charAt(0)+k.slice(1).toLowerCase():"";}
+function toast(msg,bad){var t=$("toast");t.textContent=msg;t.className=bad?"bad":"";t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;},4200);}
+
+/* ---------- filters ---------- */
+function saveFilters(){try{localStorage.setItem("stt.filters",JSON.stringify({project:S.f.project,discipline:S.f.discipline}));}catch(e){}}
+function loadFilters(){try{var o=JSON.parse(localStorage.getItem("stt.filters")||"null");if(o&&typeof o==="object"){["project","discipline"].forEach(function(k){if(typeof o[k]==="string")S.f[k]=o[k];});}}catch(e){}}
+function setFilter(k,v){S.f[k]=v;if(k==="discipline"&&S.f.engineer){var d=engineerDisc(S.f.engineer);if(v&&d&&d!==v)S.f.engineer="";}saveFilters();render();}
+function match(t){var f=S.f;
+  return (!f.project||t.project===f.project)&&(!f.discipline||t.discipline===f.discipline)&&(!f.engineer||t.engineer===f.engineer)
+      &&(!f.status||t.status===f.status)&&(!f.from||t.date>=f.from)&&(!f.to||t.date<=f.to);}
+function activeFilters(){var f=S.f,o=[];
+  if(f.project)o.push("Project "+f.project);if(f.discipline)o.push(titleCase(f.discipline));if(f.engineer)o.push(f.engineer);if(f.status)o.push("Status "+f.status);
+  if(f.from||f.to)o.push(f.from&&f.to?(f.from===f.to?niceDate(f.from):niceDate(f.from)+" to "+niceDate(f.to)):f.from?"from "+niceDate(f.from):"up to "+niceDate(f.to));
+  return o;}
+/* Loosen any filter that would hide this task, so a saved task never drops out of sight. */
+function revealTask(d){var f=S.f,ch=false;
+  if(f.project&&d.project!==f.project){f.project="";ch=true;}
+  if(f.discipline&&d.discipline!==f.discipline){f.discipline="";ch=true;}
+  if(f.engineer&&d.engineer!==f.engineer){f.engineer="";ch=true;}
+  if(f.status&&d.status!==f.status){f.status="";ch=true;}
+  if(f.from&&d.date<f.from){f.from="";ch=true;}
+  if(f.to&&d.date>f.to){f.to="";ch=true;}
+  if(ch)saveFilters();return ch;}
+function allProjects(){var out=S.settings.projects.slice();S.tasks.forEach(function(t){if(t.project&&out.indexOf(t.project)<0)out.push(t.project);});return out;}
+function engineerDisc(name){var e=S.settings.engineers,i;for(i=0;i<e.length;i++)if(e[i].name===name)return e[i].discipline;
+  for(i=0;i<S.tasks.length;i++)if(S.tasks[i].engineer===name)return S.tasks[i].discipline;return "";}
+function engineersFor(disc){var out=[];S.settings.engineers.forEach(function(e){if(!disc||e.discipline===disc)out.push(e.name);});
+  S.tasks.forEach(function(t){if(t.engineer&&(!disc||t.discipline===disc)&&out.indexOf(t.engineer)<0)out.push(t.engineer);});return out;}
+
+function segButton(label,value,current,key,count){
+  return h("button",{type:"button","aria-pressed":String(current===value),onclick:function(){setFilter(key,value);}},label,
+    count!=null?h("small",{text:String(count)}):null);
+}
+function renderFilters(){
+  var f=S.f,ps=clear($("projSeg")),ds=clear($("discSeg"));
+  ps.append(segButton("All projects","",f.project,"project"));
+  allProjects().forEach(function(p){ps.append(segButton(p,p,f.project,"project"));});
+  ds.append(segButton("All","",f.discipline,"discipline"));
+  DISC.forEach(function(d){ds.append(segButton(d.k,d.k,f.discipline,"discipline"));});
+  var es=clear($("fEngineer"));es.append(h("option",{value:"",text:"All engineers"}));
+  engineersFor(f.discipline).forEach(function(n){es.append(h("option",{value:n,text:n}));});
+  es.value=f.engineer;if(es.value!==f.engineer){S.f.engineer="";es.value="";}
+  $("fStatus").value=f.status;$("fFrom").value=f.from;$("fTo").value=f.to;
+  [["fEngineer",f.engineer],["fStatus",f.status],["fFrom",f.from],["fTo",f.to]].forEach(function(x){$(x[0]).parentNode.classList.toggle("on",!!x[1]);});
+  var n=activeFilters().length;$("btnClear").textContent=n?"Clear filters ("+n+")":"Clear filters";
+}
+
+/* ---------- stats ---------- */
+function stat(label,value,unit,sub,alert){
+  return h("div",{class:"stat"+(alert?" alert":"")},h("span",{class:"label",text:label}),
+    h("b",null,value,unit?h("em",{text:unit}):null),h("small",{text:sub||" "}));
+}
+function renderStats(rows){
+  var est=0,act=0,rem=0,done=0,delayed=0,hold=0;
+  rows.forEach(function(t){est+=num(t.est);act+=num(t.actual);rem+=remaining(t);
+    if(t.status==="Completed")done++;if(t.status==="Delayed")delayed++;if(t.status==="On Hold")hold++;});
+  var host=clear($("stats"));
+  host.append(
+    stat("Tasks",String(rows.length),"",done+" completed"),
+    stat("Estimated",fmt(est),"h","planned effort"),
+    stat("Actual",fmt(act),"h",est>0?Math.round(act/est*100)+"% of estimate":"no estimate yet"),
+    stat("Remaining",fmt(rem),"h","on open tasks"),
+    stat("Delayed",String(delayed),"",hold+" on hold",delayed>0));
+}
+
+/* ---------- board ---------- */
+function card(e){
+  var est=0,act=0,rem=0,projects=[];
+  e.tasks.forEach(function(t){est+=num(t.est);act+=num(t.actual);rem+=remaining(t);if(t.project&&projects.indexOf(t.project)<0)projects.push(t.project);});
+  var sorted=e.tasks.slice().sort(function(a,b){var s=(SORDER[a.status]||0)-(SORDER[b.status]||0);return s||(a.date<b.date?1:a.date>b.date?-1:0);});
+  var shown=sorted.slice(0,6),more=sorted.length-shown.length;
+  var pct=est>0?Math.min(100,act/est*100):0;
+  return h("article",{class:"card"},
+    h("div",{class:"card-top"},
+      h("button",{class:"card-name",type:"button",title:"Show only "+e.name,onclick:function(){setFilter("engineer",S.f.engineer===e.name?"":e.name);}},e.name),
+      h("span",{class:"code",title:e.discipline,text:discCode(e.discipline)})),
+    projects.length?h("div",{class:"tags"},projects.map(function(p){return h("span",{class:"tag",text:p});})):null,
+    shown.length?h("ul",{class:"tlist"},shown.map(function(t){
+        return h("li",{title:t.status},h("i",{class:"dot "+(SCLS[t.status]||"idle")}),h("span",{class:"t",text:t.task||"(no description)"}),
+          h("span",{class:"h",text:fmt(num(t.actual))+" / "+fmt(num(t.est))+" h"}));}),
+        more>0?h("li",null,h("i"),h("button",{class:"morebtn",type:"button",onclick:function(){setFilter("engineer",e.name);}},"+ "+more+" more, show all"),h("span")):null)
+      :h("p",{class:"card-none",text:"No tasks in this view."}),
+    e.tasks.length?h("div",{class:"card-foot"},
+      h("div",{class:"bar"+(act>est&&est>0?" over":"")},h("i",{style:"width:"+pct+"%"})),
+      h("div",{class:"n"},h("span",{text:e.tasks.length+(e.tasks.length===1?" task":" tasks")}),h("span",{text:fmt(rem)+" h remaining"}))):null);
+}
+function renderBoard(rows){
+  var f=S.f,by={},order=[],host=clear($("board"));
+  rows.forEach(function(t){if(!t.engineer)return;if(!by[t.engineer]){by[t.engineer]={name:t.engineer,discipline:t.discipline,tasks:[]};order.push(t.engineer);}by[t.engineer].tasks.push(t);});
+  var narrowed=f.project||f.status||f.from||f.to;
+  if(!narrowed){S.settings.engineers.forEach(function(e){
+    if(f.discipline&&e.discipline!==f.discipline)return;if(f.engineer&&e.name!==f.engineer)return;
+    if(!by[e.name]){by[e.name]={name:e.name,discipline:e.discipline,tasks:[]};order.push(e.name);}});}
+  $("boardTitle").textContent="Who is on "+(f.project||"all projects");
+  $("boardSub").textContent=order.length?order.length+(order.length===1?" engineer":" engineers")+(f.discipline?" · "+titleCase(f.discipline):""):"";
+  if(!S.tasksLoaded&&!S.settingsLoaded){
+    host.append(h("div",{class:"empty"},h("p",{text:S.conn==="off"?"The shared task data is not available in this view. Open the tracker in claude.ai while signed in.":"Loading the team…"})));return;}
+  if(!order.length){
+    host.append(h("div",{class:"empty"},h("p",{text:narrowed?"No one has tasks"+(f.project?" on "+f.project:"")+" for these filters.":"No engineers listed yet. Add them under Team & projects."})));return;}
+  DISC.map(function(d){return d.k;}).concat([""]).forEach(function(dk){
+    var list=order.filter(function(n){var d=by[n].discipline||"";return dk?d===dk:!DISC.some(function(x){return x.k===d;});});
+    if(!list.length)return;
+    list.sort(function(a,b){return (by[b].tasks.length?1:0)-(by[a].tasks.length?1:0)||a.localeCompare(b);});
+    host.append(h("div",{class:"group"},
+      h("div",{class:"group-h"},h("span",{class:"label",text:(dk||"Other")+" · "+list.length})),
+      h("div",{class:"cards"},list.map(function(n){return card(by[n]);}))));
+  });
+}
+
+/* ---------- table ---------- */
+function statusCell(t){
+  var cls="pill "+(SCLS[t.status]||"idle");
+  if(!canEdit(t))return h("span",{class:cls,text:t.status||"—"});
+  var sel=h("select",{class:cls+" pill-sel","aria-label":"Status of "+(t.task||"task"),onchange:function(){changeStatus(t,sel);}});
+  STATUS.forEach(function(s){sel.append(h("option",{value:s,text:s}));});
+  if(STATUS.indexOf(t.status)<0)sel.append(h("option",{value:t.status,text:t.status}));
+  sel.value=t.status;return sel;
+}
+function changeStatus(t,sel){
+  var v=sel.value;if(v===t.status||!sb)return;
+  sel.disabled=true;
+  updTask(t.id,{status:v}).then(function(){
+    t.status=v;var ch=false;if(S.f.status&&S.f.status!==v){S.f.status="";ch=true;}
+    flashId=t.id;flashAt=Date.now();
+    if(v==="Delayed"&&!t.reason)focusReq={tid:t.id,field:"reason"};
+    toast(v==="Delayed"&&!t.reason?"Marked Delayed. Write the reason in the row below the task.":"Status set to "+v+(ch?". Status filter cleared so the task stays in view.":""));render();
+  }).catch(function(e){toast(writeError(e),true);render();});
+}
+/* Inline cells save when you leave the field or press Enter. */
+function commitField(t,field,inp){
+  if(rebuilding||!sb||inp.disabled)return;
+  var v=field==="actual"?num(inp.value):inp.value.trim();
+  if(v===t[field]){inp.value=field==="actual"?fmt(t.actual):t.reason;return;}
+  var patch={};patch[field]=v;inp.disabled=true;
+  updTask(t.id,patch).then(function(){t[field]=v;toast(field==="actual"?"Actual hours saved":"Reason saved");render();})
+    .catch(function(e){toast(writeError(e),true);render();});
+}
+function inlineInput(t,field,props){
+  props["data-tid"]=t.id;props["data-field"]=field;
+  var inp=h("input",props);
+  inp.addEventListener("blur",function(){commitField(t,field,inp);});
+  inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();inp.blur();}else if(ev.key==="Escape"){inp.value=field==="actual"?fmt(t.actual):t.reason;inp.blur();}});
+  return inp;
+}
+function renderTable(rows){
+  var host=$("tableHost"),ae=document.activeElement,keep=null;
+  if(ae&&host.contains(ae)&&ae.getAttribute("data-tid")){keep={tid:ae.getAttribute("data-tid"),field:ae.getAttribute("data-field"),value:ae.value};}
+  rebuilding=true;
+  try{buildTable(host,rows);}finally{rebuilding=false;}
+  var want=focusReq||keep;focusReq=null;
+  if(want){Array.prototype.some.call(host.querySelectorAll("[data-tid]"),function(n){
+    if(n.getAttribute("data-tid")!==want.tid||n.getAttribute("data-field")!==want.field)return false;
+    if(want.value!=null)n.value=want.value;n.focus();return true;});}
+}
+function buildTable(host,rows){
+  clear(host);
+  $("tableSub").textContent=S.tasksLoaded?rows.length+" of "+S.tasks.length+" tasks shown":"";
+  if(!S.tasksLoaded){host.append(h("div",{class:"empty"},h("p",{text:S.conn==="off"?"Tasks will appear here once the shared data is reachable.":"Loading tasks…"})));return;}
+  if(!S.tasks.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks logged yet. Each engineer adds a row per task per day: date, project, task, estimated and actual hours, and status."}),
+    canAdd()?h("button",{class:"btn primary",type:"button",onclick:function(){openTask(null);}},"+ Add the first task"):null));return;}
+  var hidden=S.tasks.length-rows.length;
+  if(hidden>0)host.append(h("div",{class:"notice"},h("span",{text:hidden+(hidden===1?" task is":" tasks are")+" hidden by your filters: "+activeFilters().join(" · ")}),
+    h("button",{class:"btn small",type:"button",onclick:clearFilters},"Show all tasks")));
+  if(!rows.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks match these filters."})));return;}
+  var flashing=flashId&&Date.now()-flashAt<4000;
+  var sorted=rows.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:String(a.engineer).localeCompare(String(b.engineer));});
+  var head=["Date","Engineer","Project","Disc.","Task",["Est. h","r"],["Actual h","r"],["Remaining h","r"],"Status",""];
+  var tb=h("tbody");
+  sorted.forEach(function(t){
+    var ov=overrun(t);
+    var delayed=t.status==="Delayed",fl=flashing&&t.id===flashId?" flash":"";
+    tb.append(h("tr",{class:((delayed?"is-delayed has-sub":"")+fl).trim()||null},
+      h("td",{class:"nowrap num"},niceDate(t.date),h("span",{class:"sub",text:dayName(t.date)})),
+      h("td",{class:"nowrap"},h("strong",{text:t.engineer||"—"})),
+      h("td",{class:"nowrap"},t.project?h("span",{class:"tag",text:t.project}):"—"),
+      h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
+      h("td",{class:"task",text:t.task||""}),
+      h("td",{class:"r num",text:fmt(num(t.est))}),
+      h("td",{class:"r num"},canEdit(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:fmt(num(t.actual)),"aria-label":"Actual hours for "+(t.task||"task")}):fmt(num(t.actual))),
+      h("td",{class:"r num"},fmt(remaining(t)),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
+      h("td",null,statusCell(t)),
+      h("td",{class:"r"},canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null)));
+    if(delayed)tb.append(h("tr",{class:("subrow is-delayed"+fl)},h("td",{colspan:"10"},h("div",{class:"reason-line"},
+      h("span",{class:"label",text:"Reason for delay"}),
+      canEdit(t)?inlineInput(t,"reason",{class:"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:"Write why this task is delayed","aria-label":"Reason for delay for "+(t.task||"task")})
+        :h("span",{class:"reason-text",text:t.reason||"No reason written yet."})))));
+  });
+  host.append(h("div",{class:"tablewrap"},h("table",null,
+    h("thead",null,h("tr",null,head.map(function(c){return Array.isArray(c)?h("th",{class:c[1],text:c[0]}):h("th",{text:c});}))),tb)));
+}
+
+/* ---------- dashboard ---------- */
+var STACK=[["Completed","done"],["In Progress","prog"],["On Hold","hold"],["Not Started","todo"],["Delayed","late"]];
+function hideTip(){$("tip").hidden=true;}
+function tipOn(el,strong,rest){
+  function show(){var t=clear($("tip"));t.append(h("strong",{text:strong}),h("span",{text:" "+rest}));t.hidden=false;
+    var r=el.getBoundingClientRect(),x=Math.min(Math.max(8,r.left+r.width/2-t.offsetWidth/2),window.innerWidth-t.offsetWidth-8),y=r.top-t.offsetHeight-8;
+    if(y<4)y=r.bottom+8;t.style.left=x+"px";t.style.top=y+"px";}
+  el.addEventListener("pointerenter",show);el.addEventListener("focus",show);el.addEventListener("pointerleave",hideTip);el.addEventListener("blur",hideTip);
+}
+function summarize(tasks){var o={n:tasks.length,est:0,act:0,rem:0,by:{}};
+  tasks.forEach(function(t){o.est+=num(t.est);o.act+=num(t.actual);o.rem+=remaining(t);o.by[t.status]=(o.by[t.status]||0)+1;});return o;}
+function kpi(label,value,alert){return h("div",{class:"kpi"+(alert?" alert":"")},h("span",{text:label}),h("b",{text:value}));}
+function hoursRow(label,value,scale,cls){
+  var w=scale>0&&value>0?Math.max(1.5,value/scale*100):0;
+  var bar=h("i",{class:"hb "+cls,style:"width:"+w+"%",tabindex:"0","aria-label":label+" "+fmt(value)+" hours"});
+  tipOn(bar,fmt(value)+" h",label.toLowerCase());
+  return h("div",{class:"hrow"},h("span",{class:"hl",text:label}),h("div",{class:"ht"},bar),h("span",{class:"hv num",text:fmt(value)+" h"}));
+}
+function panel(o){
+  var m=summarize(o.tasks),done=m.by["Completed"]||0,late=m.by["Delayed"]||0,pct=m.n?Math.round(done/m.n*100):0,over=Math.max(0,m.act-m.est);
+  var stack=h("div",{class:"stack"}),counts=h("div",{class:"counts"});
+  STACK.forEach(function(s){var c=m.by[s[0]]||0;if(!c)return;
+    var seg=h("i",{class:"seg-"+s[1],style:"flex:"+c+" 1 0",tabindex:"0","aria-label":c+" "+s[0]});
+    tipOn(seg,c+(c===1?" task":" tasks"),s[0]+" · "+Math.round(c/m.n*100)+"%");stack.append(seg);
+    counts.append(h("span",null,h("i",{class:"sw seg-"+s[1]}),c+" "+s[0]));});
+  return h("article",{class:"panel"},
+    h("div",{class:"card-top"},h("h3",{class:"panel-t",text:o.title}),o.code?h("span",{class:"code",text:o.code}):null),
+    o.sub||null,
+    h("div",{class:"kpis"},kpi("Tasks",String(m.n)),kpi("Completed",m.n?pct+"%":"–"),kpi("Delayed",String(late),late>0)),
+    m.n?h("div",{class:"pblock"},h("span",{class:"plabel",text:"Status"}),stack,counts):h("p",{class:"card-none",text:"No tasks in this view."}),
+    m.n?h("div",{class:"pblock"},h("span",{class:"plabel",text:"Hours"}),hoursRow("Estimated",m.est,o.scale,"est"),hoursRow("Actual",m.act,o.scale,"act"),
+      h("div",{class:"hn"},h("span",{text:fmt(m.rem)+" h remaining"}),over>0?h("span",{class:"overtxt",text:"Over estimate by "+fmt(over)+" h"}):null)):null,
+    m.n&&o.open?h("button",{class:"btn small pbtn",type:"button",onclick:o.open},"View tasks"):null);
+}
+function openInTracker(key,value){S.view="tracker";saveView();setFilter(key,value);window.scrollTo(0,0);}
+function renderDash(rows){
+  hideTip();
+  var f=S.f,lg=clear($("dashLegend")),dd=clear($("dashDisc")),de=clear($("dashEng"));
+  lg.append(h("span",{class:"plabel",text:"Status"}));
+  STACK.forEach(function(s){lg.append(h("span",null,h("i",{class:"sw seg-"+s[1]}),s[0]));});
+  var scope=activeFilters();$("discSub").textContent=scope.length?scope.join(" · "):"All projects, all dates";
+  if(!S.tasksLoaded){var msg=S.conn==="off"?"The dashboard fills in once the shared data is reachable.":"Loading the dashboard…";
+    dd.append(h("div",{class:"empty"},h("p",{text:msg})));$("engSub").textContent="";return;}
+  /* by discipline */
+  var groups=DISC.filter(function(d){return !f.discipline||d.k===f.discipline;}).map(function(d){return {d:d,tasks:rows.filter(function(t){return t.discipline===d.k;})};});
+  var scale=0;groups.forEach(function(g){var m=summarize(g.tasks);scale=Math.max(scale,m.est,m.act);});
+  var grid=h("div",{class:"dgrid"});
+  groups.forEach(function(g){var names={};g.tasks.forEach(function(t){names[t.engineer]=1;});
+    var total=S.settings.engineers.filter(function(e){return e.discipline===g.d.k;}).length,active=Object.keys(names).length;
+    grid.append(panel({title:g.d.k,code:g.d.c,tasks:g.tasks,scale:scale,
+      sub:h("p",{class:"psub",text:total+(total===1?" engineer":" engineers")+" · "+active+" with tasks in this view"}),
+      open:function(){openInTracker("discipline",g.d.k);}}));});
+  dd.append(grid);
+  /* by engineer */
+  var by={},order=[];
+  rows.forEach(function(t){if(!t.engineer)return;if(!by[t.engineer]){by[t.engineer]={name:t.engineer,discipline:t.discipline,tasks:[]};order.push(t.engineer);}by[t.engineer].tasks.push(t);});
+  if(!(f.project||f.status||f.from||f.to)){S.settings.engineers.forEach(function(e){
+    if(f.discipline&&e.discipline!==f.discipline)return;if(f.engineer&&e.name!==f.engineer)return;
+    if(!by[e.name]){by[e.name]={name:e.name,discipline:e.discipline,tasks:[]};order.push(e.name);}});}
+  $("engSub").textContent=order.length?order.length+(order.length===1?" engineer":" engineers"):"";
+  if(!order.length){de.append(h("div",{class:"empty"},h("p",{text:"No engineer has tasks for these filters."})));return;}
+  var escale=0;order.forEach(function(n){var m=summarize(by[n].tasks);escale=Math.max(escale,m.est,m.act);});
+  DISC.map(function(d){return d.k;}).concat([""]).forEach(function(dk){
+    var list=order.filter(function(n){var d=by[n].discipline||"";return dk?d===dk:!DISC.some(function(x){return x.k===d;});});
+    if(!list.length)return;
+    list.sort(function(a,b){return by[b].tasks.length-by[a].tasks.length||a.localeCompare(b);});
+    de.append(h("div",{class:"group"},h("div",{class:"group-h"},h("span",{class:"label",text:(dk||"Other")+" · "+list.length})),
+      h("div",{class:"dgrid"},list.map(function(n){var e=by[n],projects=[];
+        e.tasks.forEach(function(t){if(t.project&&projects.indexOf(t.project)<0)projects.push(t.project);});
+        return panel({title:e.name,code:discCode(e.discipline),tasks:e.tasks,scale:escale,
+          sub:projects.length?h("div",{class:"tags"},projects.map(function(p){return h("span",{class:"tag",text:p});})):null,
+          open:function(){openInTracker("engineer",e.name);}});}))));
+  });
+}
+/* ---------- management dashboard ---------- */
+var PERIODS=[["all","All time"],["month","Last 30 days"],["week","Last 7 days"],["today","Today"]];
+function inPeriod(t){
+  if(S.period==="all")return true;
+  var d=parseDate(t.date),now=parseDate(today());if(!d)return false;
+  var days=Math.round((now-d)/864e5);
+  return S.period==="today"?days===0:days>=0&&days<(S.period==="week"?7:30);
+}
+function agg(tasks){
+  var m=summarize(tasks);m.done=m.by["Completed"]||0;m.late=m.by["Delayed"]||0;m.doneEst=0;m.over=0;m.overN=0;
+  tasks.forEach(function(t){if(t.status==="Completed")m.doneEst+=num(t.est);var o=overrun(t);if(o>0){m.over+=o;m.overN++;}});
+  m.pct=m.est>0?m.doneEst/m.est*100:(m.n?m.done/m.n*100:0);return m;
+}
+function meter(pct,big,label){
+  var m=h("div",{class:"meter"+(big?" big":""),tabindex:"0","aria-label":label+" "+Math.round(pct)+"%"},h("i",{style:"width:"+Math.max(0,Math.min(100,pct))+"%"}));
+  tipOn(m,Math.round(pct)+"%",label);return m;
+}
+function statusMix(m){
+  var stack=h("div",{class:"stack"}),counts=h("div",{class:"counts"});
+  STACK.forEach(function(s){var c=m.by[s[0]]||0;if(!c)return;
+    var seg=h("i",{class:"seg-"+s[1],style:"flex:"+c+" 1 0",tabindex:"0","aria-label":c+" "+s[0]});
+    tipOn(seg,c+(c===1?" task":" tasks"),s[0]+" · "+Math.round(c/m.n*100)+"%");stack.append(seg);
+    counts.append(h("span",null,h("i",{class:"sw seg-"+s[1]}),c+" "+s[0]));});
+  return [stack,counts];
+}
+function projectPanel(name,tasks){
+  var m=agg(tasks),eng={},mix=statusMix(m),tb=h("tbody");
+  tasks.forEach(function(t){if(t.engineer)eng[t.engineer]=1;});
+  DISC.forEach(function(d){var dt=tasks.filter(function(t){return t.discipline===d.k;});if(!dt.length)return;var a=agg(dt);
+    tb.append(h("tr",null,h("td",{class:"nowrap"},titleCase(d.k)),
+      h("td",null,h("div",{class:"mcell"},meter(a.pct,false,name+" "+titleCase(d.k)+" progress"),h("span",{class:"num",text:Math.round(a.pct)+"%"}))),
+      h("td",{class:"r num",text:fmt(a.est)}),h("td",{class:"r num",text:fmt(a.act)}),h("td",{class:"r num",text:fmt(a.rem)}),
+      h("td",{class:"r"},a.late?h("span",{class:"pill bad",text:String(a.late)}):h("span",{class:"num",text:"0"}))));});
+  return h("article",{class:"panel proj"},
+    h("div",{class:"card-top"},h("h3",{class:"proj-t",text:name}),
+      m.late?h("span",{class:"pill bad",text:m.late+(m.late===1?" delayed task":" delayed tasks")}):h("span",{class:"pill ok",text:"No delayed tasks"})),
+    h("div",{class:"prog"},h("div",{class:"prog-top"},h("span",{class:"plabel",text:"Progress"}),h("b",{class:"prog-pct",text:Math.round(m.pct)+"%"})),
+      meter(m.pct,true,name+" progress"),
+      h("p",{class:"psub",text:fmt(m.doneEst)+" of "+fmt(m.est)+" estimated hours completed · "+m.done+" of "+m.n+" tasks"})),
+    h("div",{class:"kpis k4"},kpi("Estimated",fmt(m.est)+" h"),kpi("Actual",fmt(m.act)+" h"),kpi("Remaining",fmt(m.rem)+" h"),kpi("Engineers",String(Object.keys(eng).length))),
+    m.over>0?h("p",{class:"overnote",text:fmt(m.over)+" h over estimate on "+m.overN+(m.overN===1?" task":" tasks")}):null,
+    h("div",{class:"pblock"},h("span",{class:"plabel",text:"Task status"}),mix[0],mix[1]),
+    h("div",{class:"pblock"},h("span",{class:"plabel",text:"By discipline"}),h("div",{class:"mini"},h("table",{class:"plain"},
+      h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Progress"}),h("th",{class:"r",text:"Est. h"}),h("th",{class:"r",text:"Actual h"}),h("th",{class:"r",text:"Rem. h"}),h("th",{class:"r",text:"Delayed"}))),tb))));
+}
+function renderMgmt(){
+  hideTip();
+  var seg=clear($("mPeriod"));
+  PERIODS.forEach(function(p){seg.append(h("button",{type:"button","aria-pressed":String(S.period===p[0]),onclick:function(){S.period=p[0];render();}},p[1]));});
+  var label="";PERIODS.forEach(function(p){if(p[0]===S.period)label=p[1];});
+  $("mAsOf").textContent="Management dashboard · "+label+" · as of "+niceDate(today());
+  var st=clear($("mStats")),mp=clear($("mProjects")),md=clear($("mDelays"));$("mDelaySub").textContent="";
+  if(!S.tasksLoaded){mp.append(h("div",{class:"empty"},h("p",{text:S.conn==="off"?"The dashboard fills in once the shared data is reachable.":"Loading the dashboard…"})));return;}
+  var rows=S.tasks.filter(inPeriod),m=agg(rows),names=allProjects().filter(function(p){return rows.some(function(t){return t.project===p;});});
+  st.append(
+    h("div",{class:"stat hero"},h("span",{class:"label",text:"Overall progress"}),h("b",{text:Math.round(m.pct)+"%"}),meter(m.pct,false,"Overall progress"),
+      h("small",{text:fmt(m.doneEst)+" of "+fmt(m.est)+" est. hours completed"})),
+    stat("Estimated",fmt(m.est),"h",m.n+(m.n===1?" task":" tasks")+" · "+names.length+(names.length===1?" project":" projects")),
+    stat("Actual",fmt(m.act),"h",m.est>0?Math.round(m.act/m.est*100)+"% of estimate":"no estimate yet"),
+    stat("Remaining",fmt(m.rem),"h","on open tasks"),
+    stat("Delayed tasks",String(m.late),"",m.over>0?fmt(m.over)+" h over estimate":"no hours over estimate",m.late>0));
+  if(!rows.length){mp.append(h("div",{class:"empty"},h("p",{text:S.tasks.length?"No tasks are logged in this period.":"No tasks logged yet. Progress appears here as engineers log their tasks."})));
+    md.append(h("div",{class:"empty"},h("p",{text:"No delayed tasks."})));return;}
+  var grid=h("div",{class:"pgrid"});
+  names.forEach(function(p){grid.append(projectPanel(p,rows.filter(function(t){return t.project===p;})));});
+  var loose=rows.filter(function(t){return !t.project;});if(loose.length)grid.append(projectPanel("No project",loose));
+  mp.append(grid);
+  var late=rows.filter(function(t){return t.status==="Delayed";}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+  $("mDelaySub").textContent=late.length?late.length+(late.length===1?" task":" tasks")+", oldest first":"";
+  if(!late.length){md.append(h("div",{class:"empty"},h("p",{text:"No delayed tasks in this period."})));return;}
+  var tb=h("tbody");
+  late.forEach(function(t){var ov=overrun(t);tb.append(h("tr",{class:"is-delayed"},
+    h("td",{class:"nowrap num"},niceDate(t.date)),
+    h("td",{class:"nowrap"},t.project?h("span",{class:"tag",text:t.project}):"—"),
+    h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
+    h("td",{class:"nowrap"},h("strong",{text:t.engineer||"—"})),
+    h("td",{class:"task",text:t.task||""}),
+    h("td",{class:"r num",text:fmt(num(t.est))}),h("td",{class:"r num",text:fmt(num(t.actual))}),
+    h("td",{class:"r num",text:ov>0?fmt(ov)+" h":"—"}),
+    h("td",{class:"why",text:t.reason||"No reason written yet"})));});
+  md.append(h("div",{class:"tablewrap"},h("table",{class:"plain"},h("thead",null,h("tr",null,
+    ["Date","Project","Disc.","Engineer","Task",["Est. h","r"],["Actual h","r"],["Over by","r"],"Reason for delay"].map(function(c){return Array.isArray(c)?h("th",{class:c[1],text:c[0]}):h("th",{text:c});}))),tb)));
+}
+function saveView(){try{localStorage.setItem("stt.view",S.view);}catch(e){}}
+function setView(v){S.view=v;saveView();render();}
+
+function render(){
+  renderFilters();
+  if(S.view==="management"&&!editAll())S.view="tracker";
+  var rows=S.tasks.filter(match),v=S.view;
+  $("tabMgmt").hidden=!editAll();$("btnUsers").hidden=!isAdmin();
+  $("viewTracker").hidden=v!=="tracker";$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
+  $("filtersBox").hidden=v==="management";$("stats").hidden=v==="management";
+  $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
+  if(v==="management")renderMgmt();
+  else{renderStats(rows);if(v==="dashboard")renderDash(rows);else{renderBoard(rows);renderTable(rows);}}
+  $("btnAdd").hidden=!canAdd();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
+  var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
+  $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
+}
+function clearFilters(){S.f={project:"",discipline:"",engineer:"",status:"",from:"",to:""};saveFilters();render();}
+
+/* ---------- task dialog ---------- */
+function fillSelect(sel,values,current,placeholder){
+  clear(sel);if(placeholder)sel.append(h("option",{value:"",text:placeholder}));
+  values.forEach(function(v){sel.append(h("option",{value:v,text:v}));});
+  if(current&&values.indexOf(current)<0)sel.append(h("option",{value:current,text:current}));
+  sel.value=current||"";
+}
+function syncEngineerOptions(current){
+  var d=$("f-discipline").value,names=[];
+  S.settings.engineers.forEach(function(e){if(e.discipline===d)names.push(e.name);});
+  fillSelect($("f-engineer"),names,current&&(names.indexOf(current)>=0||editing)?current:"","Select engineer");
+}
+function syncDerived(){
+  $("f-day").textContent=dayName($("f-date").value)||"—";
+  var st=$("f-status").value,est=num($("f-est").value),act=num($("f-actual").value);
+  var rem=st==="Completed"?0:Math.max(0,est-act),ov=Math.max(0,act-est);
+  $("f-remaining").textContent=fmt(rem)+" h"+(ov>0?"  (over by "+fmt(ov)+" h)":"");
+  $("reasonLabel").textContent=st==="Delayed"?"Reason for delay (required)":"Reason for delay";
+}
+function openTask(t,preset){
+  editing=t;deleteArmed=false;$("taskErr").textContent="";
+  $("taskTitle").textContent=t?"Edit task":"Add task";
+  $("btnDelete").hidden=!t;$("btnDelete").textContent="Delete";
+  $("f-date").value=t?t.date:today();
+  var disc=t?t.discipline:(S.f.discipline||(S.f.engineer&&engineerDisc(S.f.engineer))||"STRUCTURE");
+  fillSelect($("f-discipline"),DISC.map(function(d){return d.k;}),disc);
+  syncEngineerOptions(t?t.engineer:S.f.engineer);
+  var own=!editAll()&&me&&me.engineer;
+  if(own&&!t){fillSelect($("f-discipline"),DISC.map(function(d){return d.k;}),engineerDisc(me.engineer)||disc);syncEngineerOptions(me.engineer);$("f-engineer").value=me.engineer;
+    if($("f-engineer").value!==me.engineer){$("f-engineer").append(h("option",{value:me.engineer,text:me.engineer}));$("f-engineer").value=me.engineer;}}
+  $("f-discipline").disabled=!!own;$("f-engineer").disabled=!!own;
+  fillSelect($("f-project"),S.settings.projects,t?t.project:S.f.project,"Select project");
+  $("f-task").value=t?(t.task||""):"";
+  $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";
+  fillSelect($("f-status"),STATUS,preset||(t?t.status:"Not Started"));
+  $("f-reason").value=t?(t.reason||""):"";
+  syncDerived();$("taskDlg").showModal();
+}
+function writeError(e){
+  var m=(e&&e.message)||"",c=(e&&e.code)||"";
+  if(e&&e.plain)return m;
+  if(c==="42501"||c==="PGRST116"||/row-level security/i.test(m))return "You do not have permission for this. Engineers can change only the tasks under their own name.";
+  if(/JWT|not authenticated|session/i.test(m))return "Your session ended. Sign in again.";
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m))return "No connection. Check the internet and try again.";
+  return "Could not save: "+(m||"unknown error");
+}
+function saveTask(ev){
+  ev.preventDefault();if(busy||!sb)return;
+  var d={date:$("f-date").value,discipline:$("f-discipline").value,engineer:$("f-engineer").value,project:$("f-project").value,
+    task:$("f-task").value.trim(),est:num($("f-est").value),actual:num($("f-actual").value),status:$("f-status").value,
+    reason:$("f-reason").value.trim()};
+  var err="";
+  if(!parseDate(d.date))err="Pick the date.";
+  else if(!d.engineer)err="Select the engineer.";
+  else if(!d.project)err="Select the project.";
+  else if(!d.task)err="Describe the task.";
+  else if(d.status==="Delayed"&&!d.reason)err="Add the reason for the delay.";
+  if(err){$("taskErr").textContent=err;return;}
+  busy=true;$("btnSave").disabled=true;$("taskErr").textContent="";
+  var cur=editing,p=run(cur?sb.from("tt_tasks").update(d).eq("id",cur.id).select().single():sb.from("tt_tasks").insert(d).select().single());
+  p.then(function(saved){
+    var t=row2task(saved);upsertLocal(t);
+    var ch=revealTask(t);flashId=t.id;flashAt=Date.now();
+    $("taskDlg").close();toast((cur?"Task updated":"Task added")+(ch?". Filters were loosened so you can see it.":""));render();})
+   .catch(function(e){$("taskErr").textContent=writeError(e);})
+   .then(function(){busy=false;$("btnSave").disabled=false;});
+}
+function deleteTask(){
+  if(!editing||busy||!sb)return;
+  if(!deleteArmed){deleteArmed=true;$("btnDelete").textContent="Click again to delete";return;}
+  busy=true;var id=editing.id;
+  run(sb.from("tt_tasks").delete().eq("id",id).select()).then(function(rows){
+    if(!rows||!rows.length)throw {code:"42501",message:"row-level security"};
+    dropLocal(id);$("taskDlg").close();toast("Task deleted");render();})
+    .catch(function(e){$("taskErr").textContent=writeError(e);})
+    .then(function(){busy=false;});
+}
+
+/* ---------- loading and live updates ---------- */
+function loadSettings(){
+  return Promise.all([run(sb.from("tt_projects").select("name,sort").order("sort").order("name")),
+                      run(sb.from("tt_engineers").select("name,discipline,sort").order("sort").order("name"))]).then(function(r){
+    S.settings={projects:(r[0]||[]).map(function(p){return String(p.name);}),
+                engineers:(r[1]||[]).map(function(e){return {name:String(e.name),discipline:String(e.discipline||"")};})};
+    S.settingsLoaded=true;});
+}
+function loadTasks(){
+  var out=[],size=1000;
+  function page(from){
+    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,est,actual,status,reason").order("date",{ascending:false}).order("id").range(from,from+size-1))
+      .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});
+  }
+  return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
+}
+function loadAll(){return Promise.all([loadTasks(),loadSettings()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
+function refresh(){if(!sb||!me||document.hidden)return;loadAll().catch(function(){S.conn="off";render();});}
+function settingsChanged(){loadSettings().then(function(){render();if($("teamDlg").open)renderTeam();}).catch(function(){});}
+function subscribe(){
+  unsubscribe();
+  try{
+    chan=sb.channel("tt-live")
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_tasks"},function(p){
+        if(p.eventType==="DELETE"){if(p.old&&p.old.id)dropLocal(String(p.old.id));}
+        else if(p["new"]&&p["new"].id)upsertLocal(row2task(p["new"]));
+        render();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
+      .subscribe();
+  }catch(e){chan=null;}
+  pollTimer=setInterval(refresh,90000);
+}
+function unsubscribe(){
+  if(chan){try{sb.removeChannel(chan);}catch(e){}chan=null;}
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+}
+
+/* ---------- team dialog ---------- */
+function renderTeam(){
+  var pc=clear($("projChips"));
+  if(!S.settings.projects.length)pc.append(h("span",{class:"hint",text:"No projects yet."}));
+  S.settings.projects.forEach(function(p){pc.append(h("span",{class:"chip"},p,h("button",{type:"button","aria-label":"Remove project "+p,onclick:function(){
+    teamOp(sb.from("tt_projects").delete().eq("name",p));}},"×")));});
+  var el=clear($("engLists"));
+  DISC.forEach(function(d){
+    var list=S.settings.engineers.filter(function(e){return e.discipline===d.k;});
+    el.append(h("div",{class:"team-disc"},h("span",{class:"code",text:d.k}),
+      h("div",{class:"chips"},list.length?list.map(function(e){return h("span",{class:"chip"},e.name,h("button",{type:"button","aria-label":"Remove "+e.name,onclick:function(){
+        teamOp(sb.from("tt_engineers").delete().eq("name",e.name));}},"×"));})
+        :h("span",{class:"hint",text:"No engineers yet."}))));
+  });
+}
+function teamOp(q){
+  if(busy||!sb)return;
+  busy=true;$("teamErr").textContent="";
+  run(q).then(loadSettings).then(function(){renderTeam();render();})
+    .catch(function(e){$("teamErr").textContent=writeError(e);})
+    .then(function(){busy=false;});
+}
+
+/* ---------- export ---------- */
+function csvCell(v){var s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function exportCsv(){
+  var rows=S.tasks.filter(match).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:String(a.engineer).localeCompare(String(b.engineer));});
+  if(!rows.length){toast("There are no tasks in this view to export.",true);return;}
+  var lines=[["Date","Day","Engineer","Discipline","Project","Task","Estimated Hours","Actual Hours","Remaining Hours","Status","Reason for Delay"].join(",")];
+  rows.forEach(function(t){lines.push([t.date,dayName(t.date),t.engineer,t.discipline,t.project,t.task,fmt(num(t.est)),fmt(num(t.actual)),fmt(remaining(t)),t.status,t.reason].map(csvCell).join(","));});
+  var name="ibims-tasks-"+(S.f.project||"all-projects").toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+today()+".csv";
+  var url=URL.createObjectURL(new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));
+  var a=h("a",{href:url,download:name});document.body.append(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1500);toast("CSV downloaded");
+}
+
+/* ---------- users (admin) ---------- */
+function userMsg(ok,err){$("usersOk").textContent=ok||"";$("usersErr").textContent=err||"";}
+function loadUsers(){return run(sb.from("tt_users").select("email,full_name,role,engineer,active").order("email")).then(function(d){users=d||[];});}
+function engOptions(sel,current){
+  clear(sel);sel.append(h("option",{value:"",text:"Not linked"}));
+  S.settings.engineers.forEach(function(e){sel.append(h("option",{value:e.name,text:e.name+" ("+discCode(e.discipline)+")"}));});
+  if(current&&!S.settings.engineers.some(function(e){return e.name===current;}))sel.append(h("option",{value:current,text:current}));
+  sel.value=current||"";
+}
+/* Creates the login with the normal sign-up call on a throwaway client, so the admin stays signed in. */
+function createLogin(email,pw){
+  var tmp=window.supabase.createClient(CFG.url.replace(/\/+$/,""),CFG.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:"tt-admin-tmp"}});
+  return tmp.auth.signUp({email:email,password:pw}).then(function(r){
+    if(r.error){
+      var msg=(r.error.message||"")+" "+(r.error.code||"");
+      if(/already registered|already been registered|user_already_exists|email_exists/i.test(msg))return "exists";
+      if(/signup_disabled|signups? (are |is )?(not allowed|disabled)/i.test(msg))throw {plain:true,message:"Sign-ups are switched off in Supabase. Turn on \"Allow new users to sign up\" under Authentication > Sign In / Providers, then try again."};
+      if(/rate limit|rate_limit/i.test(msg))throw {plain:true,message:"Supabase blocked this because it tried to send a confirmation email. Turn off \"Confirm email\" under Authentication > Sign In / Providers > Email, wait a few minutes, then try again."};
+      throw {plain:true,message:"Supabase did not create the login: "+(r.error.message||"unknown error")};
+    }
+    var u=r.data&&r.data.user;
+    try{tmp.auth.signOut();}catch(e){}
+    return (u&&Array.isArray(u.identities)&&u.identities.length===0)?"exists":"created";
+  });
+}
+function addUser(ev){
+  ev.preventDefault();if(busy||!sb)return;userMsg();
+  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=$("uEng").value||null;
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){userMsg("","Enter a valid email address.");return;}
+  if(pw.length<6){userMsg("","The password must be at least 6 characters.");return;}
+  if(role==="engineer"&&!eng){userMsg("","Pick which engineer name this login belongs to. If the name is not in the list, add it under Team & projects first.");return;}
+  busy=true;$("btnUserAdd").disabled=true;var state="";
+  createLogin(email,pw)
+    .then(function(st){state=st;return run(sb.from("tt_users").upsert({email:email,full_name:name,role:role,engineer:eng,active:true}).select().single());})
+    .then(function(){return run(sb.rpc("tt_admin_confirm_email",{target_email:email}));})
+    .then(function(){return state==="exists"?run(sb.rpc("tt_admin_set_password",{target_email:email,new_password:pw})):null;})
+    .then(loadUsers)
+    .then(function(){$("userForm").reset();renderUsers();
+      userMsg(state==="exists"?"Updated "+email+". The login already existed; its password is now the one you entered.":"Added "+email+". Give them the email and password.");})
+    .catch(function(e){userMsg("",writeError(e));})
+    .then(function(){busy=false;$("btnUserAdd").disabled=false;});
+}
+function userUpdate(u,patch){
+  userMsg();
+  run(sb.from("tt_users").update(patch).eq("email",u.email).select().single()).then(function(d){
+    for(var k in d)u[k]=d[k];
+    userMsg(u.role==="engineer"&&!u.engineer?"Saved. "+u.email+" has no engineer name linked, so they cannot add tasks yet.":"Saved "+u.email+".");
+    if(me&&u.email===me.email){me=u;paintAccount();render();}
+  }).catch(function(e){userMsg("",writeError(e));renderUsers();});
+}
+function setPassword(u,pw,done){
+  userMsg();
+  if(pw.length<6){userMsg("","The password must be at least 6 characters.");return;}
+  run(sb.rpc("tt_admin_set_password",{target_email:u.email,new_password:pw}))
+    .catch(function(e){
+      if(/No login exists/i.test((e&&e.message)||""))return createLogin(u.email,pw).then(function(){return run(sb.rpc("tt_admin_confirm_email",{target_email:u.email}));});
+      throw e;})
+    .then(function(){done();userMsg("Password set for "+u.email+".");})
+    .catch(function(e){userMsg("",writeError(e));});
+}
+function userDelete(u){
+  userMsg();
+  run(sb.rpc("tt_admin_delete_user",{target_email:u.email})).then(loadUsers)
+    .then(function(){renderUsers();userMsg("Deleted "+u.email+".");})
+    .catch(function(e){userMsg("",writeError(e));renderUsers();});
+}
+function renderUsers(){
+  engOptions($("uEng"),$("uEng").value);
+  var host=clear($("usersList")),tb=h("tbody");
+  users.forEach(function(u){
+    var self=!!me&&u.email===me.email;
+    var role=h("select",{"aria-label":"Role for "+u.email,disabled:self});
+    ["engineer","manager","admin"].forEach(function(r){role.append(h("option",{value:r,text:titleCase(r.toUpperCase())}));});role.value=u.role;
+    role.addEventListener("change",function(){userUpdate(u,{role:role.value});});
+    var eng=h("select",{"aria-label":"Engineer name for "+u.email});engOptions(eng,u.engineer||"");
+    eng.addEventListener("change",function(){userUpdate(u,{engineer:eng.value||null});});
+    var act=h("input",{type:"checkbox","aria-label":"Active: "+u.email,disabled:self});act.checked=!!u.active;
+    act.addEventListener("change",function(){userUpdate(u,{active:act.checked});});
+    var pw=h("input",{type:"text",placeholder:"New password",autocomplete:"off",maxlength:"72","aria-label":"New password for "+u.email,hidden:true});
+    var pwBtn=h("button",{class:"btn small",type:"button"},"Set password");
+    pwBtn.addEventListener("click",function(){
+      if(pw.hidden){pw.hidden=false;pwBtn.textContent="Save password";pw.focus();return;}
+      setPassword(u,pw.value,function(){pw.value="";pw.hidden=true;pwBtn.textContent="Set password";});});
+    var del=h("button",{class:"btn small danger",type:"button"},"Delete"),armed=false;
+    del.addEventListener("click",function(){if(!armed){armed=true;del.textContent="Click again to delete";return;}userDelete(u);});
+    tb.append(h("tr",null,
+      h("td",null,h("strong",{text:u.email}),h("span",{class:"sub",text:(u.full_name||"")+(self?(u.full_name?" · ":"")+"you":"")})),
+      h("td",null,role),h("td",null,eng),h("td",null,act),
+      h("td",null,h("div",{class:"uact"},pw,pwBtn,self?null:del))));
+  });
+  host.append(h("table",{class:"plain"},h("thead",null,h("tr",null,h("th",{text:"Email"}),h("th",{text:"Role"}),h("th",{text:"Engineer name"}),h("th",{text:"Active"}),h("th",{class:"r",text:"Login"}))),tb));
+}
+function openUsers(){
+  userMsg();clear($("usersList")).append(h("p",{class:"hint",text:"Loading users…"}));$("usersDlg").showModal();
+  loadUsers().then(renderUsers).catch(function(e){userMsg("",writeError(e));});
+}
+
+/* ---------- account + sign in ---------- */
+function paintAccount(){$("acctName").textContent=me?(me.full_name||me.email):"";$("acctRole").textContent=me?me.role:"";}
+function openAccount(){
+  if(!me)return;
+  $("acctInfo").textContent=me.email+" · "+titleCase(me.role.toUpperCase())+(me.engineer?" · "+me.engineer:"");
+  $("newPw").value="";$("pwErr").textContent="";$("pwErr").className="err";$("acctDlg").showModal();
+}
+function changeMyPassword(ev){
+  ev.preventDefault();var pw=$("newPw").value,out=$("pwErr");out.className="err";
+  if(pw.length<6){out.textContent="The password must be at least 6 characters.";return;}
+  sb.auth.updateUser({password:pw}).then(function(r){
+    if(r.error){out.textContent="Could not change the password: "+(r.error.message||"unknown error");return;}
+    $("newPw").value="";out.className="ok-msg";out.textContent="Password changed.";
+  }).catch(function(){out.textContent="No connection. Check the internet and try again.";});
+}
+function showAuth(mode,text,extra){
+  $("appBand").hidden=true;$("appMain").hidden=true;$("authScreen").hidden=false;
+  $("loginForm").hidden=mode!=="login";$("authNote").hidden=mode==="login";
+  $("authNoteText").textContent=text||"";clear($("authNoteExtra"));if(extra)$("authNoteExtra").append(extra);
+  $("btnAuthOut").hidden=mode!=="blocked";
+  if(mode==="login")setTimeout(function(){try{$("loginEmail").focus();}catch(e){}},0);
+}
+function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
+function leave(){
+  me=null;users=[];unsubscribe();S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
+  ["taskDlg","teamDlg","usersDlg","acctDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  $("loginErr").textContent="";showAuth("login");
+}
+function enter(session){
+  var email=String((session&&session.user&&session.user.email)||"").toLowerCase();
+  showAuth("note","Loading…");
+  return run(sb.from("tt_users").select("email,full_name,role,engineer,active").eq("email",email).maybeSingle()).then(function(row){
+    if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
+    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();
+    return loadAll().then(subscribe);
+  }).catch(function(e){
+    var m=(e&&e.message)||"",c=(e&&e.code)||"";
+    if(c==="42P01"||c==="PGRST205"||/does not exist|could not find the table/i.test(m))showAuth("blocked","The database is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then reload this page.");
+    else if(me){S.conn="off";render();toast(writeError(e),true);}
+    else showAuth("blocked","Could not load your account ("+(m||"no connection")+"). Reload the page to try again.");
+  });
+}
+function doLogin(ev){
+  ev.preventDefault();if(!sb)return;
+  var email=$("loginEmail").value.trim().toLowerCase(),pw=$("loginPass").value,out=$("loginErr");out.textContent="";
+  if(!email||!pw){out.textContent="Enter your email and password.";return;}
+  $("btnLogin").disabled=true;
+  sb.auth.signInWithPassword({email:email,password:pw}).then(function(r){
+    if(r.error){var m=(r.error.message||"")+" "+(r.error.code||"");
+      out.textContent=/invalid login|invalid_credentials/i.test(m)?"Wrong email or password.":/not confirmed/i.test(m)?"This login is not confirmed yet. Ask the admin to set your password again.":/fetch|network/i.test(m)?"No connection. Check the internet and try again.":(r.error.message||"Could not sign in.");
+      return null;}
+    $("loginPass").value="";return enter(r.data.session);
+  }).catch(function(){out.textContent="No connection. Check the internet and try again.";})
+    .then(function(){$("btnLogin").disabled=false;});
+}
+
+/* ---------- wiring ---------- */
+function normName(v){return v.trim().replace(/\s+/g," ").toUpperCase();}
+function wire(){
+  fillSelect($("fStatus"),STATUS,"","All statuses");
+  fillSelect($("newEngDisc"),DISC.map(function(d){return d.k;}),"STRUCTURE");
+  $("fEngineer").addEventListener("change",function(e){setFilter("engineer",e.target.value);});
+  $("fStatus").addEventListener("change",function(e){setFilter("status",e.target.value);});
+  $("fFrom").addEventListener("change",function(e){setFilter("from",e.target.value);});
+  $("fTo").addEventListener("change",function(e){setFilter("to",e.target.value);});
+  $("btnToday").addEventListener("click",function(){S.f.from=today();S.f.to=today();saveFilters();render();});
+  $("btnClear").addEventListener("click",clearFilters);
+  $("btnAdd").addEventListener("click",function(){openTask(null);});
+  $("tabTracker").addEventListener("click",function(){setView("tracker");});
+  $("tabDash").addEventListener("click",function(){setView("dashboard");});
+  $("tabMgmt").addEventListener("click",function(){setView("management");});
+  window.addEventListener("scroll",hideTip,true);
+  $("btnExport").addEventListener("click",exportCsv);
+  $("btnTeam").addEventListener("click",function(){$("teamErr").textContent="";renderTeam();$("teamDlg").showModal();});
+  $("btnTeamClose").addEventListener("click",function(){$("teamDlg").close();});
+  $("btnCancel").addEventListener("click",function(){$("taskDlg").close();});
+  $("btnDelete").addEventListener("click",deleteTask);
+  $("taskForm").addEventListener("submit",saveTask);
+  $("f-discipline").addEventListener("change",function(){syncEngineerOptions("");});
+  ["f-date","f-est","f-actual","f-status"].forEach(function(id){$(id).addEventListener("input",syncDerived);$(id).addEventListener("change",syncDerived);});
+  $("projForm").addEventListener("submit",function(ev){ev.preventDefault();var v=normName($("newProject").value);if(!v)return;
+    if(S.settings.projects.indexOf(v)>=0){$("teamErr").textContent=v+" is already in the list.";return;}
+    teamOp(sb.from("tt_projects").insert({name:v,sort:S.settings.projects.length}));$("newProject").value="";});
+  $("engForm").addEventListener("submit",function(ev){ev.preventDefault();var v=normName($("newEngineer").value),d=$("newEngDisc").value;if(!v)return;
+    if(S.settings.engineers.some(function(e){return e.name===v;})){$("teamErr").textContent=v+" is already in the list.";return;}
+    teamOp(sb.from("tt_engineers").insert({name:v,discipline:d,sort:S.settings.engineers.length}));$("newEngineer").value="";});
+  $("loginForm").addEventListener("submit",doLogin);
+  $("btnAuthOut").addEventListener("click",function(){if(sb)sb.auth.signOut().then(leave,leave);});
+  $("btnAccount").addEventListener("click",openAccount);
+  $("btnAcctClose").addEventListener("click",function(){$("acctDlg").close();});
+  $("pwForm").addEventListener("submit",changeMyPassword);
+  $("btnSignOut").addEventListener("click",function(){$("acctDlg").close();sb.auth.signOut().then(leave,leave);});
+  $("btnUsers").addEventListener("click",openUsers);
+  $("btnUsersClose").addEventListener("click",function(){$("usersDlg").close();});
+  $("userForm").addEventListener("submit",addUser);
+}
+
+function start(){
+  loadFilters();
+  try{var sv=localStorage.getItem("stt.view");if(sv==="dashboard"||sv==="management")S.view=sv;}catch(e){}
+  wire();
+  if(CFG.url.indexOf("YOUR-PROJECT")>=0||CFG.key.indexOf("YOUR-ANON")>=0){
+    showAuth("note","This copy of the tracker is not connected to its database yet.",h("ol",null,
+      h("li",null,"In Supabase, run ",h("code",{text:"supabase-setup.sql"})," in the SQL Editor."),
+      h("li",null,"Open this file in a text editor and find ",h("code",{text:"CONNECTION SETTINGS"}),"."),
+      h("li",null,"Paste the Project URL and the anon public key from Project Settings > API, save, and upload the file again.")));
+    return;}
+  if(!window.supabase||!window.supabase.createClient){showAuth("note","Could not load the app. Check the internet connection and reload the page.");return;}
+  sb=window.supabase.createClient(CFG.url.replace(/\/+$/,""),CFG.key);
+  sb.auth.onAuthStateChange(function(ev){if(ev==="SIGNED_OUT"&&me)setTimeout(leave,0);});
+  sb.auth.getSession().then(function(r){var s=r&&r.data&&r.data.session;if(s)return enter(s);showAuth("login");return null;})
+    .catch(function(){showAuth("login");});
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)refresh();});
+}
+start();
+})();
+</script>
+
+</body>
+</html>
