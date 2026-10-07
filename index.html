@@ -481,10 +481,10 @@ var SCLS={"Not Started":"idle","In Progress":"info","Completed":"ok","Delayed":"
 var SORDER={"Delayed":0,"In Progress":1,"Not Started":2,"On Hold":3,"Completed":4};
 var S={view:"tracker",period:"all",tasks:[],settings:{projects:[],engineers:[]},tasksLoaded:false,settingsLoaded:false,conn:"wait",canWrite:false,
        f:{project:"",discipline:"",engineer:"",status:"",from:"",to:""}};
-/* ====== CONNECTION SETTINGS: paste your two values from Supabase > Project Settings > API ====== */
+/* ====== CONNECTION SETTINGS: paste your Project URL and your Publishable key (Supabase > Settings > API Keys) ====== */
 var CFG={
-  url:"https://YOUR-PROJECT.supabase.co",
-  key:"YOUR-ANON-PUBLIC-KEY"
+  url:"https://fyvywnjzajlucmouabhi.supabase.co",
+  key:"sb_publishable_m7wC1E8B_lDQ8Lq-nPM0nQ_6J4qM5Jv"
 };
 /* ================================================================================================ */
 var sb=null,me=null,users=[],chan=null,pollTimer=null,editing=null,deleteArmed=false,busy=false,toastTimer=null,flashId="",flashAt=0,rebuilding=false,focusReq=null;
@@ -1239,11 +1239,11 @@ function start(){
   loadFilters();
   try{var sv=localStorage.getItem("stt.view");if(sv==="dashboard"||sv==="management")S.view=sv;}catch(e){}
   wire();
-  if(CFG.url.indexOf("YOUR-PROJECT")>=0||CFG.key.indexOf("YOUR-ANON")>=0){
+  if(CFG.url.indexOf("YOUR-PROJECT")>=0||CFG.key.indexOf("YOUR-PUBLISHABLE")>=0){
     showAuth("note","This copy of the tracker is not connected to its database yet.",h("ol",null,
       h("li",null,"In Supabase, run ",h("code",{text:"supabase-setup.sql"})," in the SQL Editor."),
       h("li",null,"Open this file in a text editor and find ",h("code",{text:"CONNECTION SETTINGS"}),"."),
-      h("li",null,"Paste the Project URL and the anon public key from Project Settings > API, save, and upload the file again.")));
+      h("li",null,"Paste the Project URL and the Publishable key from Settings > API Keys, then save the file and open it again.")));
     return;}
   if(!window.supabase||!window.supabase.createClient){showAuth("note","Could not load the app. Check the internet connection and reload the page.");return;}
   sb=window.supabase.createClient(CFG.url.replace(/\/+$/,""),CFG.key);
