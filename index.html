@@ -234,6 +234,9 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.row-del{margin-left:auto}
+.resume-note .row-del{margin-left:6px;padding:1px 8px;font-size:12px}
+.reason-line input[type="datetime-local"]{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:5px;padding:3px 6px;margin-left:6px;font-size:12.5px}
 .grp-row td{background:var(--surface-2)!important;font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .on-grp{font-family:var(--font-display);font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:10px}
 tr.is-hold td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
@@ -1324,11 +1327,11 @@ function roundLabel(t,r){
   return r.kind==="nextday"?"Next day "+i:"Comment "+i;
 }
 function roundRow(t,r,fl,more){
-  var ed=canEdit(t),done=r.status==="Done",rem=Math.max(0,num(r.est)-num(r.actual)),nd=r.kind==="nextday";
-  var canE=ed&&!done&&((isEng()&&!num(r.est))||isAdmin()),canA=ed&&!done&&((isEng()&&!num(r.actual))||isAdmin());
+  var ed=canEdit(t),mg=canManageRows(t),done=r.status==="Done",rem=Math.max(0,num(r.est)-num(r.actual)),nd=r.kind==="nextday";
+  var canE=mg||(ed&&!done&&isEng()&&!num(r.est)),canA=mg||(ed&&!done&&isEng()&&!num(r.actual));
   var dateEl=null;
   if(nd){
-    if(ed&&!done){dateEl=h("input",{type:"date",value:r.work_date,"data-tid":"r"+r.id,"data-field":"work_date","aria-label":"Day to continue "+(t.task||"task")});
+    if(mg||(ed&&!done)){dateEl=h("input",{type:"date",value:r.work_date,"data-tid":"r"+r.id,"data-field":"work_date","aria-label":"Day to continue "+(t.task||"task")});
       dateEl.addEventListener("change",function(){commitRoundDate(r,dateEl);});}
     else dateEl=h("strong",{text:r.work_date?niceDate(r.work_date):"—"});
   }
@@ -1340,7 +1343,47 @@ function roundRow(t,r,fl,more){
     done?h("span",{"class":"rd-pill rd-done",text:(nd?"Finished":"Comment done")+(r.done_at?" · "+niceStamp(r.done_at):"")})
         :h("span",{"class":"rd-pill rd-open",text:nd?"In progress":"Comment open"}),
     (!done&&ed)?h("button",{"class":"btn small primary",type:"button",onclick:function(ev){roundDone(r,ev.currentTarget);}},nd?"Mark finished":"Mark comment done"):null,
-    h("span",{"class":"pause-meta",text:"Remaining "+fmt(rem)+" h"+(r.created_at?" · added "+niceStamp(r.created_at):"")}))));
+    (done&&mg)?h("button",{"class":"btn small",type:"button",onclick:function(ev){roundReopen(r,ev.currentTarget);}},"Reopen"):null,
+    h("span",{"class":"pause-meta",text:"Remaining "+fmt(rem)+" h"+(r.created_at?" · added "+niceStamp(r.created_at):"")}),
+    mg?rowDeleteBtn("r"+r.id,roundLabel(t,r),function(btn){roundDelete(t,r,btn);}):null)));
+}
+/* ---------- admin, team leader and senior control the rows under a task ---------- */
+function canManageRows(t){return !!me&&(me.role==="admin"||((me.role==="teamleader"||me.role==="senior")&&!!me.discipline&&t.discipline===me.discipline));}
+var delArmed=null;
+function rowDeleteBtn(key,what,go){
+  var armed=delArmed===key;
+  return h("button",{"class":"btn small danger row-del",type:"button","aria-label":"Delete "+what,onclick:function(ev){
+    if(delArmed!==key){delArmed=key;render();setTimeout(function(){if(delArmed===key){delArmed=null;render();}},4000);return;}
+    delArmed=null;go(ev.currentTarget);}},armed?"Click again to delete":"Delete");
+}
+function roundReopen(r,btn){
+  if(!sb)return;btn.disabled=true;
+  run(sb.from("tt_rounds").update({status:"Open"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Reopened. It is in progress again.":"Comment reopened.");render();})
+    .catch(function(e){toast(writeError(e),true);render();});
+}
+function roundDelete(t,r,btn){
+  if(!sb)return;btn.disabled=true;var label=roundLabel(t,r);
+  run(sb.from("tt_rounds").delete().eq("id",r.id).select()).then(function(rows){
+    if(!rows||!rows.length)throw {code:"42501",message:"row-level security"};
+    S.rounds=(S.rounds||[]).filter(function(x){return x.id!==r.id;});indexRounds();toast(label+" deleted.");render();
+  }).catch(function(e){toast(writeError(e),true);render();});
+}
+function toLocalInput(iso){var d=new Date(iso);if(isNaN(d))return "";function p(n){return (n<10?"0":"")+n;}
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());}
+function stampInput(t,field,label){
+  var inp=h("input",{type:"datetime-local",value:t[field]?toLocalInput(t[field]):"","data-tid":t.id,"data-field":field,"aria-label":label});
+  inp.addEventListener("change",function(){
+    if(rebuilding||!sb||!inp.value)return;var d=new Date(inp.value);if(isNaN(d))return;
+    var patch={};patch[field]=d.toISOString();inp.disabled=true;
+    updTask(t.id,patch).then(function(){toast("Time changed to "+niceStamp(d.toISOString())+".");render();}).catch(function(e){toast(writeError(e),true);render();});
+  });
+  return inp;
+}
+function clearPause(t,btn){
+  if(!sb)return;btn.disabled=true;var paused=t.status==="Delayed"||t.status==="On Hold";
+  var patch={reason:"",paused_at:null,resumed_at:null,pause_kind:null};if(paused)patch.status="In Progress";
+  updTask(t.id,patch).then(function(){editReason[t.id]=false;toast(paused?"Row deleted. The task is back to In Progress.":"Resume note deleted.");render();})
+    .catch(function(e){toast(writeError(e),true);render();});
 }
 function commitRoundDate(r,inp){
   if(rebuilding||!sb||!inp.value||inp.value===r.work_date)return;
@@ -1413,7 +1456,7 @@ function openNotifs(){
 /* ---------- delayed / on hold ---------- */
 var editReason={};
 function pauseRow(t,fl){
-  var hold=t.status==="On Hold",ed=canEdit(t),editing=ed&&(!t.reason||editReason[t.id]);
+  var hold=t.status==="On Hold",ed=canEdit(t),mg=canManageRows(t),editing=ed&&(!t.reason||editReason[t.id]);
   var reasonEl=editing
     ?inlineInput(t,"reason",{"class":"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:hold?"Write why this task is on hold, then press Enter":"Write why this task is delayed, then press Enter","aria-label":(hold?"Reason for hold for ":"Reason for delay for ")+(t.task||"task")})
     :h("span",{"class":"reason-text",text:t.reason||"No reason written yet."});
@@ -1421,8 +1464,10 @@ function pauseRow(t,fl){
     h("span",{"class":"label",text:hold?"Reason for hold":"Reason for delay"}),
     reasonEl,
     (ed&&!editing)?h("button",{"class":"btn small",type:"button",onclick:function(){editReason[t.id]=true;focusReq={tid:t.id,field:"reason"};render();}},"Edit reason"):null,
-    t.paused_at?h("span",{"class":"pause-meta",text:(hold?"On hold since ":"Delayed since ")+niceStamp(t.paused_at)}):null,
-    ed?h("button",{"class":"btn small primary",type:"button",onclick:function(ev){resumeTask(t,ev.currentTarget);}},"Resume task"):null)));
+    mg?h("label",{"class":"pause-meta"},hold?"On hold since":"Delayed since",stampInput(t,"paused_at",(hold?"On hold since, ":"Delayed since, ")+(t.task||"task")))
+      :t.paused_at?h("span",{"class":"pause-meta",text:(hold?"On hold since ":"Delayed since ")+niceStamp(t.paused_at)}):null,
+    ed?h("button",{"class":"btn small primary",type:"button",onclick:function(ev){resumeTask(t,ev.currentTarget);}},"Resume task"):null,
+    mg?rowDeleteBtn("p"+t.id,(hold?"hold":"delay")+" row",function(btn){clearPause(t,btn);}):null)));
 }
 function resumeTask(t,btn){
   if(!sb)return;btn.disabled=true;
@@ -1435,7 +1480,9 @@ function resumeTask(t,btn){
 function resumeNote(t){
   if(!t.resumed_at||t.status==="Delayed"||t.status==="On Hold")return null;
   if(t.paused_at&&t.resumed_at<t.paused_at)return null;
-  return h("span",{"class":"sub",text:"Resumed "+niceStamp(t.resumed_at)+(t.pause_kind?" after "+t.pause_kind:"")+(t.reason?" · reason: "+t.reason:"")});
+  var txt="Resumed "+niceStamp(t.resumed_at)+(t.pause_kind?" after "+t.pause_kind:"")+(t.reason?" · reason: "+t.reason:"");
+  if(!canManageRows(t))return h("span",{"class":"sub",text:txt});
+  return h("span",{"class":"sub resume-note"},txt+" ",rowDeleteBtn("n"+t.id,"resume note",function(btn){clearPause(t,btn);}));
 }
 
 /* ---------- who is online ---------- */
