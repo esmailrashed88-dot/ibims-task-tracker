@@ -234,6 +234,32 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.tm{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.tm-now{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px}
+.tm-state{display:inline-flex;align-items:center;gap:6px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.tm-state.run{background:var(--ok-soft);color:var(--ok)}
+.tm-state.pz{background:var(--warn-soft);color:var(--warn)}
+.tm-state.idle{background:var(--idle-soft);color:var(--idle)}
+.tm-state.run i{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:tmPulse 1.4s ease-in-out infinite}
+@keyframes tmPulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.tm-state.run i{animation:none}}
+.tm-clock{font-variant-numeric:tabular-nums}
+.tm .btn.small{padding:2px 10px;font-size:12.5px}
+.tm-sum{font-size:12px;color:var(--muted)}
+.tm-sum b{font-weight:600;color:var(--ink)}
+.tm-sum .late{color:var(--bad);font-weight:600}
+.tm-link{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline}
+.pz-opts{display:flex;flex-wrap:wrap;gap:8px}
+.pz-opts .btn.on{background:var(--accent-soft);border-color:var(--accent)}
+.log-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:52vh}
+.log-row{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 12px;border-top:1px solid var(--line);font-size:13px}
+.log-row:first-child{border-top:0}
+.log-row .k{font-weight:600}
+.log-row.work .k{color:var(--ok)}
+.log-row.pause .k{color:var(--warn)}
+.log-row .d{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.log-sum{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
+.log-sum b{font-weight:600}
 .motd{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px 22px;margin:0 0 14px;padding:16px 18px;border:1px solid var(--gold-line);border-radius:12px;background:var(--gold-soft)}
 .motd-main{display:flex;gap:14px;align-items:center;min-width:0}
 .motd-cup{flex:none;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--gold-line);color:var(--gold-mark)}
@@ -671,7 +697,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     </div>
     <div class="team-block" id="remindBlock">
       <span class="label">Reminders and daily award</span>
-      <label class="copy-chk"><input type="checkbox" id="rmHoursOn"> Remind engineers who have not entered any hours today, at <input type="time" id="rmHoursAt" class="inl-time" aria-label="Reminder time"></label>
+      <label class="copy-chk"><input type="checkbox" id="rmHoursOn"> Remind engineers who have logged no time today, at <input type="time" id="rmHoursAt" class="inl-time" aria-label="Reminder time"></label>
       <label class="copy-chk"><input type="checkbox" id="rmAckOn"> Remind the team leader when a task is still not confirmed after <input type="number" id="rmAckHrs" class="inl-num" min="1" max="48" step="1" aria-label="Hours before reminding"> hours</label>
       <div class="rm-row">
         <label class="field"><span>Time zone</span><select id="rmTz"><option value="Africa/Cairo">Cairo</option><option value="Asia/Riyadh">Riyadh</option><option value="Asia/Dubai">Dubai</option></select></label>
@@ -733,6 +759,24 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="err" id="copyErr" role="alert"></p>
   </div>
   <div class="dlg-f"><button class="btn" id="btnCopyCancel" type="button">Cancel</button><button class="btn primary" id="btnCopyGo" type="button">Copy tasks</button></div>
+</dialog>
+
+<dialog id="pauseDlg" aria-labelledby="pauseTitle">
+  <div class="dlg-h"><h3 id="pauseTitle">Pause task</h3></div>
+  <div class="team-b">
+    <p class="hint" id="pauseFor"></p>
+    <div class="pz-opts" id="pauseOpts"></div>
+    <label class="field"><span>Reason</span><input type="text" id="pauseReason" maxlength="120" placeholder="Pick one above or write your own"></label>
+    <p class="hint">The timer stops now and the paused time is recorded on the task. Press Resume when you are back.</p>
+    <p class="err" id="pauseErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="btnPauseCancel" type="button">Cancel</button><button class="btn primary" id="btnPauseGo" type="button">Pause timer</button></div>
+</dialog>
+
+<dialog id="logDlg" aria-labelledby="logTitle">
+  <div class="dlg-h"><h3 id="logTitle">Time log</h3></div>
+  <div class="team-b"><p class="hint" id="logFor"></p><div class="log-sum" id="logSum"></div><div class="log-list" id="logList"></div></div>
+  <div class="dlg-f"><button class="btn primary" id="btnLogClose" type="button">Done</button></div>
 </dialog>
 
 <dialog id="notifDlg" aria-labelledby="notifTitle">
@@ -829,7 +873,7 @@ function canDelete(t){return isAdmin()||(isTL()&&t.discipline===me.discipline);}
 function canEdit(t){return editAll()||(isTL()&&t.discipline===me.discipline)||(isEng()&&!!me.engineer&&t.engineer===me.engineer);}
 function roleName(r){return {admin:"Admin",manager:"Manager",teamleader:"Team leader",senior:"Senior",midsenior:"Mid Senior",engineer:"Engineer"}[r]||r||"";}
 function row2task(o){return {id:String(o.id),date:String(o.date||"").slice(0,10),engineer:String(o.engineer||""),discipline:String(o.discipline||""),project:String(o.project||""),
-  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),sent_to:o.sent_to?String(o.sent_to):"",sent_at:o.sent_at?String(o.sent_at):"",ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):""};}
+  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),sent_to:o.sent_to?String(o.sent_to):"",sent_at:o.sent_at?String(o.sent_at):"",ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):"",completed_at:o.completed_at?String(o.completed_at):""};}
 function upsertLocal(t){var i,found=false;for(i=0;i<S.tasks.length;i++){if(S.tasks[i].id===t.id){S.tasks[i]=t;found=true;break;}}if(!found)S.tasks.push(t);}
 function dropLocal(id){S.tasks=S.tasks.filter(function(x){return x.id!==id;});}
 function run(q){return Promise.resolve(q).then(function(r){if(r&&r.error)throw r.error;return r?r.data:null;});}
@@ -986,8 +1030,8 @@ function changeStatus(t,sel){
     flashId=t.id;flashAt=Date.now();
     var pausedNow=v==="Delayed"||v==="On Hold";
     if(pausedNow&&!t.reason)focusReq={tid:t.id,field:"reason"};
-    toast(pausedNow&&!t.reason?"Marked "+v+". Write the reason in the row below the task.":v==="Comment"?"Comment round added. Enter its hours in the row below the task.":v==="Next Day"?"Moved to next day. The row below carries the remaining hours. Enter the actual hours when you finish.":"Status set to "+v+(ch?". Status filter cleared so the task stays in view.":""));
-    if(v==="Comment"||v==="Next Day"){loadRounds().then(function(){var rs=roundsOf(t);if(rs.length)focusReq={tid:"r"+rs[rs.length-1].id,field:"est"};render();},function(){render();});}else render();
+    toast(pausedNow&&!t.reason?"Marked "+v+". Write the reason in the row below the task.":v==="Comment"?"Comment round added. Enter its estimated hours in the row below. The timer counts the actual hours.":v==="Next Day"?"Moved to next day. The timer is paused and the row below carries the remaining hours. Press Start today when you continue.":"Status set to "+v+(ch?". Status filter cleared so the task stays in view.":""));
+    refreshTimer([t.id]).then(function(){if(v==="Comment"){var rs=roundsOf(t);if(rs.length){focusReq={tid:"r"+rs[rs.length-1].id,field:"est"};render();}}});
   }).catch(function(e){toast(writeError(e),true);render();});
 }
 /* Inline cells save when you leave the field or press Enter. */
@@ -1040,10 +1084,10 @@ function buildTable(host,rows){
       h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
       h("td",null,canEdit(t)?inlineInput(t,"level",{class:"cell-txt",type:"text",maxlength:"60",value:t.level,"aria-label":"Level for "+(t.task||"task")}):(t.level||"—")),
       h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
-      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t)),
+      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),timerLine(t)),
       h("td",{class:"r num"},(isEng()&&canEdit(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
-      h("td",{class:"r num"},canEdit(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:fmt(num(t.actual)),"aria-label":"Actual hours for "+(t.task||"task")}):fmt(num(t.actual)),totNote(t,"act")),
-      h("td",{class:"r num"},fmt(remaining(t)),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
+      h("td",{class:"r num"},canManageRows(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.01",inputmode:"decimal",value:fmt(num(t.actual)),title:"Correct the timed hours","aria-label":"Actual hours for "+(t.task||"task")}):h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
+      h("td",{class:"r num"},h("span",{"data-live":"rem","data-tid":t.id,text:fmt(liveRem(t))}),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
       h("td",null,statusCell(t)),
       h("td",{"class":"path"},canEdit(t)?inlineInput(t,"submission_path",{"class":"cell-path",type:"text",maxlength:"400",value:t.submission_path,placeholder:"Folder or link","aria-label":"Submission path for "+(t.task||"task")}):(t.submission_path||"—")),
       h("td",{"class":"send"},sendCell(t)),
@@ -1267,7 +1311,7 @@ function openTask(t,preset){
   moreSel={};syncMoreEng();
   fillSelect($("f-project"),S.settings.projects,t?t.project:S.f.project,"Select project");
   $("f-task").value=t?(t.task||""):"";fillTaskList();$("taskHint").textContent="";
-  $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";
+  $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";$("f-actual").disabled=t?!canManageRows(t):!isAdmin();
   $("f-level").value=t?(t.level||""):"";$("f-path").value=t?(t.submission_path||""):"";$("f-element").value=t?(t.element||""):"";
   var canEst=!!t&&((isEng()&&!num(t.est))||isAdmin());$("f-est").disabled=!canEst;
   $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":canEst?(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
@@ -1290,6 +1334,7 @@ function saveTask(ev){
   var d={date:$("f-date").value,discipline:$("f-discipline").value,engineer:$("f-engineer").value,project:$("f-project").value,
     task:$("f-task").value.trim(),level:$("f-level").value.trim(),element:$("f-element").value.trim(),submission_path:$("f-path").value.trim(),est:num($("f-est").value),actual:num($("f-actual").value),status:$("f-status").value,
     reason:$("f-reason").value.trim()};
+  if($("f-actual").disabled)delete d.actual;
   var err="";
   if(!parseDate(d.date))err="Pick the date.";
   else if(!d.engineer)err="Select the engineer.";
@@ -1335,12 +1380,12 @@ function loadSettings(){
 function loadTasks(){
   var out=[],size=1000;
   function page(from){
-    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind").order("date",{ascending:false}).order("id").range(from,from+size-1))
+    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind,completed_at").order("date",{ascending:false}).order("id").range(from,from+size-1))
       .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});
   }
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
 }
-function loadAll(){return Promise.all([loadTasks(),loadSettings(),loadRounds(),loadDirectory(),loadNotifs()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
+function loadAll(){return Promise.all([loadTasks(),loadSettings(),loadRounds(),loadDirectory(),loadNotifs(),loadTime()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
 function refresh(){if(!sb||!me)return;loadAll().catch(function(){S.conn="off";render();});}
 function settingsChanged(){loadSettings().then(function(){render();if($("teamDlg").open)renderTeam();}).catch(function(){});}
 function subscribe(){
@@ -1357,6 +1402,10 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_rounds"},function(p){
         if(p.eventType==="DELETE"){if(p.old&&p.old.id){S.rounds=(S.rounds||[]).filter(function(r){return r.id!==String(p.old.id);});indexRounds();}}
         else if(p["new"]&&p["new"].id){upsertRound(p["new"]);if(p["new"].status==="Done")motdLater();}
+        render();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_time"},function(p){
+        if(p.eventType==="DELETE"){if(p.old&&p.old.id){S.time=(S.time||[]).filter(function(w){return w.id!==String(p.old.id);});indexTime();}}
+        else if(p["new"]&&p["new"].id)upsertTime(p["new"]);
         render();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
@@ -1394,7 +1443,7 @@ function confirmTask(t,btn,estInp){
   var patch={ack_at:new Date().toISOString()},start=t.status==="Not Started";if(start)patch.status="In Progress";
   if(estInp){var e=num(estInp.value);if(!(e>0)){toast("Enter your estimated hours first. You can set them only once.",true);estInp.focus();return;}patch.est=e;}
   btn.disabled=true;
-  updTask(t.id,patch).then(function(){toast(start?"Confirmed. The task is now In Progress.":"Confirmed.");render();})
+  updTask(t.id,patch).then(function(){toast(start?"Confirmed. The timer is running.":"Confirmed.");return refreshTimer([t.id]);})
     .catch(function(e){toast(writeError(e),true);render();});
 }
 function renderInbox(){
@@ -1443,7 +1492,8 @@ function loadRounds(){
 }
 function totNote(t,kind){
   if(!roundsOf(t).length)return null;
-  return h("span",{class:"sub",text:"total "+fmt(kind==="est"?estT(t):actT(t))});
+  if(kind!=="est")return h("span",{class:"sub","data-live":"tot","data-tid":t.id,text:"total "+fmt(Math.round(liveAct(t)*100)/100)});
+  return h("span",{class:"sub",text:"total "+fmt(estT(t))});
 }
 function roundInput(r,field,props){
   props["data-tid"]="r"+r.id;props["data-field"]=field;props["class"]="cell-in";props.type="number";props.min="0";props.step="0.5";props.inputmode="decimal";
@@ -1468,7 +1518,7 @@ function roundLabel(t,r){
 }
 function roundRow(t,r,fl,more){
   var ed=canEdit(t),mg=canManageRows(t),done=r.status==="Done",rem=Math.max(0,num(r.est)-num(r.actual)),nd=r.kind==="nextday";
-  var canE=mg||(!nd&&ed&&!done&&isEng()&&!num(r.est)),canA=mg||(ed&&!done&&isEng()&&!num(r.actual));
+  var canE=mg||(!nd&&ed&&!done&&isEng()&&!num(r.est)),canA=mg;
   var dateEl=null;
   if(nd){
     if(mg||(ed&&!done)){dateEl=h("input",{type:"date",value:r.work_date,"data-tid":"r"+r.id,"data-field":"work_date","aria-label":"Day to continue "+(t.task||"task")});
@@ -1479,7 +1529,7 @@ function roundRow(t,r,fl,more){
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
     h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
-    h("label",null,canA&&isEng()?"Actual h (once)":"Actual h",canA?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.actual))})),
+    h("label",{title:"Counted by the task timer"},"Actual h",canA?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num","data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})),
     done?h("span",{"class":"rd-pill rd-done",text:(nd?"Finished":"Comment done")+(r.done_at?" · "+niceStamp(r.done_at):"")})
         :h("span",{"class":"rd-pill rd-open",text:nd?"In progress":"Comment open"}),
     (!done&&ed)?h("button",{"class":"btn small primary",type:"button",onclick:function(ev){roundDone(r,ev.currentTarget);}},nd?"Mark finished":"Mark comment done"):null,
@@ -1498,7 +1548,7 @@ function rowDeleteBtn(key,what,go){
 }
 function roundReopen(r,btn){
   if(!sb)return;btn.disabled=true;
-  run(sb.from("tt_rounds").update({status:"Open"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Reopened. It is in progress again.":"Comment reopened.");render();})
+  run(sb.from("tt_rounds").update({status:"Open"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Reopened. It is in progress again.":"Comment reopened.");return refreshTimer([r.task_id]);})
     .catch(function(e){toast(writeError(e),true);render();});
 }
 function roundDelete(t,r,btn){
@@ -1533,9 +1583,9 @@ function commitRoundDate(r,inp){
 }
 function roundDone(r,btn){
   if(!sb)return;
-  if(isEng()&&((r.kind!=="nextday"&&!num(r.est))||!num(r.actual))){toast(r.kind==="nextday"?"Enter the actual hours first.":"Enter the estimated and actual hours first.",true);return;}
+  if(isEng()&&r.kind!=="nextday"&&!num(r.est)){toast("Enter the estimated hours first.",true);return;}
   btn.disabled=true;
-  run(sb.from("tt_rounds").update({status:"Done"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Marked finished.":"Comment marked done.");render();})
+  run(sb.from("tt_rounds").update({status:"Done"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Marked finished.":"Comment marked done.");return refreshTimer([r.task_id]);})
     .catch(function(e){toast(writeError(e),true);render();});
 }
 
@@ -1694,7 +1744,7 @@ function pauseRow(t,fl){
 }
 function resumeTask(t,btn){
   if(!sb)return;btn.disabled=true;
-  updTask(t.id,{status:"In Progress"}).then(function(nt){
+  updTask(t.id,{status:"In Progress"}).then(function(nt){refreshTimer([t.id]);
     var ch=false;if(S.f.status&&S.f.status!=="In Progress"){S.f.status="";ch=true;}
     flashId=nt.id;flashAt=Date.now();
     toast("Task resumed"+(nt.resumed_at?" at "+niceStamp(nt.resumed_at):"")+"."+(ch?" Status filter cleared.":""));render();
@@ -2264,7 +2314,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopReminders();stopMotd();stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopReminders();stopMotd();stopTick();S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -2274,7 +2324,7 @@ function enter(session){
   showAuth("note","Loading…");
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
-    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();
+    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();
     return loadAll().then(subscribe);
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
@@ -2357,6 +2407,10 @@ function wire(){
   $("btnNotif").addEventListener("click",openNotifs);
   $("btnNotifClose").addEventListener("click",function(){$("notifDlg").close();});
   $("btnPingOk").addEventListener("click",ackPings);
+  $("btnPauseCancel").addEventListener("click",function(){$("pauseDlg").close();});
+  $("btnPauseGo").addEventListener("click",pauseGo);
+  $("pauseReason").addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();pauseGo();}});
+  $("btnLogClose").addEventListener("click",function(){$("logDlg").close();});
   $("pingDlg").addEventListener("cancel",function(ev){ev.preventDefault();});
   $("btnAlertCancel").addEventListener("click",function(){$("alertDlg").close();});
   $("btnAlertSend").addEventListener("click",sendAlert);
@@ -2482,7 +2536,7 @@ function saveRemind(){
 
 /* ---------- full backup ---------- */
 var BACKUP_TABLES=[["Tasks","tt_tasks","id"],["Rows under tasks","tt_rounds","id"],["Projects","tt_projects","name"],["Engineers","tt_engineers","name"],
-                   ["Users","tt_users","email"],["Notifications","tt_notifications","id"],["Settings","tt_config","key"]];
+                   ["Users","tt_users","email"],["Notifications","tt_notifications","id"],["Time log","tt_time","started_at"],["Settings","tt_config","key"]];
 function fetchAll(table,order){
   var out=[],size=1000;
   function page(from){return run(sb.from(table).select("*").order(order).range(from,from+size-1)).then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});}
@@ -2613,6 +2667,137 @@ function cheer(){
     p.style.transform="rotate("+Math.round(Math.random()*180)+"deg)";c.append(p);}
   document.body.append(c);setTimeout(function(){c.remove();},4600);
 }
+/* ---------- task timer ---------- */
+var skew=0,tickTimer=null,pauseTask=null,PAUSE_REASONS=["Break","Prayer","Meeting","Another task","Waiting for info","Other"];
+function nowMs(){return Date.now()+skew;}
+function row2time(o){return {id:String(o.id),task_id:String(o.task_id),round_id:o.round_id?String(o.round_id):"",kind:String(o.kind||"work"),reason:String(o.reason||""),
+  started_at:String(o.started_at||""),ended_at:o.ended_at?String(o.ended_at):""};}
+function indexTime(){var m={};(S.time||[]).forEach(function(w){(m[w.task_id]=m[w.task_id]||[]).push(w);});
+  Object.keys(m).forEach(function(k){m[k].sort(function(a,b){return a.started_at<b.started_at?-1:a.started_at>b.started_at?1:0;});});S.timeBy=m;}
+function upsertTime(o){var w=row2time(o),f=false;S.time=(S.time||[]).map(function(x){if(x.id===w.id){f=true;return w;}return x;});if(!f)S.time.push(w);indexTime();}
+function loadTime(){
+  var out=[],size=1000,since=new Date(Date.now()-120*86400000).toISOString();
+  function page(from){return run(sb.from("tt_time").select("id,task_id,round_id,kind,reason,started_at,ended_at").gte("started_at",since).order("started_at").range(from,from+size-1))
+    .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});}
+  return page(0).then(function(all){S.time=all.map(row2time);indexTime();}).catch(function(){S.time=[];indexTime();});
+}
+function syncClock(){if(!sb)return;run(sb.rpc("tt_now")).then(function(d){var t=Date.parse(d);if(!isNaN(t))skew=t-Date.now();}).catch(function(){});}
+function timeOf(t){return (S.timeBy&&S.timeBy[t.id])||[];}
+function runningOf(t){var r=null;timeOf(t).forEach(function(w){if(w.kind==="work"&&!w.ended_at)r=w;});return r;}
+function openPauseOf(t){var r=null;timeOf(t).forEach(function(w){if(w.kind==="pause"&&!w.ended_at)r=w;});return r;}
+function spanSecs(w){var a=Date.parse(w.started_at),b=w.ended_at?Date.parse(w.ended_at):nowMs();return Math.max(0,(b-a)/1000);}
+function liveMain(t){var w=runningOf(t);return num(t.actual)+(w&&!w.round_id?spanSecs(w)/3600:0);}
+function liveRound(r){var t={id:r.task_id},w=runningOf(t);return num(r.actual)+(w&&w.round_id===r.id?spanSecs(w)/3600:0);}
+function liveAct(t){var w=runningOf(t);return actT(t)+(w?spanSecs(w)/3600:0);}
+function liveRem(t){return t.status==="Completed"?0:Math.max(0,estT(t)-liveAct(t));}
+function clockTxt(h){var s=Math.round(h*3600),hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60;return hh+":"+(mm<10?"0":"")+mm+":"+(ss<10?"0":"")+ss;}
+function durTxt(sec){var m=Math.round(sec/60);if(m<60)return m+" min";var h=Math.floor(m/60),r=m%60;return h+" h"+(r?" "+r+" min":"");}
+function hhmm(ms){var d=new Date(ms);return d.toLocaleString("en-GB",{hour:"2-digit",minute:"2-digit"})+(new Date(ms).toDateString()!==new Date(nowMs()).toDateString()?" "+d.toLocaleString("en-GB",{day:"2-digit",month:"short"}):"");}
+function timeStats(t){
+  var rows=timeOf(t),first=null,pz=0,pn=0,lastWork=null;
+  rows.forEach(function(w){if(w.kind==="work"){var a=Date.parse(w.started_at);if(first===null||a<first)first=a;var e=w.ended_at?Date.parse(w.ended_at):nowMs();if(lastWork===null||e>lastWork)lastWork=e;}
+    else{pz+=spanSecs(w);pn++;}});
+  var est=estT(t),planned=first!==null&&est>0?first+est*3600000:null;
+  var expected=t.status==="Completed"?lastWork:(est>0&&first!==null?nowMs()+liveRem(t)*3600000:null);
+  return {first:first,planned:planned,expected:expected,pauseSecs:pz,pauses:pn};
+}
+function canRunTimer(t){return !!me&&!!t.ack&&((isEng()&&me.engineer===t.engineer)||canManageRows(t));}
+function timerLine(t){
+  if(!t.ack||!t.engineer)return null;
+  var w=runningOf(t),p=openPauseOf(t),st=timeStats(t),rows=timeOf(t),ctl=canRunTimer(t),done=t.status==="Completed";
+  if(!rows.length&&(done||!ctl))return null;
+  var now=h("div",{"class":"tm-now"});
+  if(done)now.append(h("span",{"class":"tm-state idle",text:"Worked "+fmt(Math.round(liveAct(t)*100)/100)+" h"}));
+  else if(w){now.append(h("span",{"class":"tm-state run"},h("i"),"Working ",h("span",{"class":"tm-clock","data-live":"clock","data-tid":t.id,text:clockTxt(liveAct(t))})));
+    if(ctl)now.append(h("button",{"class":"btn small",type:"button",onclick:function(){openPause(t);}},"Pause"));}
+  else if(p){now.append(h("span",{"class":"tm-state pz"},"Paused · "+p.reason+" · ",h("span",{"class":"tm-clock","data-live":"pz","data-tid":t.id,text:durTxt(spanSecs(p))})));
+    if(ctl&&t.status!=="Delayed"&&t.status!=="On Hold")now.append(h("button",{"class":"btn small primary",type:"button",onclick:function(ev){timerAct(t,"start","",ev.currentTarget);}},t.status==="Next Day"?"Start today":"Resume"));}
+  else if(t.status==="Delayed"||t.status==="On Hold"){if(!rows.length)return null;now.append(h("span",{"class":"tm-state pz",text:"Stopped · "+t.status}));}
+  else{now.append(h("span",{"class":"tm-state idle",text:"Timer not running"}));
+    if(ctl)now.append(h("button",{"class":"btn small primary",type:"button",onclick:function(ev){timerAct(t,"start","",ev.currentTarget);}},"Start"));}
+  var box=h("div",{"class":"tm"},now);
+  if(rows.length){
+    var sum=h("div",{"class":"tm-sum"});
+    if(st.planned!==null){
+      var late=st.expected!==null?Math.round((st.expected-st.planned)/60000):0;
+      sum.append("Planned finish ",h("b",{text:hhmm(st.planned)}));
+      if(st.expected!==null)sum.append(done?" · finished ":" · now ≈ ",h("b",{"data-live":done?null:"fin","data-tid":t.id,text:hhmm(st.expected)}),
+        late>1?h("span",{"class":"late","data-live":done?null:"late","data-tid":t.id,text:" (+"+durTxt(late*60)+")"}):h("span",{"data-live":done?null:"late","data-tid":t.id,text:""}));
+      sum.append(" · ");
+    }
+    sum.append(st.pauses?st.pauses+(st.pauses===1?" pause, ":" pauses, ")+durTxt(st.pauseSecs)+" · ":"No pauses · ",
+      h("button",{"class":"tm-link",type:"button",onclick:function(){openLog(t);}},"Time log"));
+    box.append(sum);
+  }
+  return box;
+}
+function refreshTimer(ids){
+  if(!sb)return Promise.resolve();
+  var set={};(ids||[]).forEach(function(i){set[i]=1;});(S.time||[]).forEach(function(w){if(w.kind==="work"&&!w.ended_at)set[w.task_id]=1;});
+  var cols="id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind,completed_at";
+  return Promise.all([loadTime(),loadRounds()].concat(Object.keys(set).map(function(id){
+    return run(sb.from("tt_tasks").select(cols).eq("id",id).maybeSingle()).then(function(o){if(o)upsertLocal(row2task(o));});})))
+    .then(function(){render();},function(){render();});
+}
+function timerAct(t,action,reason,btn){
+  if(!sb)return Promise.resolve();if(btn)btn.disabled=true;
+  return run(sb.rpc("tt_timer",{p_task:t.id,p_action:action,p_reason:reason||""})).then(function(d){
+    var s=Date.parse(d);if(!isNaN(s))skew=s-Date.now();
+    toast(action==="start"?"Timer running on "+(t.task||"the task")+".":"Timer paused: "+reason+".");
+    return refreshTimer([t.id]);
+  }).catch(function(e){toast(writeError(e).replace(/^Could not save:\s*/,""),true);if(btn)btn.disabled=false;});
+}
+function openPause(t){
+  pauseTask=t;$("pauseFor").textContent=(t.task||"Task")+(t.project?" · "+t.project:"");$("pauseReason").value="";$("pauseErr").textContent="";$("btnPauseGo").disabled=false;
+  var box=clear($("pauseOpts"));
+  PAUSE_REASONS.forEach(function(r){box.append(h("button",{"class":"btn small",type:"button",onclick:function(ev){
+    $("pauseReason").value=r==="Other"?"":r;Array.prototype.forEach.call(box.children,function(b){b.classList.toggle("on",b===ev.currentTarget);});
+    if(r==="Other")$("pauseReason").focus();}},r));});
+  $("pauseDlg").showModal();
+}
+function pauseGo(){
+  var t=pauseTask,r=$("pauseReason").value.trim();if(!t)return;
+  if(!r){$("pauseErr").textContent="Pick or write the reason for the pause.";return;}
+  $("btnPauseGo").disabled=true;
+  timerAct(t,"pause",r).then(function(){$("pauseDlg").close();});
+}
+function openLog(t){
+  var rows=timeOf(t),st=timeStats(t),work=0;rows.forEach(function(w){if(w.kind==="work")work+=spanSecs(w);});
+  $("logTitle").textContent="Time log";$("logFor").textContent=(t.task||"Task")+" · "+t.engineer+(t.project?" · "+t.project:"");
+  var sm=clear($("logSum"));
+  sm.append(h("span",null,"Worked ",h("b",{text:durTxt(work)})),h("span",null,"Paused ",h("b",{text:durTxt(st.pauseSecs)+" ("+st.pauses+")"})),
+    h("span",null,"Estimated ",h("b",{text:fmt(estT(t))+" h"})));
+  if(st.planned!==null)sm.append(h("span",null,"Planned finish ",h("b",{text:hhmm(st.planned)})));
+  if(st.expected!==null)sm.append(h("span",null,t.status==="Completed"?"Finished ":"Expected finish ",h("b",{text:hhmm(st.expected)})));
+  var host=clear($("logList"));
+  if(!rows.length)host.append(h("p",{"class":"copy-empty",text:"No time recorded yet."}));
+  rows.slice().reverse().forEach(function(w){
+    var rd=w.round_id?(S.rounds||[]).filter(function(r){return r.id===w.round_id;})[0]:null;
+    var label=w.kind==="work"?"Work"+(rd?" · "+roundLabel(t,rd):""):"Pause";
+    host.append(h("div",{"class":"log-row "+w.kind},h("span",{"class":"k",text:label}),
+      h("span",{text:(w.kind==="pause"?w.reason+" · ":"")+hhmm(Date.parse(w.started_at))+" → "+(w.ended_at?hhmm(Date.parse(w.ended_at)):"now")}),
+      h("span",{"class":"d",text:durTxt(spanSecs(w))})));});
+  $("logDlg").showModal();
+}
+function tick(){
+  var els=document.querySelectorAll("[data-live]");if(!els.length)return;
+  var byId={};S.tasks.forEach(function(t){byId[t.id]=t;});
+  Array.prototype.forEach.call(els,function(el){
+    var k=el.getAttribute("data-live"),t=byId[el.getAttribute("data-tid")];
+    if(k==="rnd"){var r=(S.rounds||[]).filter(function(x){return x.id===el.getAttribute("data-rid");})[0];if(r)el.textContent=fmt(Math.round(liveRound(r)*100)/100);return;}
+    if(!t)return;
+    if(k==="main")el.textContent=fmt(Math.round(liveMain(t)*100)/100);
+    else if(k==="tot")el.textContent="total "+fmt(Math.round(liveAct(t)*100)/100);
+    else if(k==="rem")el.textContent=fmt(Math.round(liveRem(t)*100)/100);
+    else if(k==="clock")el.textContent=clockTxt(liveAct(t));
+    else if(k==="pz"){var p=openPauseOf(t);if(p)el.textContent=durTxt(spanSecs(p));}
+    else if(k==="fin"||k==="late"){var st=timeStats(t);if(st.expected===null)return;
+      if(k==="fin")el.textContent=hhmm(st.expected);
+      else{var late=Math.round((st.expected-st.planned)/60000);el.textContent=late>1?" (+"+durTxt(late*60)+")":"";el.className=late>1?"late":"";}}
+  });
+}
+function startTick(){stopTick();syncClock();tickTimer=setInterval(tick,1000);}
+function stopTick(){if(tickTimer)clearInterval(tickTimer);tickTimer=null;}
 start();
 })();
 </script>
