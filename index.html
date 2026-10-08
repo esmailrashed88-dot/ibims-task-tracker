@@ -234,6 +234,24 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.ping-dlg{width:min(520px,calc(100vw - 32px));border:2px solid var(--warn)}
+.ping-h{background:var(--warn-soft);color:var(--warn);padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.ping-h h3{margin:0;font-family:var(--font-display);font-weight:600;font-size:24px;letter-spacing:.06em;text-transform:uppercase}
+.ping-ico{width:34px;height:34px;border-radius:50%;background:var(--warn);color:var(--surface);display:grid;place-items:center;font-weight:800;font-size:20px;flex:none;animation:pingPulse 1.2s ease-in-out infinite}
+@keyframes pingPulse{0%,100%{box-shadow:0 0 0 0 var(--warn-soft)}50%{box-shadow:0 0 0 8px var(--warn-soft)}}
+@media (prefers-reduced-motion:reduce){.ping-ico{animation:none}}
+.ping-item{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:8px;background:var(--surface)}
+.ping-item .ping-task{font-size:16px;font-weight:600}
+.ping-item .ping-note{font-size:15px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.ping-item .ping-meta{font-size:12.5px;color:var(--muted)}
+.alert-picks{display:flex;flex-wrap:wrap;gap:6px}
+.alert-picks .btn{border-radius:999px}
+.alert-picks .btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.row-acts{display:inline-flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.btn.alert-btn{color:var(--warn);border-color:var(--warn)}
+.sub.ping-sent{color:var(--warn)}
+.sub.ping-sent.seen{color:var(--ok)}
+.nt-row.ping strong{color:var(--warn)}
 .row-del{margin-left:auto}
 .resume-note .row-del{margin-left:6px;padding:1px 8px;font-size:12px}
 .reason-line input[type="datetime-local"]{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:5px;padding:3px 6px;margin-left:6px;font-size:12.5px}
@@ -608,6 +626,23 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="dlg-f"><button class="btn danger left" id="btnSignOut" type="button">Sign out</button><button class="btn primary" id="btnAcctClose" type="button">Done</button></div>
 </dialog>
 
+<dialog id="pingDlg" class="ping-dlg" aria-labelledby="pingTitle">
+  <div class="ping-h"><span class="ping-ico" aria-hidden="true">!</span><h3 id="pingTitle">Attention</h3></div>
+  <div class="team-b" id="pingList" aria-live="assertive"></div>
+  <div class="dlg-f"><button class="btn primary" id="btnPingOk" type="button">Got it</button></div>
+</dialog>
+
+<dialog id="alertDlg" aria-labelledby="alertTitle">
+  <div class="dlg-h"><h3 id="alertTitle">Alert engineer</h3></div>
+  <div class="team-b">
+    <p class="hint" id="alertFor"></p>
+    <div class="alert-picks" id="alertPicks"></div>
+    <label class="field"><span>Message</span><textarea id="alertNote" rows="3" maxlength="300" placeholder="Pick a message above or write your own"></textarea></label>
+    <p class="err" id="alertErr"></p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="btnAlertCancel" type="button">Cancel</button><button class="btn primary" id="btnAlertSend" type="button">Send alert</button></div>
+</dialog>
+
 <dialog id="notifDlg" aria-labelledby="notifTitle">
   <div class="dlg-h"><h3 id="notifTitle">Notifications</h3></div>
   <div class="team-b"><div id="notifList"></div><div id="notifAlerts"></div></div>
@@ -912,14 +947,14 @@ function buildTable(host,rows){
       h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
       h("td",null,canEdit(t)?inlineInput(t,"level",{class:"cell-txt",type:"text",maxlength:"60",value:t.level,"aria-label":"Level for "+(t.task||"task")}):(t.level||"—")),
       h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
-      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t)),
+      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t)),
       h("td",{class:"r num"},(isEng()&&canEdit(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
       h("td",{class:"r num"},canEdit(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:fmt(num(t.actual)),"aria-label":"Actual hours for "+(t.task||"task")}):fmt(num(t.actual)),totNote(t,"act")),
       h("td",{class:"r num"},fmt(remaining(t)),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
       h("td",null,statusCell(t)),
       h("td",{"class":"path"},canEdit(t)?inlineInput(t,"submission_path",{"class":"cell-path",type:"text",maxlength:"400",value:t.submission_path,placeholder:"Folder or link","aria-label":"Submission path for "+(t.task||"task")}):(t.submission_path||"—")),
       h("td",{"class":"send"},sendCell(t)),
-      h("td",{class:"r"},canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null)));
+      h("td",{class:"r"},h("div",{"class":"row-acts"},canPing(t)?h("button",{"class":"btn small alert-btn",type:"button","aria-label":"Alert "+t.engineer+" about "+(t.task||"this task"),onclick:function(){openAlert(t);}},"Alert"):null,canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null))));
     rds.forEach(function(r,i){tb.append(roundRow(t,r,fl,paused||i<rds.length-1));});
     if(paused)tb.append(pauseRow(t,fl));
   });
@@ -1220,6 +1255,7 @@ function subscribe(){
         else if(p["new"]&&p["new"].id)upsertLocal(row2task(p["new"]));
         render();})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"tt_notifications"},function(p){if(p["new"])gotNotif(p["new"]);})
+      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"tt_notifications"},function(p){if(p["new"])notifUpdated(p["new"]);})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_rounds"},function(p){
         if(p.eventType==="DELETE"){if(p.old&&p.old.id){S.rounds=(S.rounds||[]).filter(function(r){return r.id!==String(p.old.id);});indexRounds();}}
         else if(p["new"]&&p["new"].id)upsertRound(p["new"]);
@@ -1245,9 +1281,15 @@ function myPending(){
 }
 function alertsState(){try{return ("Notification" in window)?Notification.permission:"unsupported";}catch(e){return "unsupported";}}
 function askAlerts(){try{Notification.requestPermission().then(function(){render();},function(){});}catch(e){}}
+var ICON="data:image/png;base64,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";
+function osNotify(title,body,opt){
+  opt=opt||{};
+  try{if(alertsState()!=="granted")return;if(!opt.always&&!document.hidden)return;
+    var n=new Notification("IBIMS · "+title,{body:body,icon:ICON,badge:ICON,tag:opt.tag||undefined,renotify:!!opt.tag,requireInteraction:!!opt.sticky});
+    n.onclick=function(){try{window.focus();}catch(e){}n.close();if(opt.click)opt.click();};}catch(e){}
+}
 function desktopAlert(fresh){
-  try{if(alertsState()!=="granted"||!document.hidden)return;
-    fresh.forEach(function(t){new Notification("New task assigned",{body:(t.project?t.project+" · ":"")+(t.task||"")});});}catch(e){}
+  fresh.forEach(function(t){osNotify("New task assigned",(t.task||"")+(t.project?"\n"+t.project:"")+(t.engineer?" · "+t.engineer:""),{tag:"task-"+t.id});});
 }
 function confirmTask(t,btn,estInp){
   if(!sb)return;
@@ -1421,25 +1463,106 @@ function sendCell(t){
   });
   return [sel,note];
 }
-function row2notif(o){return {id:String(o.id),from_name:String(o.from_name||o.from_email||""),task:String(o.task||""),project:String(o.project||""),message:String(o.message||""),created_at:String(o.created_at||""),read_at:o.read_at?String(o.read_at):""};}
+function row2notif(o){return {id:String(o.id),from_name:String(o.from_name||o.from_email||""),from_email:String(o.from_email||""),to_email:String(o.to_email||""),task_id:o.task_id?String(o.task_id):"",
+  task:String(o.task||""),project:String(o.project||""),message:String(o.message||""),kind:String(o.kind||"send"),note:String(o.note||""),created_at:String(o.created_at||""),read_at:o.read_at?String(o.read_at):""};}
+var sentPings=[];
 function loadNotifs(){
   if(!me)return Promise.resolve();
-  return run(sb.from("tt_notifications").select("id,from_name,from_email,task,project,message,created_at,read_at").eq("to_email",me.email).order("created_at",{ascending:false}).range(0,49))
-    .then(function(d){notifs=(d||[]).map(row2notif);paintNotifs();});
+  var cols="id,from_name,from_email,to_email,task_id,task,project,message,kind,note,created_at,read_at";
+  var mine=run(sb.from("tt_notifications").select(cols).eq("to_email",me.email).order("created_at",{ascending:false}).range(0,49))
+    .then(function(d){notifs=(d||[]).map(row2notif);paintNotifs();showPings(false);});
+  var sent=isEng()?Promise.resolve():run(sb.from("tt_notifications").select(cols).eq("from_email",me.email).eq("kind","ping").order("created_at",{ascending:false}).range(0,199))
+    .then(function(d){sentPings=(d||[]).map(row2notif);}).catch(function(){sentPings=[];});
+  return Promise.all([mine,sent]);
+}
+function notifUpdated(o){
+  if(!me||!o||!o.id)return;var n=row2notif(o),ch=false;
+  sentPings=sentPings.map(function(x){if(x.id===n.id){if(!x.read_at&&n.read_at){ch=true;toast(personName(n.to_email)+" saw your alert: "+n.task);}return n;}return x;});
+  notifs=notifs.map(function(x){return x.id===n.id?n:x;});
+  if(n.to_email===me.email){paintNotifs();if(!pingQueue().length)stopAlarm();}
+  if(ch||n.to_email===me.email)render();
+}
+
+/* ---------- alerts: lead roles alert the engineer working on a task ---------- */
+var ALERT_PICKS=["Please check this task now","Call me please","Update the hours and status","Urgent: needed today"];
+var alertTask=null;
+function canPing(t){return !!me&&!isEng()&&canEdit(t)&&!!t.engineer;}
+function pingNote(t){
+  var p=null;for(var i=0;i<sentPings.length;i++){if(sentPings[i].task_id===t.id){p=sentPings[i];break;}}
+  if(!p)return null;
+  return h("span",{"class":"sub ping-sent"+(p.read_at?" seen":""),text:"Alert sent "+niceStamp(p.created_at)+(p.read_at?" · seen "+niceStamp(p.read_at):" · not seen yet")});
+}
+function openAlert(t){
+  alertTask=t;$("alertTitle").textContent="Alert "+t.engineer;
+  $("alertFor").textContent=(t.task||"Task")+(t.project?" · "+t.project:"")+". "+t.engineer+" gets a pop-up with a sound that stays until they click Got it, plus a desktop alert if they turned those on.";
+  $("alertNote").value="";$("alertErr").textContent="";$("btnAlertSend").disabled=false;
+  var box=clear($("alertPicks"));
+  ALERT_PICKS.forEach(function(m){box.append(h("button",{"class":"btn small",type:"button",onclick:function(ev){
+    $("alertNote").value=m;Array.prototype.forEach.call(box.children,function(b){b.classList.toggle("on",b===ev.currentTarget);});}},m));});
+  $("alertDlg").showModal();$("alertNote").focus();
+}
+function sendAlert(){
+  var t=alertTask;if(!t||!sb)return;
+  var note=$("alertNote").value.trim()||ALERT_PICKS[0],btn=$("btnAlertSend");btn.disabled=true;$("alertErr").textContent="";
+  run(sb.rpc("tt_ping",{p_task:t.id,p_note:note})).then(function(){
+    $("alertDlg").close();toast("Alert sent to "+t.engineer+".");return loadNotifs();
+  }).then(function(){render();}).catch(function(e){btn.disabled=false;$("alertErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");});
+}
+function pingQueue(){return notifs.filter(function(n){return n.kind==="ping"&&!n.read_at;});}
+function showPings(fresh){
+  var q=pingQueue();if(!q.length)return;
+  var host=clear($("pingList"));
+  q.forEach(function(n){host.append(h("div",{"class":"ping-item"},
+    h("span",{"class":"ping-task",text:n.task+(n.project?" · "+n.project:"")}),
+    n.note?h("span",{"class":"ping-note",text:n.note}):null,
+    h("span",{"class":"ping-meta",text:"From "+n.from_name+" · "+niceStamp(n.created_at)})));});
+  if(alertsState()==="default")host.append(h("p",{"class":"hint"},"Get these alerts on your desktop even when this tab is in the background. ",h("button",{"class":"btn small",type:"button",onclick:askAlerts},"Turn on desktop alerts")));
+  $("pingTitle").textContent=q.length>1?q.length+" alerts for you":"Attention";
+  if(!$("pingDlg").open)$("pingDlg").showModal();
+  startAlarm(q[0]);
+  if(fresh)osNotify("Alert from "+q[0].from_name,q[0].task+(q[0].note?"\n"+q[0].note:""),{always:!document.hasFocus(),sticky:true,tag:"ping"});
+}
+var audioCtx=null,alarmTimer=null,flashTimer=null;
+function unlockAudio(){try{if(!audioCtx){var A=window.AudioContext||window.webkitAudioContext;if(A)audioCtx=new A();}if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();}catch(e){}}
+function beep(){
+  try{unlockAudio();if(!audioCtx)return;var t0=audioCtx.currentTime;
+    [0,0.22,0.44].forEach(function(dt,i){var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.value=i===1?660:880;
+      g.gain.setValueAtTime(0.0001,t0+dt);g.gain.exponentialRampToValueAtTime(0.35,t0+dt+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+dt+0.18);
+      o.connect(g);g.connect(audioCtx.destination);o.start(t0+dt);o.stop(t0+dt+0.2);});}catch(e){}
+}
+function startAlarm(n){
+  stopAlarm(true);beep();var rings=1;
+  alarmTimer=setInterval(function(){if(rings>=6||!pingQueue().length){clearInterval(alarmTimer);alarmTimer=null;return;}rings++;beep();},15000);
+  var on=false;flashTimer=setInterval(function(){on=!on;document.title=on?"⚠ ALERT from "+n.from_name:"⚠ "+n.task;},1000);
+}
+function stopAlarm(keepTitle){
+  if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
+  if(flashTimer){clearInterval(flashTimer);flashTimer=null;}
+  if(!keepTitle)render();
+}
+function ackPings(){
+  var q=pingQueue(),ts=new Date().toISOString();
+  $("pingDlg").close();q.forEach(function(n){n.read_at=ts;});stopAlarm();paintNotifs();
+  if(!sb||!me)return;
+  q.forEach(function(n){run(sb.from("tt_notifications").update({read_at:ts}).eq("id",n.id)).catch(function(){});});
 }
 function paintNotifs(){var n=notifs.filter(function(x){return !x.read_at;}).length;$("notifCount").textContent=String(n);$("notifCount").hidden=!n;}
 function gotNotif(o){
-  if(!me||String(o.to_email||"")!==me.email)return;
-  var n=row2notif(o);if(notifs.some(function(x){return x.id===n.id;}))return;
+  if(!me)return;var n=row2notif(o);
+  if(n.from_email===me.email&&n.kind==="ping"&&n.to_email!==me.email){if(!sentPings.some(function(x){return x.id===n.id;})){sentPings.unshift(n);render();}return;}
+  if(n.to_email!==me.email)return;
+  if(notifs.some(function(x){return x.id===n.id;}))return;
   notifs.unshift(n);paintNotifs();render();
+  if(n.kind==="ping"){showPings(true);if($("notifDlg").open)renderNotifs();return;}
   toast(n.message+": "+n.task+" · from "+n.from_name);
-  try{if(alertsState()==="granted"&&document.hidden)new Notification(n.message,{body:n.task+(n.project?" · "+n.project:"")+"\nFrom "+n.from_name});}catch(e){}
+  osNotify(n.message,n.task+(n.project?" · "+n.project:"")+"\nFrom "+n.from_name,{tag:"n-"+n.id});
   if($("notifDlg").open)renderNotifs();
 }
 function renderNotifs(){
   var host=clear($("notifList"));
   if(!notifs.length)host.append(h("p",{"class":"hint",text:"No notifications yet. When someone sends you a finished submission, it shows here."}));
-  notifs.forEach(function(n){host.append(h("div",{"class":"nt-row"+(n.read_at?"":" unread")},h("strong",{text:n.message+": "+n.task}),
+  notifs.forEach(function(n){host.append(h("div",{"class":"nt-row"+(n.read_at?"":" unread")+(n.kind==="ping"?" ping":"")},h("strong",{text:(n.kind==="ping"?"Alert":n.message)+": "+n.task}),
+    n.note?h("span",{text:n.note}):null,
     h("span",{text:(n.project?n.project+" · ":"")+"from "+n.from_name+" · "+niceStamp(n.created_at)})));});
   var al=clear($("notifAlerts"));
   if(alertsState()==="default")al.append(h("button",{"class":"btn small",type:"button",onclick:askAlerts},"Turn on desktop alerts"));
@@ -2041,6 +2164,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
+  stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -2120,6 +2244,12 @@ function wire(){
   $("btnOnline").addEventListener("click",function(){renderOnline();$("onlineDlg").showModal();});
   $("btnNotif").addEventListener("click",openNotifs);
   $("btnNotifClose").addEventListener("click",function(){$("notifDlg").close();});
+  $("btnPingOk").addEventListener("click",ackPings);
+  $("pingDlg").addEventListener("cancel",function(ev){ev.preventDefault();});
+  $("btnAlertCancel").addEventListener("click",function(){$("alertDlg").close();});
+  $("btnAlertSend").addEventListener("click",sendAlert);
+  $("alertNote").addEventListener("keydown",function(ev){if(ev.key==="Enter"&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();sendAlert();}});
+  ["pointerdown","keydown"].forEach(function(k){document.addEventListener(k,unlockAudio,{passive:true});});
   $("btnOnlineClose").addEventListener("click",function(){$("onlineDlg").close();});
 }
 
