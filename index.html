@@ -12,7 +12,7 @@
   --bg:#EDF1F4; --surface:#FFFFFF; --surface-2:#F5F8FA; --ink:#10263A; --muted:#566879; --line:#D2DCE4;
   --band:#0F2A44; --band-ink:#EAF2F8; --band-muted:#9DB4C8; --band-line:#294765;
   --accent:#0B7F82; --accent-ink:#FFFFFF; --accent-soft:#DDF1F0;
-  --ok:#1B7446; --ok-soft:#DCF1E5; --warn:#8A5800; --warn-soft:#FBEDCF;
+  --ok:#1B7446; --ok-soft:#DCF1E5; --warn:#8A5800; --warn-soft:#FBEDCF; --gold:#8F6200; --gold-soft:#FFF5DA; --gold-line:#E6BE57; --gold-mark:#D99A0B;
   --bad:#B3261E; --bad-soft:#FBE2DF; --info:#1D5FA8; --info-soft:#DEEBFA; --idle:#566879; --idle-soft:#E5EBF0;
   --c-done:#1B8A52; --c-prog:#2A78D6; --c-cmt:#7B61D9; --cmt:#5B3FC0; --cmt-soft:#ECE7FB; --c-nxt:#0E9AA7; --nxt:#08707A; --nxt-soft:#DDF3F4; --c-hold:#E0A021; --c-todo:#8C9DAD; --c-late:#D03B3B; --c-est:#5C7A99;
   --shadow:0 1px 2px rgba(16,38,58,.06),0 6px 18px rgba(16,38,58,.06);
@@ -27,7 +27,7 @@
     --bg:#0A1620; --surface:#11212E; --surface-2:#162A3A; --ink:#E4EDF4; --muted:#93A6B7; --line:#24394B;
     --band:#081A2B; --band-ink:#EAF2F8; --band-muted:#8FA8BE; --band-line:#1E3852;
     --accent:#35BDB8; --accent-ink:#06201F; --accent-soft:#123A3C;
-    --ok:#5FCB92; --ok-soft:#143524; --warn:#E9B657; --warn-soft:#3A2C0E;
+    --ok:#5FCB92; --ok-soft:#143524; --warn:#E9B657; --warn-soft:#3A2C0E; --gold:#F4C95D; --gold-soft:#2E250D; --gold-line:#7C6120; --gold-mark:#F4C95D;
     --bad:#F28B82; --bad-soft:#40191A; --info:#7FB4F0; --info-soft:#15304D; --idle:#93A6B7; --idle-soft:#1D3040;
   --c-done:#2FA86A; --c-prog:#3987E5; --c-cmt:#9085E9; --cmt:#B9A9F7; --cmt-soft:#28214A; --c-nxt:#1A9DA6; --nxt:#6FD3DA; --nxt-soft:#123A3F; --c-hold:#C98500; --c-todo:#7A8FA3; --c-late:#E66767; --c-est:#6F8FB0;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
@@ -39,7 +39,7 @@
   --bg:#0A1620; --surface:#11212E; --surface-2:#162A3A; --ink:#E4EDF4; --muted:#93A6B7; --line:#24394B;
   --band:#081A2B; --band-ink:#EAF2F8; --band-muted:#8FA8BE; --band-line:#1E3852;
   --accent:#35BDB8; --accent-ink:#06201F; --accent-soft:#123A3C;
-  --ok:#5FCB92; --ok-soft:#143524; --warn:#E9B657; --warn-soft:#3A2C0E;
+  --ok:#5FCB92; --ok-soft:#143524; --warn:#E9B657; --warn-soft:#3A2C0E; --gold:#F4C95D; --gold-soft:#2E250D; --gold-line:#7C6120; --gold-mark:#F4C95D;
   --bad:#F28B82; --bad-soft:#40191A; --info:#7FB4F0; --info-soft:#15304D; --idle:#93A6B7; --idle-soft:#1D3040;
   --c-done:#2FA86A; --c-prog:#3987E5; --c-cmt:#9085E9; --cmt:#B9A9F7; --cmt-soft:#28214A; --c-nxt:#1A9DA6; --nxt:#6FD3DA; --nxt-soft:#123A3F; --c-hold:#C98500; --c-todo:#7A8FA3; --c-late:#E66767; --c-est:#6F8FB0;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
@@ -234,6 +234,65 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.motd{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px 22px;margin:0 0 14px;padding:16px 18px;border:1px solid var(--gold-line);border-radius:12px;background:var(--gold-soft)}
+.motd-main{display:flex;gap:14px;align-items:center;min-width:0}
+.motd-cup{flex:none;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--gold-line);color:var(--gold-mark)}
+.motd-cup svg{width:30px;height:30px}
+.motd-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.motd-kicker{font-family:var(--font-display);font-weight:600;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.motd-name{font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.05;color:var(--ink);overflow-wrap:anywhere}
+.motd-name small{font-size:15px;font-weight:600;letter-spacing:.06em;color:var(--muted);margin-left:8px}
+.motd-stats{font-size:13px;color:var(--ink)}
+.motd-me{display:inline-block;margin-top:4px;font-weight:600;color:var(--gold)}
+.motd-side{display:flex;flex-direction:column;gap:6px;min-width:0}
+.motd-side .label{color:var(--gold)}
+.motd-row{display:flex;justify-content:space-between;gap:10px;padding:6px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:13.5px}
+.motd-row b{font-weight:600}
+.motd-row span{color:var(--muted);white-space:nowrap}
+.motd-how{grid-column:1/-1;font-size:12px;color:var(--muted);margin:0}
+.motd-how button{background:none;border:0;padding:0;color:var(--gold);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
+@media (max-width:760px){.motd{grid-template-columns:1fr}.motd-name{font-size:25px}}
+.confetti{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;opacity:.9;animation:cfall 3.2s cubic-bezier(.3,.6,.6,1) forwards}
+@keyframes cfall{to{transform:translateY(100vh) rotate(720deg);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}
+.free-box{display:flex;flex-direction:column;gap:8px;margin:0 0 14px;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.free-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.free-h h2{margin:0;font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:.06em;text-transform:uppercase}
+.free-h p{margin:0;color:var(--muted);font-size:13px}
+.free-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.free-line .label{min-width:110px}
+.free-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ok);background:var(--ok-soft);color:var(--ink);border-radius:999px;padding:3px 11px;font-size:13px;font:inherit;font-size:13px;cursor:default}
+button.free-chip{cursor:pointer}
+button.free-chip:hover{border-width:2px;padding:2px 10px}
+.free-chip small{color:var(--muted);font-size:11.5px}
+.free-chip.wait{border-color:var(--warn);background:var(--warn-soft)}
+.free-ok{color:var(--ok);font-size:13.5px;font-weight:500}
+.more-eng{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);min-height:38px;align-items:center}
+.more-eng label,.copy-chk{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;cursor:pointer}
+.more-eng input,.copy-chk input[type="checkbox"],.copy-row input,.rm-days input{accent-color:var(--accent);width:16px;height:16px}
+.copy-dates{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end}
+.copy-dates .field{flex:1 1 150px}
+.copy-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.copy-bar .hint{margin-right:auto}
+.copy-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;max-height:46vh;overflow:auto}
+.copy-eng{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);padding:6px 12px;position:sticky;top:0}
+.copy-row{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-top:1px solid var(--line);cursor:pointer}
+.copy-row span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.copy-row small{color:var(--muted);font-size:12px}
+.copy-row.dis{opacity:.55;cursor:default}
+.copy-empty{padding:14px;color:var(--muted)}
+.inl-time,.inl-num{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:5px;padding:3px 6px}
+.inl-num{width:64px}
+.rm-row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end}
+.rm-days{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:4px 12px}
+.rm-days legend{font-size:12px;color:var(--muted);font-weight:500;padding:0;margin-bottom:4px}
+.rm-days label{display:inline-flex;align-items:center;gap:4px;font-size:13px}
+.backup-box{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+.backup-box div{display:flex;flex-direction:column;gap:2px;margin-right:auto;min-width:0}
+.backup-box small{color:var(--muted)}
+.backup-note{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 14px;padding:10px 14px;border:1px solid var(--warn);border-left-width:4px;border-radius:8px;background:var(--warn-soft);color:var(--ink)}
+.backup-note span{margin-right:auto}
 .ping-dlg{width:min(520px,calc(100vw - 32px));border:2px solid var(--warn)}
 .ping-h{background:var(--warn-soft);color:var(--warn);padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
 .ping-h h3{margin:0;font-family:var(--font-display);font-weight:600;font-size:24px;letter-spacing:.06em;text-transform:uppercase}
@@ -485,6 +544,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <button class="btn ghost" id="btnUsers" type="button" hidden>Users</button>
       <button class="btn ghost" id="btnTeam" type="button" hidden>Team &amp; projects</button>
       <button class="btn ghost" id="btnExport" type="button" hidden>Export</button>
+      <button class="btn" id="btnCopy" type="button" hidden>Copy tasks</button>
       <button class="btn primary" id="btnAdd" type="button" hidden>+ Add task</button>
       <button class="btn ghost acct" id="btnAccount" type="button" title="My account"><span id="acctName"></span><small id="acctRole"></small></button>
     </div>
@@ -492,6 +552,9 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 </header>
 
 <main class="wrap" id="appMain" hidden>
+  <section id="backupNote" class="backup-note" hidden></section>
+  <section id="motd" class="motd" aria-label="Man of the day" hidden></section>
+  <section id="freeBox" class="free-box" aria-label="Engineers without an open task" hidden></section>
   <section id="inbox" class="inbox" aria-live="polite" hidden></section>
 
   <section class="filters" id="filtersBox" aria-label="Filters">
@@ -564,6 +627,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <label class="field"><span>Day</span><output id="f-day"></output></label>
       <label class="field"><span>Discipline</span><select id="f-discipline"></select></label>
       <label class="field"><span>Engineer</span><select id="f-engineer"></select></label>
+      <div class="field full" id="moreEngWrap" hidden><span>Also give the same task to</span><div class="more-eng" id="moreEng"></div><span class="hint">Each engineer gets their own copy and confirms it on their own.</span></div>
       <label class="field full"><span>Project</span><select id="f-project"></select></label>
       <label class="field"><span>Level</span><input type="text" id="f-level" maxlength="60" autocomplete="off" placeholder="e.g. L02"></label>
       <label class="field full"><span>Submission path</span><input type="text" id="f-path" maxlength="400" autocomplete="off" placeholder="Folder path or link where the drawings are submitted"></label>
@@ -605,6 +669,18 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       </form>
       <p class="hint">Removing a name only takes it off the pick list. Tasks already logged stay in the log.</p>
     </div>
+    <div class="team-block" id="remindBlock">
+      <span class="label">Reminders and daily award</span>
+      <label class="copy-chk"><input type="checkbox" id="rmHoursOn"> Remind engineers who have not entered any hours today, at <input type="time" id="rmHoursAt" class="inl-time" aria-label="Reminder time"></label>
+      <label class="copy-chk"><input type="checkbox" id="rmAckOn"> Remind the team leader when a task is still not confirmed after <input type="number" id="rmAckHrs" class="inl-num" min="1" max="48" step="1" aria-label="Hours before reminding"> hours</label>
+      <div class="rm-row">
+        <label class="field"><span>Time zone</span><select id="rmTz"><option value="Africa/Cairo">Cairo</option><option value="Asia/Riyadh">Riyadh</option><option value="Asia/Dubai">Dubai</option></select></label>
+        <fieldset class="rm-days" id="rmDays"><legend>Working days</legend></fieldset>
+      </div>
+      <label class="copy-chk"><input type="checkbox" id="motdOn"> Show the daily award to everyone, titled <input type="text" id="motdTitle" class="inl-time" maxlength="40" aria-label="Award title" style="width:170px"></label>
+      <div class="copy-bar"><button class="btn small primary" id="btnRmSave" type="button">Save settings</button><span class="hint" id="rmMsg" aria-live="polite"></span></div>
+      <p class="hint">Reminders go out on working days only. Unconfirmed-task reminders go out between 8:00 and 20:00. If a discipline has no team leader, the admin gets them.</p>
+    </div>
     <p class="err" id="teamErr" role="alert"></p>
   </div>
   <div class="dlg-f"><button class="btn primary" id="btnTeamClose" type="button">Done</button></div>
@@ -641,6 +717,22 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="err" id="alertErr"></p>
   </div>
   <div class="dlg-f"><button class="btn" id="btnAlertCancel" type="button">Cancel</button><button class="btn primary" id="btnAlertSend" type="button">Send alert</button></div>
+</dialog>
+
+<dialog id="copyDlg" aria-labelledby="copyTitle">
+  <div class="dlg-h"><h3 id="copyTitle">Copy tasks to another day</h3></div>
+  <div class="team-b">
+    <div class="copy-dates">
+      <label class="field"><span>Copy tasks from</span><input type="date" id="copyFrom"></label>
+      <label class="field"><span>To</span><input type="date" id="copyTo"></label>
+      <label class="copy-chk"><input type="checkbox" id="copyDone"> Include completed tasks</label>
+    </div>
+    <div class="copy-bar"><span class="hint" id="copyCount"></span><button class="btn small" type="button" id="copyAll">Select all</button><button class="btn small" type="button" id="copyNone">Select none</button></div>
+    <div id="copyList" class="copy-list"></div>
+    <p class="hint">Each copy starts as Not Started with 0 hours. The engineer confirms it and enters the estimate as usual.</p>
+    <p class="err" id="copyErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="btnCopyCancel" type="button">Cancel</button><button class="btn primary" id="btnCopyGo" type="button">Copy tasks</button></div>
 </dialog>
 
 <dialog id="notifDlg" aria-labelledby="notifTitle">
@@ -692,6 +784,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="hint" id="expScope"></p>
     <p class="hint">The export follows the filters you have set on the tracker. Clear the filters to export everything.</p>
     <p class="err" id="expErr" role="alert"></p>
+    <div class="backup-box" id="backupBox" hidden><div><strong>Full backup</strong><small>Every table in one Excel file, whatever the filters. Keep it somewhere safe.</small><small id="backupLast"></small></div><button class="btn" id="btnBackup" type="button">Download full backup</button></div>
   </div>
   <div class="dlg-f">
     <button class="btn left" id="btnExpClose" type="button">Cancel</button>
@@ -762,7 +855,7 @@ function dayName(s,style){var d=parseDate(s);return d?d.toLocaleDateString("en-U
 function shortDate(s){var d=parseDate(s);return d?d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"}):(s||"");}
 function niceDate(s){var d=parseDate(s);return d?d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):(s||"");}
 function roundsOf(t){return (S.roundsBy&&S.roundsBy[t.id])||[];}
-function estT(t){return roundsOf(t).reduce(function(a,r){return a+num(r.est);},num(t.est));}
+function estT(t){return roundsOf(t).reduce(function(a,r){return r.kind==="nextday"?a:a+num(r.est);},num(t.est));}
 function actT(t){return roundsOf(t).reduce(function(a,r){return a+num(r.actual);},num(t.actual));}
 function remaining(t){return t.status==="Completed"?0:Math.max(0,estT(t)-actT(t));}
 function overrun(t){return Math.max(0,actT(t)-estT(t));}
@@ -893,7 +986,7 @@ function changeStatus(t,sel){
     flashId=t.id;flashAt=Date.now();
     var pausedNow=v==="Delayed"||v==="On Hold";
     if(pausedNow&&!t.reason)focusReq={tid:t.id,field:"reason"};
-    toast(pausedNow&&!t.reason?"Marked "+v+". Write the reason in the row below the task.":v==="Comment"?"Comment round added. Enter its hours in the row below the task.":v==="Next Day"?"Moved to next day. Pick the day and enter the hours in the row below the task.":"Status set to "+v+(ch?". Status filter cleared so the task stays in view.":""));
+    toast(pausedNow&&!t.reason?"Marked "+v+". Write the reason in the row below the task.":v==="Comment"?"Comment round added. Enter its hours in the row below the task.":v==="Next Day"?"Moved to next day. The row below carries the remaining hours. Enter the actual hours when you finish.":"Status set to "+v+(ch?". Status filter cleared so the task stays in view.":""));
     if(v==="Comment"||v==="Next Day"){loadRounds().then(function(){var rs=roundsOf(t);if(rs.length)focusReq={tid:"r"+rs[rs.length-1].id,field:"est"};render();},function(){render();});}else render();
   }).catch(function(e){toast(writeError(e),true);render();});
 }
@@ -1133,7 +1226,7 @@ function render(){
   $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
   if(v==="management"){renderMgmt();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
-  $("btnAdd").hidden=!canAdd();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
+  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
   $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
 }
@@ -1171,6 +1264,7 @@ function openTask(t,preset){
     if($("f-engineer").value!==me.engineer){$("f-engineer").append(h("option",{value:me.engineer,text:me.engineer}));$("f-engineer").value=me.engineer;}}
   if(isTL()){fillSelect($("f-discipline"),[me.discipline],me.discipline);syncEngineerOptions(t?t.engineer:"");}
   $("f-discipline").disabled=!!own||isTL();$("f-engineer").disabled=!!own;
+  moreSel={};syncMoreEng();
   fillSelect($("f-project"),S.settings.projects,t?t.project:S.f.project,"Select project");
   $("f-task").value=t?(t.task||""):"";fillTaskList();$("taskHint").textContent="";
   $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";
@@ -1205,11 +1299,14 @@ function saveTask(ev){
   else if((d.status==="Delayed"||d.status==="On Hold")&&!d.reason)err=d.status==="Delayed"?"Add the reason for the delay.":"Add the reason for putting the task on hold.";
   if(err){$("taskErr").textContent=err;return;}
   busy=true;$("btnSave").disabled=true;$("taskErr").textContent="";
-  var cur=editing,p=run(cur?sb.from("tt_tasks").update(d).eq("id",cur.id).select().single():sb.from("tt_tasks").insert(d).select().single());
+  var cur=editing,extra=cur?[]:moreChosen().filter(function(n){return n!==d.engineer;});
+  var rows=[d].concat(extra.map(function(n){var x=Object.assign({},d);x.engineer=n;return x;}));
+  var p=run(cur?sb.from("tt_tasks").update(d).eq("id",cur.id).select().single():sb.from("tt_tasks").insert(rows).select())
+    .then(function(r){if(cur)return r;r=r||[];r.slice(1).forEach(function(o){upsertLocal(row2task(o));});return r[0];});
   p.then(function(saved){
     var t=row2task(saved);upsertLocal(t);
     var ch=revealTask(t);flashId=t.id;flashAt=Date.now();
-    $("taskDlg").close();toast((cur?"Task updated":"Task added")+(ch?". Filters were loosened so you can see it.":""));render();})
+    $("taskDlg").close();toast((cur?"Task updated":extra.length?"Task added for "+(extra.length+1)+" engineers":"Task added")+(ch?". Filters were loosened so you can see it.":""));render();})
    .catch(function(e){$("taskErr").textContent=writeError(e);})
    .then(function(){busy=false;$("btnSave").disabled=false;});
 }
@@ -1253,12 +1350,13 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_tasks"},function(p){
         if(p.eventType==="DELETE"){if(p.old&&p.old.id)dropLocal(String(p.old.id));}
         else if(p["new"]&&p["new"].id)upsertLocal(row2task(p["new"]));
+        if(p["new"]&&(p["new"].status==="Completed"||(p.old&&p.old.status==="Completed")))motdLater();
         render();})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"tt_notifications"},function(p){if(p["new"])gotNotif(p["new"]);})
       .on("postgres_changes",{event:"UPDATE",schema:"public",table:"tt_notifications"},function(p){if(p["new"])notifUpdated(p["new"]);})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_rounds"},function(p){
         if(p.eventType==="DELETE"){if(p.old&&p.old.id){S.rounds=(S.rounds||[]).filter(function(r){return r.id!==String(p.old.id);});indexRounds();}}
-        else if(p["new"]&&p["new"].id)upsertRound(p["new"]);
+        else if(p["new"]&&p["new"].id){upsertRound(p["new"]);if(p["new"].status==="Done")motdLater();}
         render();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
@@ -1370,7 +1468,7 @@ function roundLabel(t,r){
 }
 function roundRow(t,r,fl,more){
   var ed=canEdit(t),mg=canManageRows(t),done=r.status==="Done",rem=Math.max(0,num(r.est)-num(r.actual)),nd=r.kind==="nextday";
-  var canE=mg||(ed&&!done&&isEng()&&!num(r.est)),canA=mg||(ed&&!done&&isEng()&&!num(r.actual));
+  var canE=mg||(!nd&&ed&&!done&&isEng()&&!num(r.est)),canA=mg||(ed&&!done&&isEng()&&!num(r.actual));
   var dateEl=null;
   if(nd){
     if(mg||(ed&&!done)){dateEl=h("input",{type:"date",value:r.work_date,"data-tid":"r"+r.id,"data-field":"work_date","aria-label":"Day to continue "+(t.task||"task")});
@@ -1380,7 +1478,7 @@ function roundRow(t,r,fl,more){
   return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"14"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
-    h("label",null,canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
+    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
     h("label",null,canA&&isEng()?"Actual h (once)":"Actual h",canA?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.actual))})),
     done?h("span",{"class":"rd-pill rd-done",text:(nd?"Finished":"Comment done")+(r.done_at?" · "+niceStamp(r.done_at):"")})
         :h("span",{"class":"rd-pill rd-open",text:nd?"In progress":"Comment open"}),
@@ -1435,7 +1533,7 @@ function commitRoundDate(r,inp){
 }
 function roundDone(r,btn){
   if(!sb)return;
-  if(isEng()&&(!num(r.est)||!num(r.actual))){toast("Enter the estimated and actual hours first.",true);return;}
+  if(isEng()&&((r.kind!=="nextday"&&!num(r.est))||!num(r.actual))){toast(r.kind==="nextday"?"Enter the actual hours first.":"Enter the estimated and actual hours first.",true);return;}
   btn.disabled=true;
   run(sb.from("tt_rounds").update({status:"Done"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Marked finished.":"Comment marked done.");render();})
     .catch(function(e){toast(writeError(e),true);render();});
@@ -1443,7 +1541,7 @@ function roundDone(r,btn){
 
 /* ---------- send to + notifications ---------- */
 var directory=[],notifs=[];
-function loadDirectory(){return run(sb.rpc("tt_directory")).then(function(d){directory=(d||[]).map(function(u){return {email:String(u.email),name:String(u.full_name||""),role:String(u.role||"")};});});}
+function loadDirectory(){return run(sb.rpc("tt_directory")).then(function(d){directory=(d||[]).map(function(u){return {email:String(u.email),name:String(u.full_name||""),role:String(u.role||""),engineer:String(u.engineer||"")};});});}
 function personName(email){for(var i=0;i<directory.length;i++)if(directory[i].email===email)return directory[i].name||email;return email;}
 function sendCell(t){
   var note=t.sent_to?h("span",{"class":"sub",text:"Sent "+(t.sent_at?niceStamp(t.sent_at):"")}):null;
@@ -1554,6 +1652,8 @@ function gotNotif(o){
   if(notifs.some(function(x){return x.id===n.id;}))return;
   notifs.unshift(n);paintNotifs();render();
   if(n.kind==="ping"){showPings(true);if($("notifDlg").open)renderNotifs();return;}
+  if(n.kind==="remind"){toast(n.message+": "+(n.note||n.task));
+    osNotify(n.message,n.note||n.task,{always:!document.hasFocus(),tag:"r-"+n.id});if($("notifDlg").open)renderNotifs();return;}
   toast(n.message+": "+n.task+" · from "+n.from_name);
   osNotify(n.message,n.task+(n.project?" · "+n.project:"")+"\nFrom "+n.from_name,{tag:"n-"+n.id});
   if($("notifDlg").open)renderNotifs();
@@ -1758,7 +1858,7 @@ function exportWhat(){var r=document.querySelector('input[name="expWhat"]:checke
 function openExport(){
   var n=exportRows().length;
   $("expScope").textContent="In this export: "+exportScope()+" · "+n+(n===1?" task":" tasks");
-  $("expErr").textContent="";$("exportDlg").showModal();
+  $("expErr").textContent="";renderBackupBox();$("exportDlg").showModal();
 }
 function rLine(label,ts,extra){
   var a=agg(ts),o={label:label,n:a.n,done:a.done,pct:a.pct/100,est:a.est,act:a.act,rem:a.rem,late:a.late,hold:a.by["On Hold"]||0,over:a.over};
@@ -2164,7 +2264,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopReminders();stopMotd();stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -2174,7 +2274,7 @@ function enter(session){
   showAuth("note","Loading…");
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
-    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();
+    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();
     return loadAll().then(subscribe);
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
@@ -2218,12 +2318,24 @@ function wire(){
   $("btnExpXlsx").addEventListener("click",function(){runExport("xlsx");});
   $("btnExpPdf").addEventListener("click",function(){runExport("pdf");});
   $("f-task").addEventListener("input",taskHint);
-  $("btnTeam").addEventListener("click",function(){$("teamErr").textContent="";renderTeam();$("teamDlg").showModal();});
+  $("btnTeam").addEventListener("click",function(){$("teamErr").textContent="";renderTeam();renderRemind();$("teamDlg").showModal();
+    loadConfig().then(renderRemind).catch(function(){});});
+  $("btnRmSave").addEventListener("click",saveRemind);
+  $("btnCopy").addEventListener("click",openCopy);
+  $("btnCopyCancel").addEventListener("click",function(){$("copyDlg").close();});
+  $("btnCopyGo").addEventListener("click",copyGo);
+  $("copyFrom").addEventListener("change",function(){renderCopy(true);});
+  $("copyTo").addEventListener("change",function(){renderCopy(false);});
+  $("copyDone").addEventListener("change",function(){renderCopy(false);});
+  $("copyAll").addEventListener("click",function(){copyItems().forEach(function(it){if(!it.dup)copyChecked[it.t.id]=true;});renderCopy(false);});
+  $("copyNone").addEventListener("click",function(){copyItems().forEach(function(it){copyChecked[it.t.id]=false;});renderCopy(false);});
+  $("btnBackup").addEventListener("click",function(ev){doBackup(ev.currentTarget);});
+  $("f-engineer").addEventListener("change",syncMoreEng);
   $("btnTeamClose").addEventListener("click",function(){$("teamDlg").close();});
   $("btnCancel").addEventListener("click",function(){$("taskDlg").close();});
   $("btnDelete").addEventListener("click",deleteTask);
   $("taskForm").addEventListener("submit",saveTask);
-  $("f-discipline").addEventListener("change",function(){syncEngineerOptions("");fillTaskList();taskHint();});
+  $("f-discipline").addEventListener("change",function(){syncEngineerOptions("");fillTaskList();taskHint();syncMoreEng();});
   ["f-date","f-est","f-actual","f-status"].forEach(function(id){$(id).addEventListener("input",syncDerived);$(id).addEventListener("change",syncDerived);});
   $("projForm").addEventListener("submit",function(ev){ev.preventDefault();var v=normName($("newProject").value);if(!v)return;
     if(S.settings.projects.indexOf(v)>=0){$("teamErr").textContent=v+" is already in the list.";return;}
@@ -2269,6 +2381,237 @@ function start(){
   sb.auth.getSession().then(function(r){var s=r&&r.data&&r.data.session;if(s)return enter(s);showAuth("login");return null;})
     .catch(function(){showAuth("login");});
   document.addEventListener("visibilitychange",function(){if(!document.hidden)refresh();});
+}
+/* ---------- one task for several engineers ---------- */
+var moreSel={};
+function syncMoreEng(){
+  var wrap=$("moreEngWrap"),show=!editing&&canAdd();wrap.hidden=!show;if(!show)return;
+  var d=$("f-discipline").value,main=$("f-engineer").value,box=clear($("moreEng"));
+  var names=S.settings.engineers.filter(function(e){return e.discipline===d&&e.name!==main;}).map(function(e){return e.name;});
+  if(!names.length){box.append(h("span",{"class":"hint",text:"No other engineers in this discipline."}));return;}
+  names.forEach(function(n){var cb=h("input",{type:"checkbox",value:n});cb.checked=!!moreSel[n];
+    cb.addEventListener("change",function(){moreSel[n]=cb.checked;});box.append(h("label",null,cb,n));});
+}
+function moreChosen(){var d=$("f-discipline").value;return S.settings.engineers.filter(function(e){return e.discipline===d&&moreSel[e.name];}).map(function(e){return e.name;});}
+
+/* ---------- copy tasks to another day ---------- */
+var copyChecked={};
+function openCopy(){
+  var td=today(),dates={};S.tasks.forEach(function(t){if(canDelete(t)&&t.date<td)dates[t.date]=1;});
+  var ds=Object.keys(dates).sort();
+  $("copyFrom").value=ds.length?ds[ds.length-1]:td;$("copyTo").value=td;$("copyDone").checked=false;$("copyErr").textContent="";
+  renderCopy(true);$("copyDlg").showModal();
+}
+function copyKey(t){return [t.engineer,t.project,(t.task||"").trim().toLowerCase()].join("|");}
+function copyItems(){
+  var from=$("copyFrom").value,to=$("copyTo").value,inc=$("copyDone").checked,there={};
+  S.tasks.forEach(function(t){if(t.date===to)there[copyKey(t)]=1;});
+  return S.tasks.filter(function(t){return t.date===from&&canDelete(t)&&(inc||t.status!=="Completed");})
+    .sort(function(a,b){return String(a.engineer).localeCompare(String(b.engineer))||String(a.task).localeCompare(String(b.task));})
+    .map(function(t){return {t:t,dup:from!==to&&!!there[copyKey(t)]};});
+}
+function renderCopy(reset){
+  if(reset)copyChecked={};
+  var items=copyItems(),box=clear($("copyList")),last=null,to=$("copyTo").value;
+  items.forEach(function(it){if(it.dup)copyChecked[it.t.id]=false;else if(!(it.t.id in copyChecked))copyChecked[it.t.id]=true;});
+  if(!items.length)box.append(h("p",{"class":"copy-empty",text:$("copyFrom").value?"No tasks you can copy on "+niceDate($("copyFrom").value)+".":"Pick the day to copy from."}));
+  items.forEach(function(it){var t=it.t;
+    if(t.engineer!==last){last=t.engineer;box.append(h("div",{"class":"copy-eng",text:t.engineer||"—"}));}
+    var cb=h("input",{type:"checkbox","aria-label":"Copy "+(t.task||"task")+" for "+t.engineer});cb.checked=!!copyChecked[t.id];cb.disabled=it.dup;
+    cb.addEventListener("change",function(){copyChecked[t.id]=cb.checked;copyCount();});
+    box.append(h("label",{"class":"copy-row"+(it.dup?" dis":"")},cb,h("span",null,h("strong",{text:t.task||"—"}),
+      h("small",{text:[t.project,t.level,t.element,STATUS_LABEL[t.status]||t.status].filter(Boolean).join(" · ")+(it.dup?" · already on "+niceDate(to):"")}))));});
+  copyCount();
+}
+function copySelected(){return copyItems().filter(function(it){return !it.dup&&copyChecked[it.t.id];}).map(function(it){return it.t;});}
+function copyCount(){
+  var n=copySelected().length;$("copyCount").textContent=n+(n===1?" task selected":" tasks selected");
+  $("btnCopyGo").textContent=n?"Copy "+n+(n===1?" task":" tasks"):"Copy tasks";$("btnCopyGo").disabled=!n;
+}
+function copyGo(){
+  var from=$("copyFrom").value,to=$("copyTo").value,list=copySelected(),btn=$("btnCopyGo");$("copyErr").textContent="";
+  if(!parseDate(to)){$("copyErr").textContent="Pick the day to copy to.";return;}
+  if(to===from){$("copyErr").textContent="Pick a different day to copy to.";return;}
+  if(!list.length||!sb)return;btn.disabled=true;
+  var rows=list.map(function(t){return {date:to,discipline:t.discipline,engineer:t.engineer,project:t.project,task:t.task,level:t.level,element:t.element,
+    submission_path:t.submission_path,status:"Not Started",est:0,actual:0,reason:""};});
+  run(sb.from("tt_tasks").insert(rows).select()).then(function(r){
+    (r||[]).forEach(function(o){upsertLocal(row2task(o));});
+    var ch=false;
+    if((S.f.from&&S.f.from>to)||(S.f.to&&S.f.to<to)||(S.f.status&&S.f.status!=="Not Started")){S.f.from="";S.f.to="";S.f.status="";ch=true;}
+    $("copyDlg").close();
+    toast("Copied "+rows.length+(rows.length===1?" task":" tasks")+" to "+niceDate(to)+". The engineers get them to confirm."+(ch?" Filters were loosened so you can see them.":""));render();
+  }).catch(function(e){$("copyErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");btn.disabled=false;});
+}
+
+/* ---------- automatic reminders and settings ---------- */
+var remindTimer=null,remindFirst=null,DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function loadConfig(){
+  return run(sb.from("tt_config").select("key,value")).then(function(d){var c={};(d||[]).forEach(function(r){c[r.key]=String(r.value==null?"":r.value);});S.cfg=c;S.cfgLoaded=true;});
+}
+function runReminders(){if(sb&&me)run(sb.rpc("tt_reminders")).catch(function(){});}
+function startReminders(){
+  stopReminders();remindFirst=setTimeout(runReminders,15000);remindTimer=setInterval(runReminders,600000);
+  loadConfig().then(function(){render();}).catch(function(){});
+}
+function stopReminders(){if(remindFirst)clearTimeout(remindFirst);if(remindTimer)clearInterval(remindTimer);remindFirst=remindTimer=null;S.cfg={};S.cfgLoaded=false;}
+function renderRemind(){
+  var c=S.cfg||{};
+  $("rmHoursOn").checked=(c.remind_hours_on||"on")==="on";$("rmHoursAt").value=c.remind_hours_at||"16:00";
+  $("rmAckOn").checked=(c.remind_ack_on||"on")==="on";$("rmAckHrs").value=c.remind_ack_hours||"4";$("rmTz").value=c.timezone||"Africa/Cairo";
+  var wd=(c.workdays||"0,1,2,3,4").split(","),box=$("rmDays");
+  Array.prototype.slice.call(box.querySelectorAll("label")).forEach(function(l){l.remove();});
+  DAYS.forEach(function(d,i){var cb=h("input",{type:"checkbox",value:String(i)});cb.checked=wd.indexOf(String(i))>=0;box.append(h("label",null,cb,d));});
+  $("motdOn").checked=(c.motd_on||"on")==="on";$("motdTitle").value=c.motd_title||"Man of the day";
+  $("rmMsg").textContent="";
+}
+function saveRemind(){
+  var at=$("rmHoursAt").value,hrs=Math.round(num($("rmAckHrs").value)),
+      days=Array.prototype.slice.call($("rmDays").querySelectorAll("input:checked")).map(function(x){return x.value;});
+  if(!/^\d{2}:\d{2}/.test(at)){$("rmMsg").textContent="Pick the reminder time.";return;}
+  if(!(hrs>=1&&hrs<=48)){$("rmMsg").textContent="The hours must be between 1 and 48.";return;}
+  if(!days.length){$("rmMsg").textContent="Pick at least one working day.";return;}
+  var v={remind_hours_on:$("rmHoursOn").checked?"on":"off",remind_hours_at:at.slice(0,5),remind_ack_on:$("rmAckOn").checked?"on":"off",
+         remind_ack_hours:String(hrs),timezone:$("rmTz").value,workdays:days.join(","),
+         motd_on:$("motdOn").checked?"on":"off",motd_title:$("motdTitle").value.trim()||"Man of the day"};
+  var rows=Object.keys(v).map(function(k){return {key:k,value:v[k]};});$("btnRmSave").disabled=true;$("rmMsg").textContent="";
+  run(sb.from("tt_config").upsert(rows)).then(function(){S.cfg=S.cfg||{};for(var k in v)S.cfg[k]=v[k];$("rmMsg").textContent="Settings saved.";loadMotd();render();})
+    .catch(function(e){$("rmMsg").textContent=/tt_config|PGRST205|42P01/.test((e&&e.message)||"")?"Run the latest supabase-setup.sql first.":writeError(e);})
+    .then(function(){$("btnRmSave").disabled=false;});
+}
+
+/* ---------- full backup ---------- */
+var BACKUP_TABLES=[["Tasks","tt_tasks","id"],["Rows under tasks","tt_rounds","id"],["Projects","tt_projects","name"],["Engineers","tt_engineers","name"],
+                   ["Users","tt_users","email"],["Notifications","tt_notifications","id"],["Settings","tt_config","key"]];
+function fetchAll(table,order){
+  var out=[],size=1000;
+  function page(from){return run(sb.from(table).select("*").order(order).range(from,from+size-1)).then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});}
+  return page(0);
+}
+function doBackup(btn){
+  if(!sb||!isAdmin())return;var label=btn.textContent;btn.disabled=true;btn.textContent="Preparing…";
+  var stamp=new Date().toISOString();
+  loadLib(LIB_EXCEL).then(function(){return Promise.all(BACKUP_TABLES.map(function(x){return fetchAll(x[1],x[2]);}));}).then(function(all){
+    var wb=new ExcelJS.Workbook();wb.creator="IBIMS Task Tracker";wb.created=new Date();
+    var info=wb.addWorksheet("About");info.columns=[{width:26},{width:62}];
+    [["IBIMS Task Tracker","Full backup"],["Made",niceStamp(stamp)],["By",me.full_name||me.email],["",""]]
+      .concat(BACKUP_TABLES.map(function(x,i){return [x[0],all[i].length+(all[i].length===1?" row":" rows")+" · table "+x[1]];}))
+      .forEach(function(r,i){var row=info.addRow(r);if(i===0)row.font={bold:true,size:14};else row.getCell(1).font={bold:true};});
+    BACKUP_TABLES.forEach(function(x,i){
+      var rows=all[i],keys=[];rows.forEach(function(r){Object.keys(r).forEach(function(k){if(keys.indexOf(k)<0)keys.push(k);});});
+      var ws=wb.addWorksheet(x[0]);if(!keys.length){ws.addRow(["(empty)"]);return;}
+      ws.columns=keys.map(function(k){return {header:k,key:k,width:Math.min(48,Math.max(12,k.length+2))};});
+      rows.forEach(function(r){var o={};keys.forEach(function(k){var v=r[k];o[k]=v==null?"":(typeof v==="object"?JSON.stringify(v):v);});ws.addRow(o);});
+      ws.getRow(1).font={bold:true};ws.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFE5EBF0"}};
+      ws.views=[{state:"frozen",ySplit:1}];ws.autoFilter={from:{row:1,column:1},to:{row:1,column:keys.length}};
+    });
+    return wb.xlsx.writeBuffer();
+  }).then(function(buf){
+    saveBlob(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),"ibims-backup-"+today()+".xlsx");
+    S.cfg=S.cfg||{};S.cfg.last_backup_at=stamp;renderBackupBox();render();toast("Backup downloaded. Keep it somewhere safe, outside this computer too.");
+    return run(sb.from("tt_config").upsert([{key:"last_backup_at",value:stamp}])).catch(function(){});
+  }).catch(function(e){toast((e&&e.message)||"Could not make the backup.",true);})
+    .then(function(){btn.disabled=false;btn.textContent=label;});
+}
+function backupAge(){var v=S.cfg&&S.cfg.last_backup_at;if(!v)return null;var d=new Date(v);return isNaN(d)?null:Math.max(0,Math.floor((Date.now()-d.getTime())/86400000));}
+function renderBackupNote(){
+  var box=$("backupNote");if(!box)return;var a=backupAge(),show=isAdmin()&&S.cfgLoaded&&S.tasksLoaded&&(a===null||a>=7);
+  box.hidden=!show;if(!show)return;clear(box);
+  box.append(h("span",{text:a===null?"No full backup has been made yet. Download one and keep it somewhere safe.":"The last full backup was "+a+" days ago. Time for a new one."}),
+    h("button",{"class":"btn small primary",type:"button",onclick:function(ev){doBackup(ev.currentTarget);}},"Download backup now"));
+}
+function renderBackupBox(){
+  $("backupBox").hidden=!isAdmin();var a=backupAge();
+  $("backupLast").textContent=a===null?"No backup made yet.":"Last backup: "+niceStamp(S.cfg.last_backup_at)+(a===0?" (today)":" ("+a+(a===1?" day ago)":" days ago)"));
+}
+/* ---------- engineers without an open task ---------- */
+function freeEngineers(){
+  var td=today(),linked={},any=false,res={free:[],wait:[]};
+  directory.forEach(function(u){if(u.role==="engineer"&&u.engineer){linked[u.engineer]=1;any=true;}});
+  S.settings.engineers.forEach(function(e){
+    if(any&&!linked[e.name])return;
+    var open=S.tasks.filter(function(t){return t.engineer===e.name&&t.date<=td&&t.status!=="Completed";});
+    var active=open.filter(function(t){return t.status!=="Delayed"&&t.status!=="On Hold";});
+    if(!open.length)res.free.push(e);else if(!active.length)res.wait.push({e:e,n:open.length,kind:open[0].status});
+  });
+  return res;
+}
+function giveTaskTo(e){
+  openTask(null);
+  if(!isTL())$("f-discipline").value=e.discipline;
+  syncEngineerOptions(e.name);$("f-engineer").value=e.name;fillTaskList();syncMoreEng();$("f-task").focus();
+}
+function renderFree(v){
+  var box=$("freeBox"),show=seesTeam()&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard";
+  box.hidden=!show;if(!show)return;clear(box);
+  var r=freeEngineers(),n=r.free.length;
+  box.append(h("div",{"class":"free-h"},h("h2",{text:"Available now"}),
+    h("p",{text:n?n+(n===1?" engineer has":" engineers have")+" no open task"+(canAdd()?". Click a name to give them one.":"."):"Everyone has an open task."})));
+  function chip(e,extra,cls){
+    var can=canAdd()&&(isAdmin()||e.discipline===me.discipline);
+    var kids=[e.name,h("small",{text:extra})];
+    return can?h("button",{"class":"free-chip"+(cls||""),type:"button",title:"Add a task for "+e.name,onclick:function(){giveTaskTo(e);}},kids)
+              :h("span",{"class":"free-chip"+(cls||"")},kids);
+  }
+  if(n){var line=h("div",{"class":"free-line"},h("span",{"class":"label",text:"No open task"}));
+    r.free.forEach(function(e){line.append(chip(e,titleCase(e.discipline)));});box.append(line);}
+  else box.querySelector("p").className="free-ok";
+  if(r.wait.length){var w=h("div",{"class":"free-line"},h("span",{"class":"label",text:"Only stopped tasks"}));
+    r.wait.forEach(function(x){w.append(chip(x.e,x.n===1?x.kind:x.n+" delayed / on hold"," wait"));});box.append(w);}
+}
+
+/* ---------- Man of the day ---------- */
+var motd=[],motdTimer=null,motdSoon=null,motdHow=false;
+function loadMotd(){
+  if(!sb||!me)return Promise.resolve();
+  return run(sb.rpc("tt_man_of_day")).then(function(d){
+    motd=(d||[]).map(function(o){return {day:String(o.day||"").slice(0,10),today:!!o.is_today,discipline:String(o.discipline||""),engineer:String(o.engineer||""),
+      name:String(o.full_name||o.engineer||""),points:num(o.points),tasks:Number(o.tasks)||0,comments:Number(o.comments)||0,est:num(o.est),actual:num(o.actual),overall:!!o.overall};});
+    renderMotd();
+  }).catch(function(){motd=[];renderMotd();});
+}
+function startMotd(){stopMotd();loadMotd();motdTimer=setInterval(loadMotd,180000);}
+function stopMotd(){if(motdTimer)clearInterval(motdTimer);if(motdSoon)clearTimeout(motdSoon);motdTimer=motdSoon=null;motd=[];}
+function motdLater(){if(motdSoon)clearTimeout(motdSoon);motdSoon=setTimeout(function(){motdSoon=null;loadMotd();},4000);}
+function niceName(n){return String(n||"").toLowerCase().replace(/(^|[\s.-])([a-z])/g,function(m,a,b){return a+b.toUpperCase();});}
+function motdStats(w){
+  var bits=[];
+  if(w.tasks)bits.push(w.tasks+(w.tasks===1?" task finished":" tasks finished"));
+  if(w.comments)bits.push(w.comments+(w.comments===1?" comment closed":" comments closed"));
+  bits.push(fmt(w.est)+" h delivered in "+fmt(w.actual)+" h");
+  bits.push(fmt(w.points)+" points");
+  return bits.join(" · ");
+}
+var CUP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>';
+function renderMotd(){
+  var box=$("motd");if(!box)return;
+  var top=motd.filter(function(w){return w.overall;})[0];
+  box.hidden=!top||!me;if(box.hidden)return;clear(box);
+  var title=(S.cfg&&S.cfg.motd_title)||"Man of the day",dayTxt=top.today?"Today · live":niceDate(top.day);
+  var mine=isEng()&&me.engineer===top.engineer;
+  var cup=h("div",{"class":"motd-cup"});cup.innerHTML=CUP;
+  box.append(h("div",{"class":"motd-main"},cup,h("div",{"class":"motd-txt"},
+    h("span",{"class":"motd-kicker",text:title+" · "+dayTxt}),
+    h("span",{"class":"motd-name"},niceName(top.name),h("small",{text:titleCase(top.discipline)})),
+    h("span",{"class":"motd-stats",text:motdStats(top)}),
+    mine?h("span",{"class":"motd-me",text:top.today?"That's you. Great work today!":"That's you. Great work!"}):null)));
+  var side=h("div",{"class":"motd-side"},h("span",{"class":"label",text:"Top in each discipline"}));
+  motd.forEach(function(w){side.append(h("div",{"class":"motd-row"},h("b",{text:titleCase(w.discipline)+": "+niceName(w.name)}),h("span",{text:fmt(w.points)+" pts"})));});
+  box.append(side);
+  var how=h("p",{"class":"motd-how"});
+  if(motdHow)how.append("Points = estimated hours of the tasks finished and comments closed "+(top.today?"today":"that day")+". When the work took longer than estimated, the points shrink in the same proportion (8 h estimated done in 10 h = 6.4 points). Work with no actual hours entered earns nothing. "+(top.today?"The board updates through the day.":"No one has finished work today yet, so this is the last winner."),
+    " ",h("button",{type:"button",onclick:function(){motdHow=false;renderMotd();}},"Hide"));
+  else how.append(top.today?"Updates through the day as tasks are finished. ":"No one has finished work today yet. ",h("button",{type:"button",onclick:function(){motdHow=true;renderMotd();}},"How points work"));
+  box.append(how);
+  var key="motd-cheer-"+top.day+"-"+top.engineer,seen=false;
+  try{seen=localStorage.getItem(key)==="1";if(!seen)localStorage.setItem(key,"1");}catch(e){seen=true;}
+  if(!seen)cheer();
+}
+function cheer(){
+  var c=h("div",{"class":"confetti","aria-hidden":"true"}),cols=["#D99A0B","#0B7F82","#2A78D6","#1B8A52","#7B61D9","#E06A3B"];
+  for(var i=0;i<46;i++){var p=h("i");p.style.left=(Math.random()*100)+"%";p.style.background=cols[i%cols.length];p.style.animationDelay=(Math.random()*0.7)+"s";
+    p.style.transform="rotate("+Math.round(Math.random()*180)+"deg)";c.append(p);}
+  document.body.append(c);setTimeout(function(){c.remove();},4600);
 }
 start();
 })();
