@@ -58,7 +58,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* band */
 .band{background:var(--band);color:var(--band-ink);border-bottom:3px solid var(--accent)}
-.band-in{max-width:1320px;margin:0 auto;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+.band-in{max-width:1480px;margin:0 auto;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-width:0}
 .brand b{font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:.14em;line-height:1}
 .brand span{font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:.08em;text-transform:uppercase;color:var(--band-muted);padding-left:14px;border-left:1px solid var(--band-line)}
@@ -78,7 +78,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn.small{padding:4px 10px;font-size:13px}
 .btn:disabled{opacity:.55;cursor:default}
 
-.wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+.wrap{max-width:1480px;margin:0 auto;padding-inline:20px;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
 @media (max-width:520px){.wrap{padding-inline:16px}.band-in{padding-inline:16px}}
 
 /* filters */
@@ -141,8 +141,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* table */
 .tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto;box-shadow:var(--shadow)}
-table{border-collapse:collapse;width:100%;min-width:1080px}
-.cell-txt{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:86px}
+table{border-collapse:collapse;width:100%;min-width:1180px}
+.cell-path{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:150px}
+.cell-path:hover{border-color:var(--accent)}
+td.path{overflow-wrap:anywhere;max-width:220px}
+.inbox-est{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.inbox-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cell-txt{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:74px}
 .cell-txt:hover{border-color:var(--accent)}
 td .sub.wait{color:var(--warn);font-weight:600}
 .inbox{background:var(--surface);border:2px solid var(--accent);border-radius:10px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
@@ -199,13 +204,13 @@ tr.has-sub2 td{border-bottom:0;padding-bottom:5px}
 .dc-x{display:flex;gap:2px;padding-left:38px;font-size:11px;color:var(--muted)}
 .dc-x span{flex:1;text-align:center;white-space:nowrap}
 .field input:disabled,.field select:disabled{opacity:.6;cursor:not-allowed}
-th{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 8px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:not(.subrow) td:last-child{position:sticky;right:0;background:var(--surface)}
 th:last-child{position:sticky;right:0}
 tr:last-child td{border-bottom:0}
 th.r,td.r{text-align:right}
-td.task{min-width:150px;max-width:360px;overflow-wrap:anywhere}
+td.task{min-width:140px;max-width:360px;overflow-wrap:anywhere}
 .cell-in{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 6px;width:62px;text-align:right;font-variant-numeric:tabular-nums}
 .cell-in:hover,.reason-in:hover{border-color:var(--accent)}
 tr.has-sub td{border-bottom:0;padding-bottom:5px}
@@ -463,6 +468,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <label class="field"><span>Engineer</span><select id="f-engineer"></select></label>
       <label class="field full"><span>Project</span><select id="f-project"></select></label>
       <label class="field"><span>Level</span><input type="text" id="f-level" maxlength="60" autocomplete="off" placeholder="e.g. L02"></label>
+      <label class="field full"><span>Submission path</span><input type="text" id="f-path" maxlength="400" autocomplete="off" placeholder="Folder path or link where the drawings are submitted"></label>
       <label class="field"><span>Element</span><input type="text" id="f-element" maxlength="60" autocomplete="off" placeholder="e.g. Slab"></label>
       <label class="field full"><span>Task</span><textarea id="f-task" rows="2" maxlength="500" placeholder="e.g. Level 2 slab reinforcement shop drawings"></textarea></label>
       <label class="field"><span id="estLabel">Estimated hours</span><input type="number" id="f-est" min="0" step="0.5" inputmode="decimal"></label>
@@ -540,7 +546,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
         <label class="field"><span>Password</span><input type="text" id="uPass" autocomplete="off" maxlength="72"></label>
       </div>
       <div class="addrow">
-        <label class="field"><span>Role</span><select id="uRole"><option value="engineer">Engineer</option><option value="teamleader">Team leader</option><option value="manager">Manager</option><option value="admin">Admin</option></select></label>
+        <label class="field"><span>Role</span><select id="uRole"><option value="engineer">Engineer</option><option value="teamleader">Team leader</option><option value="senior">Senior</option><option value="midsenior">Mid Senior</option><option value="manager">Manager</option><option value="admin">Admin</option></select></label>
         <label class="field" id="uEngWrap"><span>Engineer name on the tracker</span><select id="uEng"></select></label>
         <label class="field" id="uDiscWrap" hidden><span>Discipline they lead</span><select id="uDisc"></select></label>
         <button class="btn primary" id="btnUserAdd" type="submit">Add user</button>
@@ -548,7 +554,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     </form>
     <p class="err" id="usersErr" role="alert"></p>
     <p class="ok-msg" id="usersOk" role="status"></p>
-    <p class="hint">Engineer: takes tasks and updates only the tasks under the linked name. Team leader: sees, edits, adds and deletes the tasks of one discipline. Manager: sees and edits every task and the Management dashboard. Admin: everything, including users, team and projects. Only engineers take tasks. Give each person their email and password yourself; the app does not send emails.</p>
+    <p class="hint">Engineer: takes tasks and updates only the tasks under the linked name. Team leader, Senior and Mid Senior: see, edit, add and delete the tasks of one discipline. Manager: sees and edits every task and the Management dashboard. Admin: everything, including users, team and projects. Only engineers take tasks. Give each person their email and password yourself; the app does not send emails.</p>
   </div>
   <div class="dlg-f"><button class="btn primary" id="btnUsersClose" type="button">Done</button></div>
 </dialog>
@@ -576,15 +582,17 @@ var sb=null,me=null,users=[],chan=null,pollTimer=null,editing=null,deleteArmed=f
 function $(id){return document.getElementById(id);}
 function isAdmin(){return !!me&&me.role==="admin";}
 function editAll(){return !!me&&(me.role==="admin"||me.role==="manager");}
-function isTL(){return !!me&&me.role==="teamleader"&&!!me.discipline;}
+var LEADS=["teamleader","senior","midsenior"];
+function isLeadRole(r){return LEADS.indexOf(r)>=0;}
+function isTL(){return !!me&&isLeadRole(me.role)&&!!me.discipline;}
 function isEng(){return !!me&&me.role==="engineer";}
 function seesTeam(){return editAll()||isTL();}
 function canAdd(){return isAdmin()||isTL();}
 function canDelete(t){return isAdmin()||(isTL()&&t.discipline===me.discipline);}
 function canEdit(t){return editAll()||(isTL()&&t.discipline===me.discipline)||(isEng()&&!!me.engineer&&t.engineer===me.engineer);}
-function roleName(r){return {admin:"Admin",manager:"Manager",teamleader:"Team leader",engineer:"Engineer"}[r]||r||"";}
+function roleName(r){return {admin:"Admin",manager:"Manager",teamleader:"Team leader",senior:"Senior",midsenior:"Mid Senior",engineer:"Engineer"}[r]||r||"";}
 function row2task(o){return {id:String(o.id),date:String(o.date||"").slice(0,10),engineer:String(o.engineer||""),discipline:String(o.discipline||""),project:String(o.project||""),
-  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):""};}
+  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):""};}
 function upsertLocal(t){var i,found=false;for(i=0;i<S.tasks.length;i++){if(S.tasks[i].id===t.id){S.tasks[i]=t;found=true;break;}}if(!found)S.tasks.push(t);}
 function dropLocal(id){S.tasks=S.tasks.filter(function(x){return x.id!==id;});}
 function run(q){return Promise.resolve(q).then(function(r){if(r&&r.error)throw r.error;return r?r.data:null;});}
@@ -607,6 +615,7 @@ function pad(n){return n<10?"0"+n:""+n;}
 function today(){var d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
 function parseDate(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
 function dayName(s,style){var d=parseDate(s);return d?d.toLocaleDateString("en-US",{weekday:style||"long"}):"";}
+function shortDate(s){var d=parseDate(s);return d?d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"}):(s||"");}
 function niceDate(s){var d=parseDate(s);return d?d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):(s||"");}
 function roundsOf(t){return (S.roundsBy&&S.roundsBy[t.id])||[];}
 function estT(t){return roundsOf(t).reduce(function(a,r){return a+num(r.est);},num(t.est));}
@@ -750,7 +759,7 @@ function commitField(t,field,inp){
   var isNum=field==="actual"||field==="est",v=isNum?num(inp.value):inp.value.trim();
   if(v===t[field]){inp.value=isNum?(field==="est"&&!t.est?"":fmt(t[field])):t[field];return;}
   var patch={};patch[field]=v;inp.disabled=true;
-  updTask(t.id,patch).then(function(){t[field]=v;toast({actual:"Actual hours saved",est:"Estimated hours saved and locked",reason:"Reason saved",level:"Level saved",element:"Element saved"}[field]||"Saved");render();})
+  updTask(t.id,patch).then(function(){t[field]=v;toast({submission_path:"Submission path saved",actual:"Actual hours saved",est:"Estimated hours saved and locked",reason:"Reason saved",level:"Level saved",element:"Element saved"}[field]||"Saved");render();})
     .catch(function(e){toast(writeError(e),true);render();});
 }
 function inlineInput(t,field,props){
@@ -782,13 +791,13 @@ function buildTable(host,rows){
   if(!rows.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks match these filters."})));return;}
   var flashing=flashId&&Date.now()-flashAt<4000;
   var sorted=rows.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:String(a.engineer).localeCompare(String(b.engineer));});
-  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h","r"],["Remaining h","r"],"Status",""];
+  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h","r"],["Rem. h","r"],"Status","Submission Path",""];
   var tb=h("tbody");
   sorted.forEach(function(t){
     var ov=overrun(t);
     var delayed=t.status==="Delayed",paused=delayed||t.status==="On Hold",rds=roundsOf(t),fl=flashing&&t.id===flashId?" flash":"";
     tb.append(h("tr",{class:(((delayed?"is-delayed ":t.status==="On Hold"?"is-hold ":"")+((paused||rds.length)?"has-sub":""))+fl).trim()||null},
-      h("td",{class:"nowrap num"},niceDate(t.date),h("span",{class:"sub",text:dayName(t.date)})),
+      h("td",{class:"nowrap num",title:niceDate(t.date)},shortDate(t.date),h("span",{class:"sub",text:dayName(t.date)})),
       h("td",{class:"nowrap"},h("strong",{text:t.engineer||"—"})),
       h("td",{class:"nowrap"},t.project?h("span",{class:"tag",text:t.project}):"—"),
       h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
@@ -799,6 +808,7 @@ function buildTable(host,rows){
       h("td",{class:"r num"},canEdit(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:fmt(num(t.actual)),"aria-label":"Actual hours for "+(t.task||"task")}):fmt(num(t.actual)),totNote(t,"act")),
       h("td",{class:"r num"},fmt(remaining(t)),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
       h("td",null,statusCell(t)),
+      h("td",{"class":"path"},canEdit(t)?inlineInput(t,"submission_path",{"class":"cell-path",type:"text",maxlength:"400",value:t.submission_path,placeholder:"Folder or link","aria-label":"Submission path for "+(t.task||"task")}):(t.submission_path||"—")),
       h("td",{class:"r"},canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null)));
     rds.forEach(function(r,i){tb.append(roundRow(t,r,fl,paused||i<rds.length-1));});
     if(paused)tb.append(pauseRow(t,fl));
@@ -1019,9 +1029,9 @@ function openTask(t,preset){
   fillSelect($("f-project"),S.settings.projects,t?t.project:S.f.project,"Select project");
   $("f-task").value=t?(t.task||""):"";
   $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";
-  $("f-level").value=t?(t.level||""):"";$("f-element").value=t?(t.element||""):"";
-  var lockEst=!!t&&isEng()&&num(t.est)>0;$("f-est").disabled=lockEst;
-  $("estLabel").textContent=lockEst?"Estimated hours (locked)":(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours");
+  $("f-level").value=t?(t.level||""):"";$("f-path").value=t?(t.submission_path||""):"";$("f-element").value=t?(t.element||""):"";
+  var canEst=!!t&&((isEng()&&!num(t.est))||isAdmin());$("f-est").disabled=!canEst;
+  $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":canEst?(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
   fillSelect($("f-status"),STATUS,preset||(t?t.status:"Not Started"));
   $("f-reason").value=t?(t.reason||""):"";
   syncDerived();$("taskDlg").showModal();
@@ -1029,7 +1039,8 @@ function openTask(t,preset){
 function writeError(e){
   var m=(e&&e.message)||"",c=(e&&e.code)||"";
   if(e&&e.plain)return m;
-  if(/only once/i.test(m))return "Estimated hours are locked after they are first set. Ask a manager or the admin to change them.";
+  if(/only once/i.test(m))return "Estimated hours are locked after they are first set. Ask the admin to correct them.";
+  if(/Only the engineer enters/i.test(m))return "Only the engineer enters the estimated hours.";
   if(c==="42501"||c==="PGRST116"||/row-level security/i.test(m))return "You do not have permission for this. Engineers can change only the tasks under their own name.";
   if(/JWT|not authenticated|session/i.test(m))return "Your session ended. Sign in again.";
   if(/Failed to fetch|NetworkError|Load failed/i.test(m))return "No connection. Check the internet and try again.";
@@ -1038,7 +1049,7 @@ function writeError(e){
 function saveTask(ev){
   ev.preventDefault();if(busy||!sb)return;
   var d={date:$("f-date").value,discipline:$("f-discipline").value,engineer:$("f-engineer").value,project:$("f-project").value,
-    task:$("f-task").value.trim(),level:$("f-level").value.trim(),element:$("f-element").value.trim(),est:num($("f-est").value),actual:num($("f-actual").value),status:$("f-status").value,
+    task:$("f-task").value.trim(),level:$("f-level").value.trim(),element:$("f-element").value.trim(),submission_path:$("f-path").value.trim(),est:num($("f-est").value),actual:num($("f-actual").value),status:$("f-status").value,
     reason:$("f-reason").value.trim()};
   var err="";
   if(!parseDate(d.date))err="Pick the date.";
@@ -1082,7 +1093,7 @@ function loadSettings(){
 function loadTasks(){
   var out=[],size=1000;
   function page(from){
-    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,ack_at,paused_at,resumed_at,pause_kind").order("date",{ascending:false}).order("id").range(from,from+size-1))
+    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,ack_at,paused_at,resumed_at,pause_kind").order("date",{ascending:false}).order("id").range(from,from+size-1))
       .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});
   }
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
@@ -1127,9 +1138,11 @@ function desktopAlert(fresh){
   try{if(alertsState()!=="granted"||!document.hidden)return;
     fresh.forEach(function(t){new Notification("New task assigned",{body:(t.project?t.project+" · ":"")+(t.task||"")});});}catch(e){}
 }
-function confirmTask(t,btn){
-  if(!sb)return;btn.disabled=true;
+function confirmTask(t,btn,estInp){
+  if(!sb)return;
   var patch={ack_at:new Date().toISOString()},start=t.status==="Not Started";if(start)patch.status="In Progress";
+  if(estInp){var e=num(estInp.value);if(!(e>0)){toast("Enter your estimated hours first. You can set them only once.",true);estInp.focus();return;}patch.est=e;}
+  btn.disabled=true;
   updTask(t.id,patch).then(function(){toast(start?"Confirmed. The task is now In Progress.":"Confirmed.");render();})
     .catch(function(e){toast(writeError(e),true);render();});
 }
@@ -1149,7 +1162,11 @@ function renderInbox(){
     box.append(h("div",{class:"inbox-row"},
       h("div",{class:"inbox-main"},h("strong",{text:t.task||"(no description)"}),
         h("span",{text:[t.project,t.level,t.element,niceDate(t.date),num(t.est)>0?fmt(t.est)+" h estimated":""].filter(Boolean).join(" · ")})),
-      h("button",{class:"btn primary",type:"button",onclick:function(ev){confirmTask(t,ev.currentTarget);}},"Confirm & start")));
+      (function(){
+        var estInp=num(t.est)?null:h("input",{"class":"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",placeholder:"0","aria-label":"Your estimated hours for "+(t.task||"task")});
+        var btn=h("button",{"class":"btn primary",type:"button",onclick:function(){confirmTask(t,btn,estInp);}},"Confirm & start");
+        return h("div",{"class":"inbox-act"},estInp?h("label",{"class":"inbox-est"},"Estimated hours (once)",estInp):null,btn);
+      })()));
   });
 }
 
@@ -1194,8 +1211,8 @@ function commitRound(r,field,inp){
   }).catch(function(e){toast(writeError(e),true);render();});
 }
 function roundRow(t,r,fl,more){
-  var ed=canEdit(t),lockE=isEng()&&num(r.est)>0,rem=Math.max(0,num(r.est)-num(r.actual));
-  return h("tr",{class:"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"12"},h("div",{class:"round-line"},
+  var ed=canEdit(t),lockE=!((isEng()&&!num(r.est))||isAdmin()),rem=Math.max(0,num(r.est)-num(r.actual));
+  return h("tr",{class:"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"13"},h("div",{class:"round-line"},
     h("span",{class:"label",text:"Comment "+r.round}),
     h("label",null,isEng()&&!lockE?"Estimated h (set once)":"Estimated h",ed&&!lockE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{class:"num",text:fmt(num(r.est))})),
     h("label",null,"Actual h",ed?roundInput(r,"actual",{value:fmt(num(r.actual))}):h("strong",{class:"num",text:fmt(num(r.actual))})),
@@ -1205,7 +1222,7 @@ function roundRow(t,r,fl,more){
 /* ---------- delayed / on hold ---------- */
 function pauseRow(t,fl){
   var hold=t.status==="On Hold",ed=canEdit(t);
-  return h("tr",{class:"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"12"},h("div",{class:"reason-line"+(hold?" hold":"")},
+  return h("tr",{class:"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"13"},h("div",{class:"reason-line"+(hold?" hold":"")},
     h("span",{class:"label",text:hold?"Reason for hold":"Reason for delay"}),
     ed?inlineInput(t,"reason",{"class":"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:hold?"Write why this task is on hold":"Write why this task is delayed","aria-label":(hold?"Reason for hold for ":"Reason for delay for ")+(t.task||"task")})
       :h("span",{"class":"reason-text",text:t.reason||"No reason written yet."}),
@@ -1378,8 +1395,8 @@ function csvCell(v){var s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;ret
 function exportCsv(){
   var rows=S.tasks.filter(match).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:String(a.engineer).localeCompare(String(b.engineer));});
   if(!rows.length){toast("There are no tasks in this view to export.",true);return;}
-  var lines=[["Date","Day","Engineer","Discipline","Level","Element","Project","Task","Estimated Hours","Actual Hours","Comment Est. Hours","Comment Actual Hours","Remaining Hours","Status","Reason for Delay or Hold","Confirmed At","Resumed At"].join(",")];
-  rows.forEach(function(t){lines.push([t.date,dayName(t.date),t.engineer,t.discipline,t.level,t.element,t.project,t.task,fmt(num(t.est)),fmt(num(t.actual)),fmt(estT(t)-num(t.est)),fmt(actT(t)-num(t.actual)),fmt(remaining(t)),t.status,t.reason,t.ack?niceStamp(t.ack):"",t.resumed_at?niceStamp(t.resumed_at):""].map(csvCell).join(","));});
+  var lines=[["Date","Day","Engineer","Discipline","Level","Element","Project","Task","Estimated Hours","Actual Hours","Comment Est. Hours","Comment Actual Hours","Remaining Hours","Status","Reason for Delay or Hold","Submission Path","Confirmed At","Resumed At"].join(",")];
+  rows.forEach(function(t){lines.push([t.date,dayName(t.date),t.engineer,t.discipline,t.level,t.element,t.project,t.task,fmt(num(t.est)),fmt(num(t.actual)),fmt(estT(t)-num(t.est)),fmt(actT(t)-num(t.actual)),fmt(remaining(t)),t.status,t.reason,t.submission_path,t.ack?niceStamp(t.ack):"",t.resumed_at?niceStamp(t.resumed_at):""].map(csvCell).join(","));});
   var name="ibims-tasks-"+(S.f.project||"all-projects").toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+today()+".csv";
   var url=URL.createObjectURL(new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));
   var a=h("a",{href:url,download:name});document.body.append(a);a.click();
@@ -1413,11 +1430,11 @@ function createLogin(email,pw){
 }
 function addUser(ev){
   ev.preventDefault();if(busy||!sb)return;userMsg();
-  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=role==="engineer"?($("uEng").value||null):null,disc=role==="teamleader"?($("uDisc").value||null):null;
+  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=role==="engineer"?($("uEng").value||null):null,disc=isLeadRole(role)?($("uDisc").value||null):null;
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){userMsg("","Enter a valid email address.");return;}
   if(pw.length<6){userMsg("","The password must be at least 6 characters.");return;}
   if(role==="engineer"&&!eng){userMsg("","Pick which engineer name this login belongs to. If the name is not in the list, add it under Team & projects first.");return;}
-  if(role==="teamleader"&&!disc){userMsg("","Pick the discipline this team leader runs.");return;}
+  if(isLeadRole(role)&&!disc){userMsg("","Pick the discipline this "+roleName(role)+" works in.");return;}
   busy=true;$("btnUserAdd").disabled=true;var state="";
   createLogin(email,pw)
     .then(function(st){state=st;return run(sb.from("tt_users").upsert({email:email,full_name:name,role:role,engineer:eng,discipline:disc,active:true}).select().single());})
@@ -1433,7 +1450,7 @@ function userUpdate(u,patch){
   userMsg();
   run(sb.from("tt_users").update(patch).eq("email",u.email).select().single()).then(function(d){
     for(var k in d)u[k]=d[k];
-    userMsg(u.role==="engineer"&&!u.engineer?"Saved. Link an engineer name so "+u.email+" can receive tasks.":u.role==="teamleader"&&!u.discipline?"Saved. Pick the discipline "+u.email+" leads.":"Saved "+u.email+".");
+    userMsg(u.role==="engineer"&&!u.engineer?"Saved. Link an engineer name so "+u.email+" can receive tasks.":isLeadRole(u.role)&&!u.discipline?"Saved. Pick the discipline for "+u.email+".":"Saved "+u.email+".");
     renderUsers();
     if(me&&u.email===me.email){me=u;paintAccount();render();}
   }).catch(function(e){userMsg("",writeError(e));renderUsers();});
@@ -1460,12 +1477,12 @@ function renderUsers(){
   users.forEach(function(u){
     var self=!!me&&u.email===me.email;
     var role=h("select",{"aria-label":"Role for "+u.email,disabled:self});
-    ["engineer","teamleader","manager","admin"].forEach(function(r){role.append(h("option",{value:r,text:roleName(r)}));});role.value=u.role;
+    ["engineer","teamleader","senior","midsenior","manager","admin"].forEach(function(r){role.append(h("option",{value:r,text:roleName(r)}));});role.value=u.role;
     role.addEventListener("change",function(){userUpdate(u,{role:role.value});});
     var eng;
     if(u.role==="engineer"){eng=h("select",{"aria-label":"Engineer name for "+u.email});engOptions(eng,u.engineer||"");
       eng.addEventListener("change",function(){userUpdate(u,{engineer:eng.value||null});});}
-    else if(u.role==="teamleader"){eng=h("select",{"aria-label":"Discipline led by "+u.email});discOptions(eng,u.discipline||"");
+    else if(isLeadRole(u.role)){eng=h("select",{"aria-label":"Discipline of "+u.email});discOptions(eng,u.discipline||"");
       eng.addEventListener("change",function(){userUpdate(u,{discipline:eng.value||null});});}
     else eng=h("span",{class:"hint",text:"Takes no tasks"});
     var act=h("input",{type:"checkbox","aria-label":"Active: "+u.email,disabled:self});act.checked=!!u.active;
@@ -1489,7 +1506,7 @@ function discOptions(sel,current){
   DISC.forEach(function(d){sel.append(h("option",{value:d.k,text:d.k}));});sel.value=current||"";
 }
 function syncUserForm(){
-  var r=$("uRole").value;$("uEngWrap").hidden=r!=="engineer";$("uDiscWrap").hidden=r!=="teamleader";
+  var r=$("uRole").value;$("uEngWrap").hidden=r!=="engineer";$("uDiscWrap").hidden=!isLeadRole(r);
   if(!$("uDisc").options.length)discOptions($("uDisc"),"");
 }
 function openUsers(){
