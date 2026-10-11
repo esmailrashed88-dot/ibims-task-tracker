@@ -234,6 +234,22 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.howto{margin-top:6px}
+.how-grid{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
+.how-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table.how th,table.how td{position:static!important;left:auto!important;right:auto!important;box-shadow:none!important}
+table.how{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
+.how-wrap table.how caption{background:var(--surface);padding:10px 10px 6px!important;caption-side:top;text-align:left;font-weight:600;font-size:13px;color:var(--muted);padding:0 0 6px}
+table.how th{background:var(--surface-2);color:var(--muted);font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+table.how td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;white-space:normal;max-width:none}
+table.how td:first-child{white-space:nowrap}
+table.how td small{color:var(--muted);font-weight:500}
+table.how .sw{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
+table.how.ex td:nth-child(n+3):nth-child(-n+5),table.how.ex th:nth-child(n+3):nth-child(-n+5){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.how.ex td:last-child{color:var(--muted);font-size:12.5px}
+table.how.ex tr.tot td{font-weight:700;background:var(--surface-2)}
+table.how.ex tfoot td{font-size:12.5px;line-height:1.6;border-bottom:0;background:var(--accent-soft)}
+.how-read{margin:10px 0 0;font-size:13px;color:var(--ink)}
 .curves{display:flex;flex-direction:column;gap:16px}
 .curve{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px 14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .curve-h{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px 18px}
@@ -392,6 +408,33 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .rv-more summary{cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600;padding:4px 0}
 .free-line.soon .free-chip{border-color:var(--info);background:var(--info-soft)}
 .free-chip .cd{font-variant-numeric:tabular-nums;font-weight:600;color:var(--info)}
+.tm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tmc{display:flex;flex-direction:column;gap:4px;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+button.tmc{cursor:pointer}
+button.tmc:hover{border-color:var(--accent);border-left-color:inherit;box-shadow:0 2px 8px rgba(16,38,58,.08)}
+.tmc.free{border-left-color:var(--ok);background:var(--ok-soft)}
+.tmc.working{border-left-color:var(--ok)}
+.tmc.paused{border-left-color:var(--warn)}
+.tmc.stopped{border-left-color:var(--bad)}
+.tmc.idle,.tmc.waiting{border-left-color:var(--idle)}
+.tmc.soon{border-left-color:var(--info);background:var(--info-soft)}
+.tmc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tmc-top b{font-size:14px;overflow-wrap:anywhere}
+.tmc-pill{display:inline-flex;align-items:center;gap:5px;flex:none;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.tmc-pill i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:tmPulse 1.4s ease-in-out infinite}
+.tmc.working .tmc-pill{background:var(--ok-soft);color:var(--ok)}
+.tmc.free .tmc-pill{background:var(--surface);color:var(--ok)}
+.tmc.paused .tmc-pill{background:var(--warn-soft);color:var(--warn)}
+.tmc.stopped .tmc-pill{background:var(--bad-soft);color:var(--bad)}
+.tmc-task,.tmc-why{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tmc-task.muted{color:var(--muted)}
+.tmc-why{color:var(--warn);font-weight:600}
+.tmc-left{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.tmc.paused .tmc-left,.tmc.idle .tmc-left,.tmc.waiting .tmc-left{color:var(--muted)}
+.tmc.soon .tmc-left{color:var(--info)}
+.tmc.free .tmc-left{color:var(--ok)}
+.tmc-foot{display:flex;justify-content:space-between;gap:6px;font-size:11.5px;color:var(--muted)}
+.tmc-soon{font-weight:700;color:var(--info);text-transform:uppercase;letter-spacing:.05em}
 .free-chip .cd.pz{color:var(--warn)}
 .free-chip .cd.over{color:var(--bad)}
 .due-box{display:flex;flex-direction:column;gap:8px;margin:0 0 14px;padding:12px 14px;border:1px solid var(--warn);border-radius:12px;background:var(--warn-soft)}
@@ -799,6 +842,37 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <section>
       <div class="sec-head"><h2>Delayed tasks</h2><p id="mDelaySub"></p></div>
       <div id="mDelays"></div>
+    </section>
+    <section class="howto" aria-labelledby="howH">
+      <div class="sec-head"><h2 id="howH">How the numbers work</h2><p>The terms used on this dashboard, with one worked example</p></div>
+      <div class="how-grid">
+        <div class="how-wrap"><table class="how">
+          <thead><tr><th>Term</th><th>What it means</th><th>How it is calculated</th></tr></thead>
+          <tbody>
+            <tr><td><i class="sw" style="background:var(--s-plan)"></i><b>Planned</b></td><td>The hours the work should take</td><td>Sum of the estimated hours, placed on each task's date</td></tr>
+            <tr><td><i class="sw" style="background:var(--s-act)"></i><b>Actual</b> <small>(Hours worked)</small></td><td>The hours really spent</td><td>Task timer + any correction by the admin, team leader or senior</td></tr>
+            <tr><td><i class="sw" style="background:var(--s-earn)"></i><b>Earned</b></td><td>The work really achieved</td><td>For each task: actual hours, but never more than its estimate. A finished task counts its full estimate</td></tr>
+            <tr><td><b>Progress</b></td><td>How much of the work is done</td><td>Earned ÷ Planned (all estimated hours)</td></tr>
+            <tr><td><b>Earned ÷ worked</b></td><td>How much of the time spent became finished work</td><td>Earned ÷ Actual. Below 100% = hours spent beyond the estimates</td></tr>
+            <tr><td><b>Vs plan to date</b></td><td>Ahead of or behind the schedule</td><td>Earned ÷ Planned up to this week</td></tr>
+            <tr><td><b>Efficiency</b> <small>(per engineer)</small></td><td>Faster or slower than estimated</td><td>Estimated ÷ actual hours of finished tasks. Above 100% = faster</td></tr>
+            <tr><td><b>Score</b> <small>(per engineer)</small></td><td>One mark out of 100</td><td>40 efficiency + 25 on estimate + 20 few comments + 15 few delayed or held tasks</td></tr>
+          </tbody></table></div>
+        <div class="how-wrap"><table class="how ex">
+          <caption>Example: one project with four tasks</caption>
+          <thead><tr><th>Task</th><th>Status</th><th>Estimated</th><th>Actual</th><th>Earned</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Task 1</td><td>Finished</td><td>4 h</td><td>6 h</td><td><b>4 h</b></td><td>2 h over the estimate are not achievement</td></tr>
+            <tr><td>Task 2</td><td>Finished</td><td>5 h</td><td>4 h</td><td><b>5 h</b></td><td>Finished, so it counts in full</td></tr>
+            <tr><td>Task 3</td><td>In progress</td><td>10 h</td><td>3 h</td><td><b>3 h</b></td><td>3 of 10 hours done</td></tr>
+            <tr><td>Task 4</td><td>In progress</td><td>8 h</td><td>12 h</td><td><b>8 h</b></td><td>Capped at its estimate until it finishes</td></tr>
+            <tr class="tot"><td>Total</td><td></td><td>27 h</td><td>25 h</td><td>20 h</td><td></td></tr>
+          </tbody>
+          <tfoot>
+            <tr><td colspan="6"><b>Progress</b> = 20 ÷ 27 = <b>74%</b> &nbsp;·&nbsp; <b>Earned ÷ worked</b> = 20 ÷ 25 = <b>80%</b> (5 h went beyond the estimates) &nbsp;·&nbsp; <b>Hours worked</b> = <b>25 h</b></td></tr>
+          </tfoot></table></div>
+      </div>
+      <p class="how-read"><b>Reading the chart:</b> if the orange line (Earned) is under the blue line (Planned), the project is behind plan. If the green line (Actual) is above the orange line, more hours are being spent than the work achieved.</p>
     </section>
   </div>
 
@@ -2852,26 +2926,59 @@ function giveTaskTo(e){
   if(!isTL())$("f-discipline").value=e.discipline;
   syncEngineerOptions(e.name);$("f-engineer").value=e.name;fillTaskList();syncMoreEng();$("f-task").focus();
 }
+/* ---------- Available now: every engineer, what they are on, how much is left, live ---------- */
+function engState(e){
+  var td=today(),open=S.tasks.filter(function(t){return t.engineer===e.name&&t.date<=td&&t.status!=="Completed";});
+  var active=open.filter(function(t){return t.status!=="Delayed"&&t.status!=="On Hold";});
+  var st={e:e,open:open.length,active:active.length,task:null,left:0,unest:0,kind:"",pause:null,running:false};
+  if(!open.length){st.kind="free";return st;}
+  if(!active.length){st.kind="stopped";st.task=open[0];return st;}
+  active.forEach(function(t){if(t.ack&&estT(t)>0)st.left+=liveRem(t);else st.unest++;});
+  var run=null,pz=null;active.forEach(function(t){if(runningOf(t))run=t;var p=openPauseOf(t);if(p&&(!pz||p.started_at>pz.p.started_at))pz={t:t,p:p};});
+  if(run){st.kind="working";st.task=run;st.running=true;}
+  else if(pz){st.kind="paused";st.task=pz.t;st.pause=pz.p;}
+  else{st.kind=active.some(function(t){return !t.ack;})&&!active.some(function(t){return t.ack;})?"waiting":"idle";st.task=active[0];}
+  st.soon=(st.kind==="working"||st.kind==="paused"||st.kind==="idle")&&!st.unest&&st.left<=SOON_H;
+  return st;
+}
+function teamStates(){
+  var linked=linkedEngineers(),list=[];
+  S.settings.engineers.forEach(function(e){if(linked&&!linked[e.name])return;list.push(engState(e));});
+  var ord={free:0,working:2,paused:3,idle:4,waiting:5,stopped:6};
+  return list.sort(function(a,b){var oa=a.kind==="free"?0:a.soon?1:ord[a.kind],ob=b.kind==="free"?0:b.soon?1:ord[b.kind];return oa-ob||(a.soon&&b.soon?a.left-b.left:0)||a.e.name.localeCompare(b.e.name);});
+}
+function stateLeftTxt(x){
+  if(x.kind==="free")return "Ready for a task";
+  if(x.kind==="stopped")return x.open+(x.open===1?" task ":" tasks ")+"stopped";
+  if(x.kind==="waiting")return "Has not confirmed the task yet";
+  var s=Math.round(x.left*3600),hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60;
+  var t=hh+":"+(mm<10?"0":"")+mm+":"+(ss<10?"0":"")+ss;
+  return (x.left<=0?"Time is up":t+" left")+(x.unest?" · +"+x.unest+" not estimated":"")+(x.running&&x.left>0?" · ends ≈ "+new Date(nowMs()+x.left*3600000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"");
+}
+function stateLabel(x){
+  return {free:"No open task",working:"Working",paused:"Paused",idle:"Timer off",waiting:"Not confirmed",stopped:x.task?x.task.status:"Stopped"}[x.kind];
+}
 function renderFree(v){
-  var box=$("freeBox"),show=seesTeam()&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard";
+  var box=$("freeBox"),show=seesTeam()&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review";
   box.hidden=!show;if(!show)return;clear(box);
-  var r=freeEngineers(),n=r.free.length,soon=finishingSoon();
-  box.append(h("div",{"class":"free-h"},h("h2",{text:"Available now"}),
-    h("p",{text:(n?n+(n===1?" engineer has":" engineers have")+" no open task":"Everyone has an open task")+(soon.length?" · "+soon.length+" finishing within "+SOON_H+" h":"")+(canAdd()&&(n||soon.length)?". Click a name to give them a task.":".")})));
-  function chip(e,extra,cls){
-    var can=canAdd()&&(isAdmin()||e.discipline===me.discipline);
-    var kids=[e.name,h("small",{text:extra})];
-    return can?h("button",{"class":"free-chip"+(cls||""),type:"button",title:"Add a task for "+e.name,onclick:function(){giveTaskTo(e);}},kids)
-              :h("span",{"class":"free-chip"+(cls||"")},kids);
-  }
-  if(n){var line=h("div",{"class":"free-line"},h("span",{"class":"label",text:"No open task"}));
-    r.free.forEach(function(e){line.append(chip(e,titleCase(e.discipline)));});box.append(line);}
-  else box.querySelector("p").className="free-ok";
-  if(soon.length){var sl=h("div",{"class":"free-line soon"},h("span",{"class":"label",text:"Finishing soon"}));
-    soon.forEach(function(x){var c=chip(x.e,x.task.task||"","");var cd=h("span",{"data-live":"soon","data-eng":x.e.name});paintCd(cd,x);
-      var sm=c.querySelector("small");c.insertBefore(cd,sm);sl.append(c);});box.append(sl);}
-  if(r.wait.length){var w=h("div",{"class":"free-line"},h("span",{"class":"label",text:"Only stopped tasks"}));
-    r.wait.forEach(function(x){w.append(chip(x.e,x.n===1?x.kind:x.n+" delayed / on hold"," wait"));});box.append(w);}
+  var list=teamStates(),c={free:0,working:0,paused:0,soon:0,stopped:0,idle:0,waiting:0};
+  list.forEach(function(x){c[x.kind]++;if(x.soon)c.soon++;});
+  var sum=[];
+  if(c.working)sum.push(c.working+" working");if(c.paused)sum.push(c.paused+" paused");if(c.free)sum.push(c.free+" free");
+  if(c.soon)sum.push(c.soon+" finishing within "+SOON_H+" h");if(c.stopped)sum.push(c.stopped+" stopped");if(c.idle+c.waiting)sum.push((c.idle+c.waiting)+" timer off");
+  box.append(h("div",{"class":"free-h"},h("h2",{text:"Available now"}),h("p",{text:list.length?sum.join(" · ")+(canAdd()?" · click a card to give a task":""):"No engineers with a login yet."})));
+  var grid=h("div",{"class":"tm-grid"});
+  list.forEach(function(x){
+    var can=canAdd()&&(isAdmin()||x.e.discipline===me.discipline),cls="tmc "+x.kind+(x.soon?" soon":"");
+    var pill=h("span",{"class":"tmc-pill"},x.kind==="working"?h("i"):null,stateLabel(x));
+    var line2=x.kind==="paused"&&x.pause?h("span",{"class":"tmc-why"},(x.pause.reason||"Paused")+" · ",h("span",{"data-live":"pzeng","data-eng":x.e.name,text:durTxt(spanSecs(x.pause))})):
+      x.task?h("span",{"class":"tmc-task",text:x.task.task||""}):h("span",{"class":"tmc-task muted",text:"Nothing assigned right now"});
+    var left=h("span",{"class":"tmc-left","data-live":"teng","data-eng":x.e.name,text:stateLeftTxt(x)});
+    var kids=[h("div",{"class":"tmc-top"},h("b",{text:x.e.name}),pill),line2,left,
+      h("div",{"class":"tmc-foot"},h("span",{text:titleCase(x.e.discipline)}),x.soon?h("span",{"class":"tmc-soon",text:"Finishing soon"}):null)];
+    grid.append(can?h("button",{"class":cls,type:"button",title:"Add a task for "+x.e.name,onclick:function(){giveTaskTo(x.e);}},kids):h("div",{"class":cls},kids));
+  });
+  box.append(grid);
 }
 
 /* ---------- Man of the day ---------- */
@@ -3045,6 +3152,8 @@ function tick(){
   Array.prototype.forEach.call(els,function(el){
     var k=el.getAttribute("data-live"),t=byId[el.getAttribute("data-tid")];
     if(k==="soon"){var x=engLeft(el.getAttribute("data-eng"));if(x)paintCd(el,x);return;}
+    if(k==="teng"||k==="pzeng"){var en=el.getAttribute("data-eng"),eo=null;S.settings.engineers.forEach(function(q){if(q.name===en)eo=q;});if(!eo)return;var es=engState(eo);
+      if(k==="teng")el.textContent=stateLeftTxt(es);else if(es.pause)el.textContent=durTxt(spanSecs(es.pause));return;}
     if(k==="prog"||k==="progbar"){var sc=el.getAttribute("data-scope"),pv=progCache[sc];if(pv===undefined)pv=progCache[sc]=progressOf(scopeRows(sc));
       if(k==="prog")el.textContent=pctTxt(pv);else el.style.width=Math.max(0,Math.min(100,pv))+"%";return;}
     if(k==="rnd"){var r=(S.rounds||[]).filter(function(x){return x.id===el.getAttribute("data-rid");})[0];if(r)el.textContent=fmt(Math.round(liveRound(r)*100)/100);return;}
