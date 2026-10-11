@@ -234,6 +234,13 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+#mStats{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}
+@media (max-width:1100px){#mStats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:600px){#mStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi b span[data-live],.stat b span[data-live]{font:inherit;color:inherit}
+.ctot{margin:0 0 6px;font-size:12.5px;color:var(--muted)}
+.ctot b{color:var(--ink);font-variant-numeric:tabular-nums}
+.escore tr.etot td{background:var(--surface-2);font-weight:600;border-top:2px solid var(--line)}
 .howto{margin-top:6px}
 .how-grid{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
 .how-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
@@ -850,10 +857,10 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
           <thead><tr><th>Term</th><th>What it means</th><th>How it is calculated</th></tr></thead>
           <tbody>
             <tr><td><i class="sw" style="background:var(--s-plan)"></i><b>Planned</b></td><td>The hours the work should take</td><td>Sum of the estimated hours, placed on each task's date</td></tr>
-            <tr><td><i class="sw" style="background:var(--s-act)"></i><b>Actual</b> <small>(Hours worked)</small></td><td>The hours really spent</td><td>Task timer + any correction by the admin, team leader or senior</td></tr>
-            <tr><td><i class="sw" style="background:var(--s-earn)"></i><b>Earned</b></td><td>The work really achieved</td><td>For each task: actual hours, but never more than its estimate. A finished task counts its full estimate</td></tr>
+            <tr><td><i class="sw" style="background:var(--s-act)"></i><b>Actual</b> <small>(Timer)</small></td><td>The hours really spent</td><td>Task timer + any correction by the admin, team leader or senior</td></tr>
+            <tr><td><i class="sw" style="background:var(--s-earn)"></i><b>Earned</b> <small>(time used)</small></td><td>The work really achieved</td><td>For each task: actual hours, but never more than its estimate. A finished task counts its full estimate</td></tr>
             <tr><td><b>Progress</b></td><td>How much of the work is done</td><td>Earned ÷ Planned (all estimated hours)</td></tr>
-            <tr><td><b>Earned ÷ worked</b></td><td>How much of the time spent became finished work</td><td>Earned ÷ Actual. Below 100% = hours spent beyond the estimates</td></tr>
+            <tr><td><b>Earned ÷ Actual</b></td><td>How much of the time spent became finished work</td><td>Earned ÷ Actual. Below 100% = hours spent beyond the estimates</td></tr>
             <tr><td><b>Vs plan to date</b></td><td>Ahead of or behind the schedule</td><td>Earned ÷ Planned up to this week</td></tr>
             <tr><td><b>Efficiency</b> <small>(per engineer)</small></td><td>Faster or slower than estimated</td><td>Estimated ÷ actual hours of finished tasks. Above 100% = faster</td></tr>
             <tr><td><b>Score</b> <small>(per engineer)</small></td><td>One mark out of 100</td><td>40 efficiency + 25 on estimate + 20 few comments + 15 few delayed or held tasks</td></tr>
@@ -869,7 +876,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
             <tr class="tot"><td>Total</td><td></td><td>27 h</td><td>25 h</td><td>20 h</td><td></td></tr>
           </tbody>
           <tfoot>
-            <tr><td colspan="6"><b>Progress</b> = 20 ÷ 27 = <b>74%</b> &nbsp;·&nbsp; <b>Earned ÷ worked</b> = 20 ÷ 25 = <b>80%</b> (5 h went beyond the estimates) &nbsp;·&nbsp; <b>Hours worked</b> = <b>25 h</b></td></tr>
+            <tr><td colspan="6"><b>Progress</b> = 20 ÷ 27 = <b>74%</b> &nbsp;·&nbsp; <b>Earned ÷ Actual</b> = 20 ÷ 25 = <b>80%</b> (5 h went beyond the estimates) &nbsp;·&nbsp; <b>Actual (Timer)</b> = <b>25 h</b></td></tr>
           </tfoot></table></div>
       </div>
       <p class="how-read"><b>Reading the chart:</b> if the orange line (Earned) is under the blue line (Planned), the project is behind plan. If the green line (Actual) is above the orange line, more hours are being spent than the work achieved.</p>
@@ -1265,7 +1272,7 @@ function renderStats(rows){
   host.append(
     stat("Tasks",String(rows.length),"",done+" completed"+(function(){var w=rows.filter(function(t){return !t.ack;}).length;return w?" · "+w+" awaiting confirmation":"";})()),
     stat("Estimated",fmt(est),"h","planned effort"),
-    stat("Actual",fmt(act),"h",est>0?Math.round(act/est*100)+"% of estimate":"no estimate yet"),
+    stat("Actual (Timer)",fmt(act),"h",est>0?Math.round(act/est*100)+"% of estimate":"no estimate yet"),
     stat("Remaining",fmt(rem),"h","on open tasks"),
     stat("Delayed",String(delayed),"",hold+" on hold",delayed>0));
 }
@@ -1505,19 +1512,22 @@ function projectPanel(name,tasks){
   DISC.forEach(function(d){var dt=tasks.filter(function(t){return t.discipline===d.k;});if(!dt.length)return;var a=agg(dt);
     tb.append(h("tr",null,h("td",{class:"nowrap"},titleCase(d.k)),
       h("td",null,h("div",{class:"mcell"},meter(a.pct,false,name+" "+titleCase(d.k)+" progress"),h("span",{class:"num",text:Math.round(a.pct)+"%"}))),
-      h("td",{class:"r num",text:fmt(a.est)}),h("td",{class:"r num",text:fmt(a.act)}),h("td",{class:"r num",text:fmt(a.rem)}),
+      h("td",{class:"r num",text:fmt(a.est)}),h("td",{class:"r num",text:h1(sumOf(dt,"act"))}),h("td",{class:"r num",text:fmt(a.rem)}),
       h("td",{class:"r"},a.late?h("span",{class:"pill bad",text:String(a.late)}):h("span",{class:"num",text:"0"}))));});
   return h("article",{class:"panel proj"},
     h("div",{class:"card-top"},h("h3",{class:"proj-t",text:name}),
       m.late?h("span",{class:"pill bad",text:m.late+(m.late===1?" delayed task":" delayed tasks")}):h("span",{class:"pill ok",text:"No delayed tasks"})),
-    h("div",{class:"prog"},h("div",{class:"prog-top"},h("span",{class:"plabel",text:"Progress"}),h("b",{class:"prog-pct",text:Math.round(m.pct)+"%"})),
-      meter(m.pct,true,name+" progress"),
-      h("p",{class:"psub",text:fmt(m.doneEst)+" of "+fmt(m.est)+" estimated hours completed · "+m.done+" of "+m.n+" tasks"})),
-    h("div",{class:"kpis k4"},kpi("Estimated",fmt(m.est)+" h"),kpi("Actual",fmt(m.act)+" h"),kpi("Remaining",fmt(m.rem)+" h"),kpi("Engineers",String(Object.keys(eng).length))),
+    h("div",{class:"prog"},h("div",{class:"prog-top"},h("span",{class:"plabel",text:"Progress"}),h("b",{class:"prog-pct","data-live":"prog","data-scope":"pp:"+name,text:pctTxt(m.pct)})),
+      (function(){var mm=meter(m.pct,true,name+" progress"),ii=mm.querySelector("i");if(ii){ii.setAttribute("data-live","progbar");ii.setAttribute("data-scope","pp:"+name);}return mm;})(),
+      h("p",{class:"psub"},"Earned ÷ Estimated = ",h("span",{"data-live":"sum","data-what":"earn","data-scope":"pp:"+name,text:h1(sumOf(tasks,"earn"))})," ÷ "+h1(m.est)+" h · "+m.done+" of "+m.n+" tasks done")),
+    h("div",{class:"kpis k4"},kpi("Estimated",h1(m.est)+" h"),
+      h("div",{class:"kpi"},h("span",{text:"Actual (Timer)"}),h("b",null,h("span",{"data-live":"sum","data-what":"act","data-scope":"pp:"+name,text:h1(sumOf(tasks,"act"))})," h")),
+      h("div",{class:"kpi"},h("span",{text:"Earned (time used)"}),h("b",null,h("span",{"data-live":"sum","data-what":"earn","data-scope":"pp:"+name,text:h1(sumOf(tasks,"earn"))})," h")),
+      kpi("Remaining",h1(m.rem)+" h")),
     m.over>0?h("p",{class:"overnote",text:fmt(m.over)+" h over estimate on "+m.overN+(m.overN===1?" task":" tasks")}):null,
     h("div",{class:"pblock"},h("span",{class:"plabel",text:"Task status"}),mix[0],mix[1]),
     h("div",{class:"pblock"},h("span",{class:"plabel",text:"By discipline"}),h("div",{class:"mini"},h("table",{class:"plain"},
-      h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Progress"}),h("th",{class:"r",text:"Est. h"}),h("th",{class:"r",text:"Actual h"}),h("th",{class:"r",text:"Rem. h"}),h("th",{class:"r",text:"Delayed"}))),tb))));
+      h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Progress"}),h("th",{class:"r",text:"Est. h"}),h("th",{class:"r",text:"Actual h (Timer)"}),h("th",{class:"r",text:"Rem. h"}),h("th",{class:"r",text:"Delayed"}))),tb))));
 }
 function renderMgmt(){
   hideTip();
@@ -1530,9 +1540,10 @@ function renderMgmt(){
   var rows=S.tasks.filter(inPeriod),m=agg(rows),names=allProjects().filter(function(p){return rows.some(function(t){return t.project===p;});});
   st.append(
     h("div",{class:"stat hero"},h("span",{class:"label",text:"Overall progress"}),h("b",{"data-live":"prog","data-scope":"all",text:pctTxt(m.pct)}),liveMeter(m.pct,"all","Overall progress"),
-      h("small",{text:"hours worked (up to each estimate) ÷ estimated hours · live"})),
+      h("small",null,"Earned ÷ Estimated = ",h("span",{"data-live":"sum","data-what":"earn","data-scope":"all",text:h1(sumOf(rows,"earn"))})," ÷ "+h1(m.est)+" · live")),
     stat("Estimated",fmt(m.est),"h",m.n+(m.n===1?" task":" tasks")+" · "+names.length+(names.length===1?" project":" projects")),
-    stat("Actual",fmt(m.act),"h",m.est>0?Math.round(m.act/m.est*100)+"% of estimate":"no estimate yet"),
+    liveStat("Actual (Timer)","act","all",rows,"hours counted by the timer + corrections"),
+    liveStat("Earned (time used)","earn","all",rows,"time used, counted up to each estimate"),
     stat("Remaining",fmt(m.rem),"h","on open tasks"),
     stat("Delayed tasks",String(m.late),"",m.over>0?fmt(m.over)+" h over estimate":"no hours over estimate",m.late>0));
   if(!rows.length){mp.append(h("div",{class:"empty"},h("p",{text:S.tasks.length?"No tasks are logged in this period.":"No tasks logged yet. Progress appears here as engineers log their tasks."})));
@@ -2109,7 +2120,7 @@ function chartCard(title,sub,legend,body){
   return h("section",{"class":"chart"},h("div",{"class":"chart-h"},h("h3",{text:title}),sub?h("p",{text:sub}):null),legend||null,body);
 }
 function legendEl(items){return h("div",{"class":"legend sm"},items.map(function(i){return h("span",null,h("i",{"class":"sw "+i[1]}),i[0]);}));}
-function legendHours(){return legendEl([["Estimated hours","sw-est"],["Actual hours","sw-act"]]);}
+function legendHours(){return legendEl([["Estimated hours","sw-est"],["Actual hours (timer)","sw-act"]]);}
 function legendStatus(){return legendEl(STACK.map(function(s){return [s[0],"seg-"+s[1]];}));}
 function emptyChart(msg){return h("p",{"class":"hint",text:msg});}
 function barPct(v,max){return v>0&&max>0?Math.max(1.2,v/max*100):0;}
@@ -2151,7 +2162,7 @@ function niceMax(v){if(v<=0)return 1;var p=Math.pow(10,Math.floor(Math.log(v)/Ma
 function dayColumns(tasks,days){
   var end=parseDate(today()),keys=[],sums={};
   for(var i=days-1;i>=0;i--){var d=new Date(end.getFullYear(),end.getMonth(),end.getDate()-i);var k=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());keys.push(k);sums[k]={est:0,act:0};}
-  tasks.forEach(function(t){var s=sums[t.date];if(s){s.est+=estT(t);s.act+=actT(t);}});
+  tasks.forEach(function(t){var s=sums[t.date];if(s){s.est+=estT(t);s.act+=liveAct(t);}});
   var max=0;keys.forEach(function(k){max=Math.max(max,sums[k].est,sums[k].act);});
   var top=niceMax(max),plot=h("div",{"class":"dc"});
   [1,0.5,0].forEach(function(f){plot.append(h("div",{"class":"dc-g",style:"bottom:"+(f*100)+"%"},h("span",{"class":"dc-gl num",text:fmt(top*f)})));});
@@ -2172,9 +2183,9 @@ function periodName(){var l="";PERIODS.forEach(function(p){if(p[0]===S.period)l=
 function renderDashCharts(rows){
   var host=clear($("dashCharts"));
   if(!S.tasksLoaded||!rows.length){host.hidden=true;return;}host.hidden=false;
-  var by={};rows.forEach(function(t){if(!t.engineer)return;var b=by[t.engineer]=by[t.engineer]||{label:t.engineer,est:0,act:0};b.est+=estT(t);b.act+=actT(t);});
+  var by={};rows.forEach(function(t){if(!t.engineer)return;var b=by[t.engineer]=by[t.engineer]||{label:t.engineer,est:0,act:0};b.est+=estT(t);b.act+=liveAct(t);});
   var items=Object.keys(by).map(function(k){return by[k];}).sort(function(a,b){return b.act-a.act||b.est-a.est;});
-  host.append(chartCard("Hours by engineer",items.length>12?"Top 12 by actual hours":"Actual against estimated hours",legendHours(),pairBars(items.slice(0,12))));
+  host.append(chartCard("Hours by engineer",items.length>12?"Top 12 by actual hours":"Actual against estimated hours",h("div",null,totalsLine("trk"),legendHours()),pairBars(items.slice(0,12))));
   var discs=DISC.filter(function(d){return (!S.f.discipline||d.k===S.f.discipline)&&(!isTL()||d.k===me.discipline);})
     .map(function(d){return {label:titleCase(d.k),tasks:rows.filter(function(t){return t.discipline===d.k;})};});
   host.append(chartCard("Status by discipline","Share of tasks in each status",legendStatus(),stackRows(discs)));
@@ -2183,10 +2194,10 @@ function renderMgmtCharts(){
   var host=clear($("mCharts"));
   if(!S.tasksLoaded||!S.tasks.length){host.hidden=true;return;}host.hidden=false;
   var rows=S.tasks.filter(inPeriod);
-  host.append(chartCard("Hours by day","Last 30 days, by task date",legendHours(),dayColumns(S.tasks,30)));
+  host.append(chartCard("Hours by day","Last 30 days, by task date",h("div",null,totalsLine("d30","Last 30 days"),legendHours()),dayColumns(S.tasks,30)));
   var pr=allProjects().map(function(p){var ts=rows.filter(function(t){return t.project===p;});
-    return {label:p,n:ts.length,est:ts.reduce(function(a,t){return a+estT(t);},0),act:ts.reduce(function(a,t){return a+actT(t);},0)};}).filter(function(i){return i.n;});
-  host.append(chartCard("Hours by project",periodName(),legendHours(),pr.length?pairBars(pr):emptyChart("No tasks in this period.")));
+    return {label:p,n:ts.length,est:ts.reduce(function(a,t){return a+estT(t);},0),act:ts.reduce(function(a,t){return a+liveAct(t);},0)};}).filter(function(i){return i.n;});
+  host.append(chartCard("Hours by project",periodName(),h("div",null,totalsLine("all"),legendHours()),pr.length?pairBars(pr):emptyChart("No tasks in this period.")));
   host.append(chartCard("Status by discipline",periodName(),legendStatus(),
     stackRows(DISC.map(function(d){return {label:titleCase(d.k),tasks:rows.filter(function(t){return t.discipline===d.k;})};}))));
   var byEng={};rows.forEach(function(t){if(t.status!=="Delayed"&&t.status!=="On Hold")return;
@@ -3154,6 +3165,7 @@ function tick(){
     if(k==="soon"){var x=engLeft(el.getAttribute("data-eng"));if(x)paintCd(el,x);return;}
     if(k==="teng"||k==="pzeng"){var en=el.getAttribute("data-eng"),eo=null;S.settings.engineers.forEach(function(q){if(q.name===en)eo=q;});if(!eo)return;var es=engState(eo);
       if(k==="teng")el.textContent=stateLeftTxt(es);else if(es.pause)el.textContent=durTxt(spanSecs(es.pause));return;}
+    if(k==="sum"){var sc2=el.getAttribute("data-scope"),wh=el.getAttribute("data-what"),ck=sc2+"|"+wh,sv=progCache[ck];if(sv===undefined)sv=progCache[ck]=sumOf(scopeRows(sc2),wh);el.textContent=h1(sv);return;}
     if(k==="prog"||k==="progbar"){var sc=el.getAttribute("data-scope"),pv=progCache[sc];if(pv===undefined)pv=progCache[sc]=progressOf(scopeRows(sc));
       if(k==="prog")el.textContent=pctTxt(pv);else el.style.width=Math.max(0,Math.min(100,pv))+"%";return;}
     if(k==="rnd"){var r=(S.rounds||[]).filter(function(x){return x.id===el.getAttribute("data-rid");})[0];if(r)el.textContent=fmt(Math.round(liveRound(r)*100)/100);return;}
@@ -3422,16 +3434,26 @@ function liveRefresh(){
   if(!me)return;
   var sig=dueNotes().map(function(n){return n.id;}).join(",");if(sig!==dueSig){renderDueNotes();renderReviewIfOpen();}
   if(!$("freeBox").hidden||seesTeam())renderFree(S.view);
-  if(S.view==="management"&&Date.now()-(mgmtAt||0)>60000&&!document.querySelector(".cplot .ctip:not([hidden])")){mgmtAt=Date.now();render();}
+  if((S.view==="management"||S.view==="dashboard")&&Date.now()-(mgmtAt||0)>60000&&!document.querySelector(".cplot .ctip:not([hidden])")){mgmtAt=Date.now();render();}
 }
 function startLive(){stopLive();liveTimer=setInterval(liveRefresh,15000);}
 function stopLive(){if(liveTimer)clearInterval(liveTimer);liveTimer=null;}
 /* ---------- progress: actual hours worked (up to each task's estimate) ÷ estimated hours, live ---------- */
 function doneHours(t){var e=estT(t);if(e<=0)return 0;if(t.status==="Completed")return e;return Math.min(e,liveAct(t));}
 function progressOf(rows){var e=0,d=0;rows.forEach(function(t){var x=estT(t);if(x>0){e+=x;d+=doneHours(t);}});return e>0?d/e*100:0;}
+function sumOf(rows,what){return rows.reduce(function(a,t){return a+(what==="est"?estT(t):what==="earn"?doneHours(t):liveAct(t));},0);}
+function h1(v){return fmt(Math.round(v*100)/100);}
+function liveSum(what,scope,rows){return h("b",{"data-live":"sum","data-what":what,"data-scope":scope,text:h1(sumOf(rows||scopeRows(scope),what))});}
+function liveStat(label,what,scope,rows,sub){return stat(label,h("span",{"data-live":"sum","data-what":what,"data-scope":scope,text:h1(sumOf(rows,what))}),"h",sub);}
+function totalsLine(scope,label){var rows=scopeRows(scope);
+  return h("p",{"class":"ctot"},(label||"Total")+": ",liveSum("est",scope,rows)," h estimated · ",liveSum("act",scope,rows)," h actual (timer) · ",liveSum("earn",scope,rows)," h earned (time used) · progress ",
+    h("b",{"data-live":"prog","data-scope":scope,text:pctTxt(progressOf(rows))}));}
 function pctTxt(p){return (Math.round(p*10)/10).toFixed(1)+"%";}
 function liveMeter(p,scope,label){var m=meter(p,false,label),i=m.querySelector("i");if(i){i.setAttribute("data-live","progbar");i.setAttribute("data-scope",scope);}return m;}
 function scopeRows(sc){
+  if(sc==="trk")return S.tasks.filter(match);
+  if(sc==="d30"){var lim=ymd(new Date(nowMs()-29*86400000)),td=today();return S.tasks.filter(function(t){return t.date>=lim&&t.date<=td;});}
+  if(sc.indexOf("pp:")===0){var pp=sc.slice(3);return S.tasks.filter(function(t){return inPeriod(t)&&t.project===pp;});}
   var rows=S.tasks.filter(inPeriod);
   if(sc.indexOf("p:")===0){var p=sc.slice(2);return S.tasks.filter(function(t){return t.project===p;});}
   if(sc.indexOf("e:")===0){var e=sc.slice(2);return rows.filter(function(t){return t.engineer===e;});}
@@ -3439,7 +3461,7 @@ function scopeRows(sc){
 }
 
 /* ---------- S-curves per project ---------- */
-var SER=[["plan","Cumulative planned","--s-plan"],["earn","Cumulative earned","--s-earn"],["act","Cumulative actual","--s-act"]];
+var SER=[["plan","Cumulative planned","--s-plan"],["earn","Cumulative earned (time used)","--s-earn"],["act","Cumulative actual (timer)","--s-act"]];
 function ymd(d){function p(n){return (n<10?"0":"")+n;}return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
 function weekOf(dstr){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(dstr||"");if(!m)return null;var d=new Date(+m[1],+m[2]-1,+m[3]);d.setDate(d.getDate()-d.getDay());return ymd(d);}
 function weekOfMs(ms){return weekOf(ymd(new Date(ms)));}
@@ -3470,11 +3492,15 @@ function curveCard(name,rows){
   var est=0,done=0,actH=0;rows.forEach(function(t){est+=estT(t);done+=doneHours(t);actH+=liveAct(t);});
   var planToDate=D?D.plan[D.cur]:0,earnNow=D?D.earn[D.cur]:0,gap=earnNow-planToDate;
   var spi=planToDate>0?earnNow/planToDate:null,eff=actH>0?done/actH:null;
+  var sc="p:"+name;
   var k=h("div",{"class":"ckpis"},
-    h("div",{"class":"ckpi"},h("span",{text:"Progress"}),h("b",{"data-live":"prog","data-scope":"p:"+name,text:pctTxt(prog)}),h("small",{text:fmt(Math.round(done*10)/10)+" of "+fmt(Math.round(est*10)/10)+" h"})),
+    h("div",{"class":"ckpi"},h("span",{text:"Estimated"}),h("b",{text:h1(est)}),h("small",{text:"hours planned"})),
+    h("div",{"class":"ckpi"},h("span",{text:"Actual (Timer)"}),liveSum("act",sc,rows),h("small",{text:"hours worked"})),
+    h("div",{"class":"ckpi"},h("span",{text:"Earned (time used)"}),liveSum("earn",sc,rows),h("small",{text:"up to each estimate"})),
+    h("div",{"class":"ckpi"},h("span",{text:"Progress"}),h("b",{"data-live":"prog","data-scope":sc,text:pctTxt(prog)}),h("small",null,"Earned ÷ Estimated = ",h("span",{"data-live":"sum","data-what":"earn","data-scope":sc,text:h1(done)})," ÷ "+h1(est))),
     h("div",{"class":"ckpi"},h("span",{text:"Vs plan to date"}),h("b",{text:spi===null?"—":Math.round(spi*100)+"%"}),
       h("small",{"class":gap<-0.05?"bad":"ok",text:spi===null?"no plan yet":(gap<-0.05?fmt(Math.round(-gap*10)/10)+" h behind":gap>0.05?fmt(Math.round(gap*10)/10)+" h ahead":"on plan")})),
-    h("div",{"class":"ckpi"},h("span",{text:"Hours worked"}),h("b",{text:fmt(Math.round(actH*10)/10)}),h("small",{text:eff===null?"no time yet":"earned ÷ worked "+Math.round(eff*100)+"%"})),
+    h("div",{"class":"ckpi"},h("span",{text:"Earned ÷ Actual"}),h("b",{text:eff===null?"—":Math.round(eff*100)+"%"}),h("small",{text:eff===null?"no time yet":eff<0.995?h1(actH-done)+" h beyond estimates":"no hours lost"})),
     h("div",{"class":"ckpi"},h("span",{text:"Tasks"}),h("b",{text:String(rows.length)}),h("small",{text:rows.filter(function(t){return t.status==="Completed";}).length+" done · "+rows.filter(function(t){return t.status==="Delayed";}).length+" delayed"})));
   card.append(h("div",{"class":"curve-h"},h("div",null,h("h3",{text:name}),h("p",{text:D?D.weeks.length+" weeks · W-01 = week of "+wkLabel(D.weeks[0]):"No dated tasks yet"})),k));
   if(!D){return card;}
@@ -3533,7 +3559,7 @@ function engStats(name,rows){
   var score=null;
   if(done.length&&eff!==null)score=Math.round(40*Math.min(eff,1.2)/1.2+25*onR+20*(1-Math.min(cpt,1))+15*(1-stopR));
   var disc="";S.settings.engineers.forEach(function(e){if(e.name===name)disc=e.discipline;});if(!disc&&mine.length)disc=mine[0].discipline;
-  return {name:name,disc:disc,n:mine.length,done:done.length,est:est,act:act,prog:progressOf(mine),eff:eff,onR:onR,cpt:cpt,stopped:stopped,pz:pz,pzN:pzN,score:score};
+  return {name:name,disc:disc,n:mine.length,done:done.length,est:est,act:act,earn:sumOf(mine,"earn"),prog:progressOf(mine),eff:eff,onR:onR,cpt:cpt,stopped:stopped,pz:pz,pzN:pzN,score:score};
 }
 function renderEngScore(){
   var host=clear($("mEng"));if(!S.tasksLoaded)return;
@@ -3547,7 +3573,7 @@ function renderEngScore(){
   [[""," All"]].concat(discs.map(function(d){return [d,titleCase(d)];})).forEach(function(o){seg.append(h("button",{type:"button","aria-pressed":String(escDisc===o[0]),onclick:function(){escDisc=o[0];renderEngScore();}},o[1].trim()));});
   host.append(h("div",{"class":"etools"},seg));
   if(escDisc)list=list.filter(function(x){return x.disc===escDisc;});
-  var cols=[["rank","#"],["name","Engineer"],["disc","Discipline"],["n","Tasks"],["est","Est. h"],["act","Actual h"],["prog","Progress"],["eff","Efficiency"],["onR","On estimate"],["cpt","Comments / task"],["stopped","Delayed / held"],["pz","Paused"],["score","Score"]];
+  var cols=[["rank","#"],["name","Engineer"],["disc","Discipline"],["n","Tasks"],["est","Est. h"],["act","Actual h (Timer)"],["earn","Earned h (time used)"],["prog","Progress"],["eff","Efficiency"],["onR","On estimate"],["cpt","Comments / task"],["stopped","Delayed / held"],["pz","Paused"],["score","Score"]];
   function val(x,k){var v=x[k];return v===null||v===undefined?-Infinity:v;}
   var byScore=list.slice().sort(function(a,b){return val(b,"score")-val(a,"score")||b.prog-a.prog;});byScore.forEach(function(x,i){x.rank=x.score===null?null:i+1;});
   list.sort(function(a,b){var k=escSort.k==="rank"?"score":escSort.k,va=val(a,k),vb=val(b,k);if(typeof a[k]==="string")return escSort.d*String(a[k]).localeCompare(String(b[k]));return escSort.d*(va-vb)||a.name.localeCompare(b.name);});
@@ -3555,12 +3581,14 @@ function renderEngScore(){
   var thr=h("tr");cols.forEach(function(c){thr.append(h("th",{scope:"col","aria-sort":escSort.k===c[0]?(escSort.d<0?"descending":"ascending"):"none",onclick:function(){if(escSort.k===c[0])escSort.d=-escSort.d;else{escSort.k=c[0];escSort.d=(c[0]==="name"||c[0]==="disc"||c[0]==="cpt"||c[0]==="stopped"||c[0]==="pz")?1:-1;}renderEngScore();}},c[1]));});
   var tb=h("tbody");
   list.forEach(function(x){
-    var pb=h("span",{"class":"pb"},h("span",{"class":"trk"},h("span",{"class":"fill","data-live":"progbar","data-scope":"e:"+x.name,style:"width:"+Math.min(100,x.prog)+"%"})),h("span",{"data-live":"prog","data-scope":"e:"+x.name,text:pctTxt(x.prog)}));
+    var pb=h("span",{"class":"pb",title:"Progress = Earned ÷ Estimated = "+h1(x.earn)+" ÷ "+h1(x.est)},h("span",{"class":"trk"},h("span",{"class":"fill","data-live":"progbar","data-scope":"e:"+x.name,style:"width:"+Math.min(100,x.prog)+"%"})),h("span",{"data-live":"prog","data-scope":"e:"+x.name,text:pctTxt(x.prog)}));
     function pc(v,good,weak){if(v===null)return h("span",{text:"—"});var p=Math.round(v*100);return h("span",{"class":v>=good?"good":v<weak?"weak":null,text:p+"%"});}
     tb.append(h("tr",{"class":x.rank===1?"top1":null},
       h("td",null,x.rank?h("span",{"class":"rank",text:String(x.rank)}):"—"),
       h("td",null,h("strong",{text:x.name})),h("td",{text:titleCase(x.disc||"")}),
-      h("td",{text:x.done+" / "+x.n}),h("td",{text:fmt(Math.round(x.est*10)/10)}),h("td",{text:fmt(Math.round(x.act*10)/10)}),
+      h("td",{text:x.done+" / "+x.n}),h("td",{text:h1(x.est)}),
+      h("td",null,h("span",{"data-live":"sum","data-what":"act","data-scope":"e:"+x.name,text:h1(x.act)})),
+      h("td",null,h("span",{"data-live":"sum","data-what":"earn","data-scope":"e:"+x.name,text:h1(x.earn)})),
       h("td",null,pb),
       h("td",null,pc(x.eff,1,0.8)),h("td",null,pc(x.onR,0.8,0.5)),
       h("td",{text:x.cpt===null?"—":(Math.round(x.cpt*10)/10).toFixed(1)}),
@@ -3569,7 +3597,10 @@ function renderEngScore(){
       h("td",null,x.score===null?h("span",{"class":"sc",title:"Needs at least one finished task with hours",text:"—"}):h("span",{"class":"sc"+(x.score>=75?" hi":x.score<50?" lo":""),text:String(x.score)}))));
   });
   host.append(h("div",{"class":"tablewrap"},h("table",{"class":"escore"},h("thead",null,thr),tb)));
-  host.append(h("p",{"class":"ehow"},"Progress = hours worked on each task, counted up to its estimate (finished tasks count in full) ÷ estimated hours. It moves live with the timers. ",
+  var tot=list.reduce(function(a,x){a.e+=x.est;a.w+=x.act;a.r+=x.earn;a.n+=x.n;a.d+=x.done;return a;},{e:0,w:0,r:0,n:0,d:0});
+  tb.append(h("tr",{"class":"etot"},h("td"),h("td",null,h("strong",{text:"Total"})),h("td",{text:escDisc?titleCase(escDisc):"All"}),h("td",{text:tot.d+" / "+tot.n}),h("td",{text:h1(tot.e)}),
+    h("td",{text:h1(tot.w)}),h("td",{text:h1(tot.r)}),h("td",null,h("b",{text:tot.e>0?pctTxt(tot.r/tot.e*100):"—"})),h("td",{colspan:"6"})));
+  host.append(h("p",{"class":"ehow"},"Progress = Earned h ÷ Est. h. Earned = hours worked on each task, counted up to its estimate (finished tasks count in full). Actual h (Timer) = timer + corrections. Earned h (time used) = the same hours, counted up to each estimate. They move live with the timers. ",
     h("br"),"Efficiency = estimated ÷ actual hours on finished tasks (above 100% = faster than estimate). On estimate = finished tasks done within their estimate (+5%). Comments / task = comment rounds per finished task (lower is better). Paused = breaks and other pauses, not task switches or next-day stops.",
     h("br"),"Score (0–100) = 40 efficiency (capped at 120%) + 25 on estimate + 20 few comments + 15 few delayed or held tasks. It needs at least one finished task."));
 }
