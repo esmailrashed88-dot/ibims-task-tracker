@@ -338,6 +338,25 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .ibtn.armed{background:var(--bad);color:#fff;width:auto;padding:0 8px;font-size:12px;font-weight:600}
 .rv-more summary{cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600;padding:4px 0}
 .free-line.soon .free-chip{border-color:var(--info);background:var(--info-soft)}
+.free-chip .cd{font-variant-numeric:tabular-nums;font-weight:600;color:var(--info)}
+.free-chip .cd.pz{color:var(--warn)}
+.free-chip .cd.over{color:var(--bad)}
+.due-box{display:flex;flex-direction:column;gap:8px;margin:0 0 14px;padding:12px 14px;border:1px solid var(--warn);border-radius:12px;background:var(--warn-soft)}
+.due-box.urgent{border-color:var(--bad);background:var(--bad-soft)}
+.due-h{display:flex;align-items:center;gap:10px}
+.due-h h2{margin:0;font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn)}
+.due-box.urgent .due-h h2{color:var(--bad)}
+.due-h .bell{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--warn);flex:none}
+.due-box.urgent .due-h .bell{color:var(--bad)}
+.due-h .bell svg{width:16px;height:16px}
+.due-h a,.due-h button.lnk{margin-left:auto;background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;text-decoration:underline}
+.due-item{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.due-item.urgent{border-color:var(--bad);box-shadow:inset 3px 0 0 var(--bad)}
+.due-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
+.due-txt b{font-size:14.5px;overflow-wrap:anywhere}
+.due-txt span{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.due-txt .rv-tag{align-self:flex-start}
+.due-acts{display:flex;gap:6px;margin-left:auto}
 .tm{display:flex;flex-direction:column;gap:3px;margin-top:6px}
 .tm-now{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px}
 .tm-state{display:inline-flex;align-items:center;gap:6px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
@@ -684,6 +703,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <main class="wrap" id="appMain" hidden>
   <section id="backupNote" class="backup-note" hidden></section>
   <section id="motd" class="motd" aria-label="Man of the day" hidden></section>
+  <section id="dueBox" class="due-box" aria-label="Reminders due now" aria-live="polite" hidden></section>
   <section id="freeBox" class="free-box" aria-label="Engineers without an open task" hidden></section>
   <section id="inbox" class="inbox" aria-live="polite" hidden></section>
 
@@ -1418,7 +1438,7 @@ function render(){
   if(v==="review")renderReview();
   else if(v==="management"){renderMgmt();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
-  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
+  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
   $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
 }
@@ -2464,7 +2484,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopReminders();stopMotd();stopTick();stopReview();S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopReminders();stopMotd();stopTick();stopReview();stopLive();S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -2474,7 +2494,7 @@ function enter(session){
   showAuth("note","Loading…");
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
-    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();
+    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();
     return loadAll().then(subscribe);
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
@@ -2763,6 +2783,9 @@ function finishingSoon(){
   return out.sort(function(a,b){return a.left-b.left;});
 }
 function leftTxt(h_){var m=Math.max(0,Math.round(h_*60));return m<1?"done any moment":m<60?m+" min left":Math.floor(m/60)+" h "+(m%60?m%60+" min ":"")+"left";}
+function cdTxt(x){if(x.left<=0)return "time is up";var s=Math.round(x.left*3600),hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60;
+  return (x.running?"":"paused · ")+hh+":"+(mm<10?"0":"")+mm+":"+(ss<10?"0":"")+ss+" left";}
+function paintCd(el,x){el.textContent=cdTxt(x);el.className="cd"+(x.left<=0?" over":x.running?"":" pz");}
 function giveTaskTo(e){
   openTask(null);
   if(!isTL())$("f-discipline").value=e.discipline;
@@ -2784,7 +2807,8 @@ function renderFree(v){
     r.free.forEach(function(e){line.append(chip(e,titleCase(e.discipline)));});box.append(line);}
   else box.querySelector("p").className="free-ok";
   if(soon.length){var sl=h("div",{"class":"free-line soon"},h("span",{"class":"label",text:"Finishing soon"}));
-    soon.forEach(function(x){var c=chip(x.e,leftTxt(x.left)+" · "+(x.task.task||""),"");var sm=c.querySelector("small");if(sm){sm.setAttribute("data-live","soon");sm.setAttribute("data-eng",x.e.name);}sl.append(c);});box.append(sl);}
+    soon.forEach(function(x){var c=chip(x.e,x.task.task||"","");var cd=h("span",{"data-live":"soon","data-eng":x.e.name});paintCd(cd,x);
+      var sm=c.querySelector("small");c.insertBefore(cd,sm);sl.append(c);});box.append(sl);}
   if(r.wait.length){var w=h("div",{"class":"free-line"},h("span",{"class":"label",text:"Only stopped tasks"}));
     r.wait.forEach(function(x){w.append(chip(x.e,x.n===1?x.kind:x.n+" delayed / on hold"," wait"));});box.append(w);}
 }
@@ -2959,7 +2983,7 @@ function tick(){
   var byId={};S.tasks.forEach(function(t){byId[t.id]=t;});
   Array.prototype.forEach.call(els,function(el){
     var k=el.getAttribute("data-live"),t=byId[el.getAttribute("data-tid")];
-    if(k==="soon"){var x=engLeft(el.getAttribute("data-eng"));if(x)el.textContent=leftTxt(x.left)+" · "+(x.task.task||"");return;}
+    if(k==="soon"){var x=engLeft(el.getAttribute("data-eng"));if(x)paintCd(el,x);return;}
     if(k==="rnd"){var r=(S.rounds||[]).filter(function(x){return x.id===el.getAttribute("data-rid");})[0];if(r)el.textContent=fmt(Math.round(liveRound(r)*100)/100);return;}
     if(!t)return;
     if(k==="main")el.textContent=fmt(Math.round(liveMain(t)*100)/100);
@@ -3188,6 +3212,47 @@ function scheduleNotes(){
   if(next!==null)noteTimer=setTimeout(function(){noteTimer=null;runReminders();setTimeout(loadReview,2500);},Math.min(next-now+1500,6*3600000));
   else if(rvNotes.length)noteTimer=setTimeout(scheduleNotes,6*3600000);
 }
+/* ---------- reminders that are due, shown under Man of the day ---------- */
+var BELL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/></svg>';
+var dueSig="";
+function dueNotes(){
+  if(!canReview()||!rvLoaded)return [];var now=nowMs();
+  return rvNotes.filter(function(n){return !n.done_at&&n.due_at&&Date.parse(n.due_at)<=now;})
+    .sort(function(a,b){return (b.urgent?1:0)-(a.urgent?1:0)||(a.due_at<b.due_at?-1:1);});
+}
+function renderDueNotes(){
+  var box=$("dueBox");if(!box)return;var list=dueNotes();dueSig=list.map(function(n){return n.id;}).join(",");
+  box.hidden=!list.length;if(!list.length)return;clear(box);
+  var urg=list.some(function(n){return n.urgent;});box.className="due-box"+(urg?" urgent":"");
+  var bell=h("span",{"class":"bell"});bell.innerHTML=BELL;
+  var hd=h("div",{"class":"due-h"},bell,h("h2",{text:(list.length===1?"Reminder":list.length+" reminders")+" for you"}));
+  if(S.view!=="review")hd.append(h("button",{"class":"lnk",type:"button",onclick:function(){setView("review");}},"Open My review"));
+  box.append(hd);
+  list.slice(0,4).forEach(function(n){
+    var t=n.task_id?taskById(n.task_id):null,info=[];
+    info.push((Date.parse(n.due_at)<nowMs()-60000?"Was due ":"Due ")+whenTxt(n.due_at));
+    if(t)info.push("Task: "+t.task+" ("+t.engineer+")");
+    box.append(h("div",{"class":"due-item"+(n.urgent?" urgent":"")},
+      h("div",{"class":"due-txt"},n.urgent?h("span",{"class":"rv-tag red",text:"Urgent"}):null,h("b",{text:n.title}),n.note?h("span",{text:n.note}):null,h("span",{text:info.join(" · ")})),
+      h("div",{"class":"due-acts"},
+        h("button",{"class":"btn small",type:"button",title:"Remind me again in 1 hour",onclick:function(ev){ev.currentTarget.disabled=true;
+          saveNote(n.id,{due_at:new Date(nowMs()+3600000).toISOString()},"I will remind you again at "+new Date(nowMs()+3600000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})+".");}},"In 1 hour"),
+        h("button",{"class":"btn small primary",type:"button",onclick:function(ev){ev.currentTarget.disabled=true;
+          n.done_at=new Date(nowMs()).toISOString();renderDueNotes();renderReviewIfOpen();
+          saveNote(n.id,{done_at:n.done_at},"Done. It moved to Done in My review.");}},"Got it"))));
+  });
+  if(list.length>4)box.append(h("button",{"class":"btn small quiet",type:"button",onclick:function(){setView("review");}},"+ "+(list.length-4)+" more in My review"));
+}
+function renderReviewIfOpen(){if(S.view==="review")renderReview();paintReviewCount();}
+/* light refresh every few seconds: due reminders appear on time, the Available-now box follows the clock */
+var liveTimer=null;
+function liveRefresh(){
+  if(!me)return;
+  var sig=dueNotes().map(function(n){return n.id;}).join(",");if(sig!==dueSig){renderDueNotes();renderReviewIfOpen();}
+  if(!$("freeBox").hidden||seesTeam())renderFree(S.view);
+}
+function startLive(){stopLive();liveTimer=setInterval(liveRefresh,15000);}
+function stopLive(){if(liveTimer)clearInterval(liveTimer);liveTimer=null;}
 start();
 })();
 </script>
