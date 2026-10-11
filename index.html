@@ -234,6 +234,38 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.btn.punch{display:inline-flex;align-items:center;gap:7px;font-weight:700;border-color:var(--ok);color:var(--ok);background:transparent}
+.btn.punch.in{background:var(--ok);color:#fff}
+.btn.punch.in .pc{font-variant-numeric:tabular-nums;font-weight:600;opacity:.9}
+.btn.punch i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.btn.punch.in i{animation:tmPulse 1.4s ease-in-out infinite}
+.att-month{min-width:170px}
+.att-stats{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:14px}
+@media (max-width:800px){.att-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.att-sec{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.att-sec h3{margin:0;font-family:var(--font-display);font-weight:600;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+.att-sec .sub{color:var(--muted);font-size:12.5px}
+.att-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table.att{width:100%;border-collapse:collapse;font-size:13px}
+table.att th,table.att td{position:static!important;box-shadow:none!important;padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.att th{background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+table.att th:nth-child(-n+3),table.att td:nth-child(-n+3){text-align:left}
+table.att td.ses{text-align:left;white-space:normal}
+table.att .ot{color:var(--ok);font-weight:600}
+table.att .sf{color:var(--bad);font-weight:600}
+table.att .miss{color:var(--warn);font-weight:600}
+table.att tr.tot td{background:var(--surface-2);font-weight:700;border-bottom:0}
+table.att tr.absent td{color:var(--muted);background:var(--surface-2)}
+table.att tr.erow{cursor:pointer}
+table.att tr.erow:hover td{background:var(--surface-2)}
+table.att tr.erow.open td{background:var(--accent-soft)}
+table.att tr.det td{padding:0;text-align:left;background:var(--surface-2)}
+.att-in{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--ok)}
+.att-in i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.att-out{color:var(--muted)}
+.ses-chip{display:inline-flex;align-items:center;gap:4px;margin:1px 6px 1px 0;font-size:12.5px}
+.ses-chip button{border:0;background:none;color:var(--accent);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:0}
+.att-det{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;border-left:4px solid var(--accent)}
 .cmt-td{white-space:nowrap}
 .cmt-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 10px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .cmt-pill:hover{border-color:var(--accent)}
@@ -835,9 +867,10 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <header class="band" id="appBand" hidden>
   <div class="band-in">
     <div class="brand"><div class="logo sm" role="img" aria-label="IBIMS, Integrated BIM Services"></div><span>Team Task Tracker</span></div>
-    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
+    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
     <div class="band-tools">
       <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
+      <button class="btn punch" id="btnPunch" type="button" hidden></button>
       <button class="btn ghost" id="btnNotif" type="button"><span>Notifications</span><b class="badge" id="notifCount" hidden>0</b></button>
       <button class="btn ghost" id="btnOnline" type="button" hidden><i class="live-dot"></i><span id="onlineCount">Online</span></button>
       <button class="btn ghost" id="btnUsers" type="button" hidden>Users</button>
@@ -928,6 +961,14 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       </div>
       <p class="how-read"><b>Reading the chart:</b> if the orange line (Earned) is under the blue line (Planned), the project is behind plan. If the green line (Actual) is above the orange line, more hours are being spent than the work achieved.</p>
     </section>
+  </div>
+
+  <div id="viewAtt" class="view" hidden>
+    <div class="mhead"><div><h2>Attendance</h2><p id="attSub"></p></div>
+      <label class="field att-month"><span>Month</span><input type="month" id="attMonth"></label></div>
+    <section class="stats att-stats" id="attStats" aria-label="Attendance summary"></section>
+    <div id="attTeam"></div>
+    <div id="attMine"></div>
   </div>
 
   <div id="viewReview" class="view" hidden>
@@ -1058,6 +1099,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
         <label class="field"><span>Time zone</span><select id="rmTz"><option value="Africa/Cairo">Cairo</option><option value="Asia/Riyadh">Riyadh</option><option value="Asia/Dubai">Dubai</option></select></label>
         <fieldset class="rm-days" id="rmDays"><legend>Working days</legend></fieldset>
       </div>
+      <label class="copy-chk">Required office hours per day <input type="number" id="attHours" class="inl-num" min="1" max="16" step="0.25" aria-label="Required office hours per day"></label>
       <label class="copy-chk"><input type="checkbox" id="motdOn"> Show the daily award to everyone, titled <input type="text" id="motdTitle" class="inl-time" maxlength="40" aria-label="Award title" style="width:170px"></label>
       <div class="copy-bar"><button class="btn small primary" id="btnRmSave" type="button">Save settings</button><span class="hint" id="rmMsg" aria-live="polite"></span></div>
       <p class="hint">Reminders go out on working days only. Unconfirmed-task reminders go out between 8:00 and 20:00. If a discipline has no team leader, the admin gets them.</p>
@@ -1147,6 +1189,20 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     </form>
   </div>
   <div class="dlg-f"><button class="btn" id="btnCmtClose" type="button">Close</button></div>
+</dialog>
+
+<dialog id="attDlg" aria-labelledby="attTitle">
+  <div class="dlg-h"><h3 id="attTitle">Correct attendance</h3></div>
+  <div class="team-b">
+    <p class="hint" id="attFor"></p>
+    <div class="copy-dates">
+      <label class="field"><span>Arrived</span><input type="datetime-local" id="attIn"></label>
+      <label class="field"><span>Left</span><input type="datetime-local" id="attOut"></label>
+    </div>
+    <p class="hint">Leave "Left" empty if the person is still in the office.</p>
+    <p class="err" id="attErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn danger left" id="attDel" type="button" hidden>Delete</button><button class="btn" id="attCancel" type="button">Cancel</button><button class="btn primary" id="attSave" type="button">Save</button></div>
 </dialog>
 
 <dialog id="notifDlg" aria-labelledby="notifTitle">
@@ -1639,12 +1695,14 @@ function render(){
   renderFilters();renderInbox();
   if(S.view==="management"&&!editAll())S.view="tracker";
   if(S.view==="review"&&me&&!canReview())S.view="tracker";
+  if(S.view==="attendance"&&me&&!canAttend())S.view="tracker";
   var rows=S.tasks.filter(match),v=S.view;
   $("tabMgmt").hidden=!editAll();$("btnUsers").hidden=!isAdmin();$("fEngineer").parentNode.hidden=!seesTeam();$("btnOnline").hidden=!seesTeam();
-  $("viewTracker").hidden=v!=="tracker";$("viewReview").hidden=v!=="review";$("tabReview").hidden=!canReview();$("tabReview").setAttribute("aria-pressed",String(v==="review"));paintReviewCount();$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
-  $("filtersBox").hidden=v==="management"||v==="review";$("stats").hidden=v==="management"||v==="review";
+  $("viewTracker").hidden=v!=="tracker";$("viewReview").hidden=v!=="review";$("viewAtt").hidden=v!=="attendance";$("tabAtt").hidden=!canAttend();$("tabAtt").setAttribute("aria-pressed",String(v==="attendance"));paintPunch();$("tabReview").hidden=!canReview();$("tabReview").setAttribute("aria-pressed",String(v==="review"));paintReviewCount();$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
+  $("filtersBox").hidden=v==="management"||v==="review"||v==="attendance";$("stats").hidden=v==="management"||v==="review"||v==="attendance";
   $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
-  if(v==="review")renderReview();
+  if(v==="attendance")renderAtt();
+  else if(v==="review")renderReview();
   else if(v==="management"){renderMgmt();renderCurves();renderEngScore();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
   $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
@@ -1785,6 +1843,7 @@ function subscribe(){
         else if(p["new"]&&p["new"].id)upsertTime(p["new"]);
         render();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_task_comments"},function(){loadComments().then(function(){if($("cmtDlg").open)renderCommentList();render();});})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_attendance"},function(){loadAtt();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
       .subscribe();
@@ -2695,7 +2754,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopReminders();stopMotd();stopTick();stopReview();stopLive();S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -2705,7 +2764,7 @@ function enter(session){
   showAuth("note","Loading…");
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
-    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();
+    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();loadAtt();
     return loadAll().then(subscribe);
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
@@ -2788,6 +2847,11 @@ function wire(){
   $("btnNotif").addEventListener("click",openNotifs);
   $("btnNotifClose").addEventListener("click",function(){$("notifDlg").close();});
   $("btnPingOk").addEventListener("click",ackPings);
+  $("btnPunch").addEventListener("click",punch);
+  $("tabAtt").addEventListener("click",function(){setView("attendance");loadAtt();});
+  $("attMonth").addEventListener("change",function(){attMonthV=$("attMonth").value;loadAtt();});
+  $("attSave").addEventListener("click",saveAtt);$("attDel").addEventListener("click",delAtt);
+  $("attCancel").addEventListener("click",function(){$("attDlg").close();});
   $("cmtForm").addEventListener("submit",sendComment);
   $("btnCmtClose").addEventListener("click",function(){$("cmtDlg").close();});
   $("cmtBody").addEventListener("keydown",function(ev){if(ev.key==="Enter"&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();sendComment(ev);}});
@@ -2812,7 +2876,7 @@ function wire(){
 
 function start(){
   loadFilters();
-  try{var sv=localStorage.getItem("stt.view");if(sv==="dashboard"||sv==="management"||sv==="review")S.view=sv;}catch(e){}
+  try{var sv=localStorage.getItem("stt.view");if(sv==="dashboard"||sv==="management"||sv==="review"||sv==="attendance")S.view=sv;}catch(e){}
   wire();
   if(CFG.url.indexOf("YOUR-PROJECT")>=0||CFG.key.indexOf("YOUR-PUBLISHABLE")>=0){
     showAuth("note","This copy of the tracker is not connected to its database yet.",h("ol",null,
@@ -2907,6 +2971,7 @@ function renderRemind(){
   var wd=(c.workdays||"0,1,2,3,4").split(","),box=$("rmDays");
   Array.prototype.slice.call(box.querySelectorAll("label")).forEach(function(l){l.remove();});
   DAYS.forEach(function(d,i){var cb=h("input",{type:"checkbox",value:String(i)});cb.checked=wd.indexOf(String(i))>=0;box.append(h("label",null,cb,d));});
+  $("attHours").value=c.attend_hours||"7.5";
   $("motdOn").checked=(c.motd_on||"on")==="on";$("motdTitle").value=c.motd_title||"Man of the day";
   $("rmMsg").textContent="";
 }
@@ -2918,6 +2983,7 @@ function saveRemind(){
   if(!days.length){$("rmMsg").textContent="Pick at least one working day.";return;}
   var v={remind_hours_on:$("rmHoursOn").checked?"on":"off",remind_hours_at:at.slice(0,5),remind_ack_on:$("rmAckOn").checked?"on":"off",
          remind_ack_hours:String(hrs),timezone:$("rmTz").value,workdays:days.join(","),
+         attend_hours:String(num($("attHours").value)>0?num($("attHours").value):7.5),
          motd_on:$("motdOn").checked?"on":"off",motd_title:$("motdTitle").value.trim()||"Man of the day"};
   var rows=Object.keys(v).map(function(k){return {key:k,value:v[k]};});$("btnRmSave").disabled=true;$("rmMsg").textContent="";
   run(sb.from("tt_config").upsert(rows)).then(function(){S.cfg=S.cfg||{};for(var k in v)S.cfg[k]=v[k];$("rmMsg").textContent="Settings saved.";loadMotd();render();})
@@ -3233,6 +3299,8 @@ function tick(){
     if(k==="soon"){var x=engLeft(el.getAttribute("data-eng"));if(x)paintCd(el,x);return;}
     if(k==="teng"||k==="pzeng"){var en=el.getAttribute("data-eng"),eo=null;S.settings.engineers.forEach(function(q){if(q.name===en)eo=q;});if(!eo)return;var es=engState(eo);
       if(k==="teng")el.textContent=stateLeftTxt(es);else if(es.pause)el.textContent=durTxt(spanSecs(es.pause));return;}
+    if(k==="punch"){if(attMine)el.textContent=hm(sesHours(attMine));return;}
+    if(k==="atth"){var ar=null;attRows.forEach(function(q){if(q.id===el.getAttribute("data-id"))ar=q;});if(ar){var dh=0;attRows.forEach(function(q){if(q.email===ar.email&&q.day===ar.day)dh+=sesHours(q);});el.textContent=hm(dh);}return;}
     if(k==="tact"||k==="tearn"){if(!t)return;el.textContent=h1(k==="tact"?liveAct(t):doneHours(t));return;}
     if(k==="sum"){var sc2=el.getAttribute("data-scope"),wh=el.getAttribute("data-what"),ck=sc2+"|"+wh,sv=progCache[ck];if(sv===undefined)sv=progCache[ck]=sumOf(scopeRows(sc2),wh);el.textContent=h1(sv);return;}
     if(k==="prog"||k==="progbar"){var sc=el.getAttribute("data-scope"),pv=progCache[sc];if(pv===undefined)pv=progCache[sc]=progressOf(scopeRows(sc));
@@ -3822,6 +3890,146 @@ function sendComment(ev){
     return Promise.all([loadComments(),setSt?refreshTimer([t.id]):null]);
   }).then(function(){var nt=taskById(t.id);if(nt)cmtTask=nt;$("cmtStatus").parentNode.hidden=cmtTask.status==="Comment";renderCommentList();render();})
     .catch(function(e){$("cmtErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");}).then(function(){$("cmtSend").disabled=false;});
+}
+/* ---------- attendance ---------- */
+var attRows=[],attMine=null,attOpen={},attEdit=null,attMonthV="";
+function canPunch(){return !!me&&["engineer","midsenior","senior","teamleader"].indexOf(me.role)>=0;}
+function canAttend(){return !!me&&(canPunch()||editAll());}
+function attManage(disc){return !!me&&(isAdmin()||((me.role==="teamleader"||me.role==="senior")&&disc===me.discipline));}
+function reqHours(){var v=num((S.cfg||{}).attend_hours);return v>0?v:7.5;}
+function row2att(o){return {id:String(o.id),email:String(o.email),engineer:String(o.engineer||""),name:String(o.full_name||o.engineer||o.email),discipline:String(o.discipline||""),
+  day:String(o.day||"").slice(0,10),in_at:String(o.in_at),out_at:o.out_at?String(o.out_at):"",edited_by:o.edited_by?String(o.edited_by):""};}
+function monthRange(){var m=attMonthV||today().slice(0,7),y=+m.slice(0,4),mo=+m.slice(5,7);var a=new Date(y,mo-1,1),b=new Date(y,mo,0);return {m:m,from:ymd(a),to:ymd(b)};}
+function loadAtt(){
+  if(!sb||!canAttend())return Promise.resolve();
+  var r=monthRange();
+  var q1=run(sb.from("tt_attendance").select("id,email,engineer,full_name,discipline,day,in_at,out_at,edited_by").gte("day",r.from).order("in_at").range(0,4999))
+    .then(function(d){attRows=(d||[]).map(row2att).filter(function(x){return x.day<=r.to;});});
+  var q2=canPunch()?run(sb.from("tt_attendance").select("id,email,engineer,full_name,discipline,day,in_at,out_at,edited_by").eq("email",me.email).is("out_at",null).order("in_at",{ascending:false}).range(0,9))
+    .then(function(d){attMine=null;(d||[]).map(row2att).forEach(function(x){if(!attMine&&x.day===today())attMine=x;});}):Promise.resolve();
+  return Promise.all([q1,q2]).then(function(){paintPunch();if(S.view==="attendance")renderAtt();}).catch(function(){});
+}
+function sesHours(x){var a=Date.parse(x.in_at),b=x.out_at?Date.parse(x.out_at):(x.day===today()?nowMs():null);return b===null?0:Math.max(0,(b-a)/3600000);}
+function hm(hrs){var m=Math.round(hrs*60),s=m<0?"-":"";m=Math.abs(m);return s+Math.floor(m/60)+":"+(m%60<10?"0":"")+(m%60);}
+function tOnly(iso){return new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});}
+function paintPunch(){
+  var b=$("btnPunch");if(!b)return;b.hidden=!canPunch();if(b.hidden)return;clear(b);
+  if(attMine){b.className="btn punch in";b.title="Clocked in at "+tOnly(attMine.in_at)+". Click to clock out.";
+    b.append(h("i"),"Clock out",h("span",{"class":"pc","data-live":"punch",text:hm(sesHours(attMine))}));}
+  else{b.className="btn punch";b.title="Clock in when you arrive at the office";b.append(h("i"),"Clock in");}
+}
+function punch(){
+  if(!sb)return;var b=$("btnPunch"),act=attMine?"out":"in";b.disabled=true;
+  run(sb.rpc("tt_punch",{p_action:act})).then(function(d){
+    var r=row2att(d);attMine=act==="in"?r:null;
+    toast(act==="in"?"Clocked in at "+tOnly(r.in_at)+". Have a good day.":"Clocked out at "+tOnly(r.out_at)+" · "+hm(sesHours(r))+" today. Running task timers were paused.");
+    return Promise.all([loadAtt(),act==="out"?refreshTimer([]):null]);
+  }).catch(function(e){toast(writeError(e).replace(/^Could not save:\s*/,""),true);}).then(function(){b.disabled=false;paintPunch();});
+}
+/* one person's month */
+function attPerson(email,name,disc,rows){
+  var req=reqHours(),r=monthRange(),td=today(),days={};
+  rows.forEach(function(x){(days[x.day]=days[x.day]||[]).push(x);});
+  var wd=((S.cfg||{}).workdays||"0,1,2,3,4").split(","),first=null;rows.forEach(function(x){if(!first||x.day<first)first=x.day;});
+  var list=[],tot={h:0,ot:0,sf:0,present:0,absent:0,miss:0};
+  var d=new Date(r.from+"T00:00:00");
+  while(ymd(d)<=r.to&&ymd(d)<=td){
+    var k=ymd(d),ses=days[k]||[];
+    if(ses.length){var hrs=0,miss=false;ses.forEach(function(x){hrs+=sesHours(x);if(!x.out_at&&k!==td)miss=true;});
+      var done=k!==td||ses.every(function(x){return !!x.out_at;});
+      var ot=done?Math.max(0,hrs-req):0,sf=done&&!miss?Math.max(0,req-hrs):0;
+      list.push({day:k,ses:ses,h:hrs,ot:ot,sf:sf,miss:miss,today:k===td&&!done});tot.h+=hrs;tot.ot+=ot;tot.sf+=sf;tot.present++;if(miss)tot.miss++;}
+    else if(first&&k>=first&&k<td&&wd.indexOf(String(d.getDay()))>=0){list.push({day:k,absent:true});tot.absent++;}
+    d.setDate(d.getDate()+1);
+  }
+  var open=null;rows.forEach(function(x){if(!x.out_at&&x.day===td)open=x;});
+  return {email:email,name:name,disc:disc,days:list.reverse(),tot:tot,open:open};
+}
+function attDayTable(p){
+  var req=reqHours(),can=attManage(p.disc),tb=h("tbody");
+  p.days.forEach(function(x){
+    var dd=parseDate(x.day),dn=dd.toLocaleDateString("en-GB",{weekday:"short"});
+    if(x.absent){tb.append(h("tr",{"class":"absent"},h("td",{text:dd.getDate()+" "+dd.toLocaleString("en-GB",{month:"short"})}),h("td",{text:dn}),h("td",{"class":"ses",text:"No clock-in"}),
+      h("td",{text:"—"}),h("td",{text:"—"}),h("td",{text:"—"}),h("td",null,can?h("button",{"class":"btn small",type:"button",onclick:function(){openAttEdit(null,p,x.day);}},"Add"):"")));return;}
+    var ses=h("td",{"class":"ses"});
+    x.ses.forEach(function(s_){ses.append(h("span",{"class":"ses-chip"},tOnly(s_.in_at)+" → "+(s_.out_at?tOnly(s_.out_at):(x.day===today()?"now":"?")),
+      !s_.out_at&&x.day!==today()?h("span",{"class":"miss",text:" missing clock-out"}):null,s_.edited_by?h("small",{"class":"rv-hint",text:" (corrected)"}):null,
+      can?h("button",{type:"button",onclick:function(){openAttEdit(s_,p);}},"edit"):null));});
+    tb.append(h("tr",null,h("td",{text:dd.getDate()+" "+dd.toLocaleString("en-GB",{month:"short"})}),h("td",{text:dn}),ses,
+      h("td",null,x.today?h("span",{"data-live":"atth","data-id":x.ses[x.ses.length-1].id,text:hm(x.h)}):h("span",{text:hm(x.h)})),
+      h("td",{"class":x.ot>0?"ot":null,text:x.ot>0?"+"+hm(x.ot):"—"}),
+      h("td",{"class":x.sf>0?"sf":null,text:x.miss?"check":x.sf>0?"-"+hm(x.sf):(x.today?"in progress":"—")}),
+      h("td",null,can?h("button",{"class":"btn small quiet",type:"button",onclick:function(){openAttEdit(null,p,x.day);}},"+ session"):"")));
+  });
+  if(!p.days.length)tb.append(h("tr",null,h("td",{colspan:"7","class":"ses",text:"No attendance this month."})));
+  tb.append(h("tr",{"class":"tot"},h("td",{text:"Total"}),h("td",{text:p.tot.present+" days"}),h("td",{"class":"ses",text:p.tot.absent?p.tot.absent+" absent day"+(p.tot.absent===1?"":"s"):""}),
+    h("td",{text:hm(p.tot.h)}),h("td",{"class":"ot",text:p.tot.ot?"+"+hm(p.tot.ot):"—"}),h("td",{"class":"sf",text:p.tot.sf?"-"+hm(p.tot.sf):"—"}),h("td")));
+  return h("div",{"class":"att-wrap"},h("table",{"class":"att"},h("thead",null,h("tr",null,["Date","Day","In → Out",["Hours"],["Overtime"],["Shortfall"],""].map(function(c){return h("th",{text:Array.isArray(c)?c[0]:c});}))),tb));
+}
+function attTiles(p,label){
+  var net=p.tot.ot-p.tot.sf;
+  clear($("attStats")).append(
+    stat(label||"Days present",String(p.tot.present),"",p.tot.absent?p.tot.absent+" absent working day"+(p.tot.absent===1?"":"s"):"no absences"),
+    stat("Office hours",hm(p.tot.h),"",p.tot.present?"avg "+hm(p.tot.h/p.tot.present)+" a day":"—"),
+    stat("Overtime",p.tot.ot?"+"+hm(p.tot.ot):"0:00","","above "+reqHours()+" h a day"),
+    stat("Shortfall",p.tot.sf?"-"+hm(p.tot.sf):"0:00","","below "+reqHours()+" h a day",p.tot.sf>0),
+    stat("Balance",(net>=0?"+":"")+hm(net),"",net>=0?"overtime minus shortfall":"more shortfall than overtime",net<0));
+}
+function renderAtt(){
+  if(!$("attMonth").value)$("attMonth").value=attMonthV||today().slice(0,7);
+  var r=monthRange(),team=clear($("attTeam")),mine=clear($("attMine"));
+  $("attSub").textContent="Required "+reqHours()+" h a day · overtime above, shortfall below · "+new Date(r.from+"T00:00:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  var others=attRows.filter(function(x){return !me||x.email!==me.email;}),seesTeam_=editAll()||((me.role==="teamleader"||me.role==="senior")&&!!me.discipline);
+  if(canPunch()){
+    var mp=attPerson(me.email,me.full_name||me.email,me.discipline||"",attRows.filter(function(x){return x.email===me.email;}));
+    if(!seesTeam_)attTiles(mp);
+    mine.append(h("section",{"class":"att-sec"},h("h3",{text:"My attendance"}),h("span",{"class":"sub",text:mp.open?"In the office since "+tOnly(mp.open.in_at):"Not clocked in right now"}),attDayTable(mp)));
+  }
+  if(seesTeam_){
+    var people={};others.forEach(function(x){people[x.email]=people[x.email]||{name:x.name,disc:x.discipline,rows:[]};people[x.email].rows.push(x);});
+    directory.forEach(function(u){if(u.role!=="engineer"||!u.engineer||people[u.email]||(me&&u.email===me.email))return;
+      var e=null;S.settings.engineers.forEach(function(q){if(q.name===u.engineer)e=q;});if(!e)return;if(!editAll()&&e.discipline!==me.discipline)return;
+      people[u.email]={name:u.name||u.engineer,disc:e.discipline,rows:[]};});
+    var ps=Object.keys(people).map(function(k){var p=people[k];return attPerson(k,p.name,p.disc,p.rows);}).sort(function(a,b){return a.name.localeCompare(b.name);});
+    var agg_={tot:{present:0,absent:0,h:0,ot:0,sf:0}};ps.forEach(function(p){["present","absent","h","ot","sf"].forEach(function(k){agg_.tot[k]+=p.tot[k];});});
+    attTiles(agg_,"Days present (team)");
+    var tb=h("tbody");
+    ps.forEach(function(p){
+      var open=!!attOpen[p.email],net=p.tot.ot-p.tot.sf;
+      tb.append(h("tr",{"class":"erow"+(open?" open":""),tabindex:"0","aria-expanded":String(open),onclick:function(){attOpen[p.email]=!attOpen[p.email];renderAtt();},
+          onkeydown:function(ev){if(ev.key==="Enter"){attOpen[p.email]=!attOpen[p.email];renderAtt();}}},
+        h("td",null,h("span",{"class":"chev",text:open?"▾ ":"▸ "}),h("strong",{text:p.name})),h("td",{text:titleCase(p.disc||"")}),
+        h("td",{"class":"ses"},p.open?h("span",{"class":"att-in"},h("i"),"In since "+tOnly(p.open.in_at)):h("span",{"class":"att-out",text:"Out"})),
+        h("td",{text:String(p.tot.present)}),h("td",{"class":p.tot.absent?"sf":null,text:String(p.tot.absent)}),
+        h("td",{text:hm(p.tot.h)}),h("td",{"class":p.tot.ot?"ot":null,text:p.tot.ot?"+"+hm(p.tot.ot):"—"}),h("td",{"class":p.tot.sf?"sf":null,text:p.tot.sf?"-"+hm(p.tot.sf):"—"}),
+        h("td",{"class":net<0?"sf":net>0?"ot":null,text:(net>=0?"+":"")+hm(net)}),h("td",{"class":p.tot.miss?"miss":null,text:p.tot.miss?p.tot.miss+" missing":"—"})));
+      if(open)tb.append(h("tr",{"class":"det"},h("td",{colspan:"10"},h("div",{"class":"att-det"},attDayTable(p)))));
+    });
+    if(!ps.length)tb.append(h("tr",null,h("td",{colspan:"10","class":"ses",text:"No engineers with a login yet."})));
+    team.append(h("section",{"class":"att-sec"},h("h3",{text:"Team"}),h("span",{"class":"sub",text:(editAll()?"Everyone":titleCase(me.discipline)+" only")+" · click a name for the daily detail"}),
+      h("div",{"class":"att-wrap"},h("table",{"class":"att"},h("thead",null,h("tr",null,["Engineer","Discipline","Now","Days","Absent","Hours","Overtime","Shortfall","Balance","Clock-out"].map(function(c){return h("th",{text:c});}))),tb))));
+  }
+}
+function openAttEdit(s_,p,day){
+  attEdit={s:s_,p:p};$("attTitle").textContent=s_?"Correct attendance":"Add attendance";
+  $("attFor").textContent=p.name+(day?" · "+niceDate(day):s_?" · "+niceDate(s_.day):"");
+  var req=reqHours();
+  if(s_){$("attIn").value=toLocalInput(s_.in_at);$("attOut").value=s_.out_at?toLocalInput(s_.out_at):"";}
+  else{var b=new Date((day||today())+"T08:00:00");$("attIn").value=toLocalInput(b.toISOString());$("attOut").value=toLocalInput(new Date(b.getTime()+req*3600000).toISOString());}
+  $("attDel").hidden=!s_;$("attErr").textContent="";$("attDlg").showModal();
+}
+function saveAtt(){
+  var e=attEdit;if(!e||!sb)return;var iv=$("attIn").value,ov=$("attOut").value;
+  if(!iv){$("attErr").textContent="Pick the arrival time.";return;}
+  var pin=new Date(iv).toISOString(),pout=ov?new Date(ov).toISOString():null;
+  var q=e.s?sb.rpc("tt_att_fix",{p_id:e.s.id,p_in:pin,p_out:pout}):sb.rpc("tt_att_add",{p_email:e.p.email,p_in:pin,p_out:pout});
+  $("attSave").disabled=true;
+  run(q).then(function(){$("attDlg").close();toast("Attendance saved.");return loadAtt();}).catch(function(er){$("attErr").textContent=writeError(er).replace(/^Could not save:\s*/,"");}).then(function(){$("attSave").disabled=false;});
+}
+function delAtt(){
+  var e=attEdit;if(!e||!e.s||!sb)return;
+  if($("attDel").textContent!=="Click again to delete"){$("attDel").textContent="Click again to delete";return;}
+  run(sb.rpc("tt_att_delete",{p_id:e.s.id})).then(function(){$("attDlg").close();toast("Deleted.");return loadAtt();}).catch(function(er){$("attErr").textContent=writeError(er);}).then(function(){$("attDel").textContent="Delete";});
 }
 start();
 })();
