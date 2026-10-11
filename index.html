@@ -745,6 +745,7 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:5px;padding:3px 4px 3px 9px;font-weight:500;font-size:13px}
 .chip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:2px 5px;border-radius:4px}
 .chip button:hover{color:var(--bad);background:var(--bad-soft)}
+.chip button.sex{font-size:13px;color:var(--muted)}.chip button.sex:hover{color:var(--accent);background:var(--surface)}.chip.fem button.sex{color:#c2418a}
 .addrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
 .addrow .field{flex:1 1 150px}
 .team-block{display:flex;flex-direction:column;gap:8px}
@@ -1101,6 +1102,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       </div>
       <label class="copy-chk">Required office hours per day <input type="number" id="attHours" class="inl-num" min="1" max="16" step="0.25" aria-label="Required office hours per day"></label>
       <label class="copy-chk"><input type="checkbox" id="motdOn"> Show the daily award to everyone, titled <input type="text" id="motdTitle" class="inl-time" maxlength="40" aria-label="Award title" style="width:170px"></label>
+      <label class="copy-chk">When a female engineer wins, titled <input type="text" id="motdTitleF" class="inl-time" maxlength="40" aria-label="Award title for a female engineer" style="width:170px"></label>
       <div class="copy-bar"><button class="btn small primary" id="btnRmSave" type="button">Save settings</button><span class="hint" id="rmMsg" aria-live="polite"></span></div>
       <p class="hint">Reminders go out on working days only. Unconfirmed-task reminders go out between 8:00 and 20:00. If a discipline has no team leader, the admin gets them.</p>
     </div>
@@ -1804,9 +1806,9 @@ function deleteTask(){
 /* ---------- loading and live updates ---------- */
 function loadSettings(){
   return Promise.all([run(sb.from("tt_projects").select("name,sort").order("sort").order("name")),
-                      run(sb.from("tt_engineers").select("name,discipline,sort").order("sort").order("name"))]).then(function(r){
+                      run(sb.from("tt_engineers").select("name,discipline,sort,female").order("sort").order("name"))]).then(function(r){
     S.settings={projects:(r[0]||[]).map(function(p){return String(p.name);}),
-                engineers:(r[1]||[]).map(function(e){return {name:String(e.name),discipline:String(e.discipline||"")};})};
+                engineers:(r[1]||[]).map(function(e){return {name:String(e.name),discipline:String(e.discipline||""),female:!!e.female};})};
     /* an engineer works only with their own name and tasks */
     if(isTL())S.settings.engineers=S.settings.engineers.filter(function(e){return e.discipline===me.discipline;});
     else if(!editAll())S.settings.engineers=S.settings.engineers.filter(function(e){return !!me&&e.name===me.engineer;});
@@ -2590,7 +2592,11 @@ function renderTeam(){
   DISC.forEach(function(d){
     var list=S.settings.engineers.filter(function(e){return e.discipline===d.k;});
     el.append(h("div",{class:"team-disc"},h("span",{class:"code",text:d.k}),
-      h("div",{class:"chips"},list.length?list.map(function(e){return h("span",{class:"chip"},e.name,h("button",{type:"button","aria-label":"Remove "+e.name,onclick:function(){
+      h("div",{class:"chips"},list.length?list.map(function(e){return h("span",{class:"chip"+(e.female?" fem":"")},e.name,
+        h("button",{type:"button","class":"sex",title:e.female?"Female: wins Star of the day. Click to set as male":"Male: wins Man of the day. Click to set as female",
+          "aria-label":(e.female?"Set "+e.name+" as male":"Set "+e.name+" as female"),onclick:function(){
+          teamOp(sb.from("tt_engineers").update({female:!e.female}).eq("name",e.name));}},e.female?"♀":"♂"),
+        h("button",{type:"button","aria-label":"Remove "+e.name,onclick:function(){
         teamOp(sb.from("tt_engineers").delete().eq("name",e.name));}},"×"));})
         :h("span",{class:"hint",text:"No engineers yet."}))));
   });
@@ -2972,7 +2978,7 @@ function renderRemind(){
   Array.prototype.slice.call(box.querySelectorAll("label")).forEach(function(l){l.remove();});
   DAYS.forEach(function(d,i){var cb=h("input",{type:"checkbox",value:String(i)});cb.checked=wd.indexOf(String(i))>=0;box.append(h("label",null,cb,d));});
   $("attHours").value=c.attend_hours||"7.5";
-  $("motdOn").checked=(c.motd_on||"on")==="on";$("motdTitle").value=c.motd_title||"Man of the day";
+  $("motdOn").checked=(c.motd_on||"on")==="on";$("motdTitle").value=c.motd_title||"Man of the day";$("motdTitleF").value=c.motd_title_f||"Star of the day";
   $("rmMsg").textContent="";
 }
 function saveRemind(){
@@ -2984,7 +2990,7 @@ function saveRemind(){
   var v={remind_hours_on:$("rmHoursOn").checked?"on":"off",remind_hours_at:at.slice(0,5),remind_ack_on:$("rmAckOn").checked?"on":"off",
          remind_ack_hours:String(hrs),timezone:$("rmTz").value,workdays:days.join(","),
          attend_hours:String(num($("attHours").value)>0?num($("attHours").value):7.5),
-         motd_on:$("motdOn").checked?"on":"off",motd_title:$("motdTitle").value.trim()||"Man of the day"};
+         motd_on:$("motdOn").checked?"on":"off",motd_title:$("motdTitle").value.trim()||"Man of the day",motd_title_f:$("motdTitleF").value.trim()||"Star of the day"};
   var rows=Object.keys(v).map(function(k){return {key:k,value:v[k]};});$("btnRmSave").disabled=true;$("rmMsg").textContent="";
   run(sb.from("tt_config").upsert(rows)).then(function(){S.cfg=S.cfg||{};for(var k in v)S.cfg[k]=v[k];$("rmMsg").textContent="Settings saved.";loadMotd();render();})
     .catch(function(e){$("rmMsg").textContent=/tt_config|PGRST205|42P01/.test((e&&e.message)||"")?"Run the latest supabase-setup.sql first.":writeError(e);})
@@ -3132,7 +3138,7 @@ function loadMotd(){
   if(!sb||!me)return Promise.resolve();
   return run(sb.rpc("tt_man_of_day")).then(function(d){
     motd=(d||[]).map(function(o){return {day:String(o.day||"").slice(0,10),today:!!o.is_today,discipline:String(o.discipline||""),engineer:String(o.engineer||""),
-      name:String(o.full_name||o.engineer||""),points:num(o.points),tasks:Number(o.tasks)||0,comments:Number(o.comments)||0,est:num(o.est),actual:num(o.actual),overall:!!o.overall};});
+      name:String(o.full_name||o.engineer||""),points:num(o.points),tasks:Number(o.tasks)||0,comments:Number(o.comments)||0,est:num(o.est),actual:num(o.actual),overall:!!o.overall,female:!!o.female};});
     renderMotd();
   }).catch(function(){motd=[];renderMotd();});
 }
@@ -3153,7 +3159,7 @@ function renderMotd(){
   var box=$("motd");if(!box)return;
   var top=motd.filter(function(w){return w.overall;})[0];
   box.hidden=!top||!me;if(box.hidden)return;clear(box);
-  var title=(S.cfg&&S.cfg.motd_title)||"Man of the day",dayTxt=top.today?"Today · live":niceDate(top.day);
+  var title=top.female?((S.cfg&&S.cfg.motd_title_f)||"Star of the day"):((S.cfg&&S.cfg.motd_title)||"Man of the day");box.setAttribute("aria-label",title);var dayTxt=top.today?"Today · live":niceDate(top.day);
   var mine=isEng()&&me.engineer===top.engineer;
   var cup=h("div",{"class":"motd-cup"});cup.innerHTML=CUP;
   box.append(h("div",{"class":"motd-main"},cup,h("div",{"class":"motd-txt"},
@@ -3893,7 +3899,7 @@ function sendComment(ev){
 }
 /* ---------- attendance ---------- */
 var attRows=[],attMine=null,attOpen={},attEdit=null,attMonthV="";
-function canPunch(){return !!me&&["engineer","midsenior","senior","teamleader"].indexOf(me.role)>=0;}
+function canPunch(){return !!me&&["engineer","midsenior","senior","teamleader","admin"].indexOf(me.role)>=0;}
 function canAttend(){return !!me&&(canPunch()||editAll());}
 function attManage(disc){return !!me&&(isAdmin()||((me.role==="teamleader"||me.role==="senior")&&disc===me.discipline));}
 function reqHours(){var v=num((S.cfg||{}).attend_hours);return v>0?v:7.5;}
@@ -3988,7 +3994,7 @@ function renderAtt(){
   if(seesTeam_){
     var people={};others.forEach(function(x){people[x.email]=people[x.email]||{name:x.name,disc:x.discipline,rows:[]};people[x.email].rows.push(x);});
     // everyone who clocks in: engineers, mid seniors, seniors and team leaders, within the viewer's scope
-    directory.forEach(function(u){if(["engineer","midsenior","senior","teamleader"].indexOf(u.role)<0||people[u.email]||(me&&u.email===me.email))return;
+    directory.forEach(function(u){if(["engineer","midsenior","senior","teamleader","admin"].indexOf(u.role)<0||people[u.email]||(me&&u.email===me.email))return;
       var d=u.discipline;if(!d&&u.engineer)S.settings.engineers.forEach(function(q){if(q.name===u.engineer)d=q.discipline;});
       if(u.role==="engineer"&&!u.engineer)return;if(!editAll()&&d!==me.discipline)return;
       people[u.email]={name:u.name||u.engineer||u.email,disc:d,role:u.role,rows:[]};});
