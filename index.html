@@ -234,6 +234,53 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.cmt-td{white-space:nowrap}
+.cmt-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 10px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.cmt-pill:hover{border-color:var(--accent)}
+.cmt-pill.open{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+.cmt-pill.done{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.cmt-pill.add{color:var(--muted);font-weight:500}
+.cmt-list{display:flex;flex-direction:column;gap:8px}
+.cmt-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:9px;background:var(--surface)}
+.cmt-item.done{border-left-color:var(--ok);opacity:.8}
+.cmt-item.done .cmt-b{text-decoration:line-through;text-decoration-color:var(--muted)}
+.cmt-item input[type="checkbox"]{width:18px;height:18px;margin-top:2px;accent-color:var(--ok)}
+.cmt-b{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.cmt-m{grid-column:2;font-size:12px;color:var(--muted)}
+.cmt-m .ok{color:var(--ok);font-weight:600}
+.cmt-form{display:flex;flex-direction:column;gap:8px;padding-top:4px;border-top:1px dashed var(--line)}
+.escore tr.erow{cursor:pointer}
+.escore tr.erow:focus-visible td{outline:2px solid var(--accent);outline-offset:-2px}
+.escore tr.erow.open td{background:var(--accent-soft)}
+.escore .chev{display:inline-block;width:14px;color:var(--muted);font-size:11px}
+.escore tr.edet-row td{padding:0 0 0 0;background:var(--surface-2);white-space:normal;text-align:left;cursor:default}
+.escore tr.edet-row:hover td{background:var(--surface-2)}
+.edet{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;border-left:4px solid var(--accent)}
+.edet-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.edet-h b{font-family:var(--font-display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
+.edet-h span{color:var(--muted);font-size:12.5px}
+.edet-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table.edt{width:100%;border-collapse:collapse;font-size:12.5px}
+table.edt th,table.edt td{position:static!important;left:auto!important;right:auto!important;box-shadow:none!important;padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:top}
+table.edt th{background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+table.edt .n{text-align:right;font-variant-numeric:tabular-nums}
+table.edt td.tk{white-space:normal;min-width:180px;font-weight:600}
+table.edt td.why{white-space:nowrap;color:var(--muted);font-size:12px}
+table.edt tr.dn td{background:var(--surface)}
+table.edt td.bad{color:var(--bad);font-weight:600}
+table.edt td.good{color:var(--ok);font-weight:600}
+table.edt tr.tt td{background:var(--surface-2);font-weight:700;border-bottom:0}
+.ecalcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.ecalc{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.ecalc.wide{grid-column:1/-1}
+.ecalc .t{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ecalc .f{font-size:12.5px;color:var(--ink);white-space:normal}
+.ecalc b{font-family:var(--font-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.ecalc small{font-size:11.5px;color:var(--muted)}
+.echarts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+@media (max-width:1000px){.echarts{grid-template-columns:1fr}}
+.echarts .chart{position:relative;min-width:0}
+.ecol{margin-top:6px}
 #mStats{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}
 @media (max-width:1100px){#mStats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:600px){#mStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -1087,6 +1134,21 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="dlg-f"><button class="btn primary" id="btnLogClose" type="button">Done</button></div>
 </dialog>
 
+<dialog id="cmtDlg" aria-labelledby="cmtTitle">
+  <div class="dlg-h"><h3 id="cmtTitle">Comments</h3></div>
+  <div class="team-b">
+    <p class="hint" id="cmtFor"></p>
+    <div id="cmtList" class="cmt-list"></div>
+    <form id="cmtForm" class="cmt-form" novalidate>
+      <label class="field"><span>New comment for the engineer</span><textarea id="cmtBody" rows="3" maxlength="2000" placeholder="What needs to be fixed? One point per comment is easiest to follow."></textarea></label>
+      <label class="copy-chk"><input type="checkbox" id="cmtStatus"> Set the task to Comment, so the engineer's timer counts the fix on a comment round</label>
+      <p class="err" id="cmtErr" role="alert"></p>
+      <div class="rv-actions"><button class="btn primary" type="submit" id="cmtSend">Send to engineer</button></div>
+    </form>
+  </div>
+  <div class="dlg-f"><button class="btn" id="btnCmtClose" type="button">Close</button></div>
+</dialog>
+
 <dialog id="notifDlg" aria-labelledby="notifTitle">
   <div class="dlg-h"><h3 id="notifTitle">Notifications</h3></div>
   <div class="team-b"><div id="notifList"></div><div id="notifAlerts"></div></div>
@@ -1380,7 +1442,7 @@ function buildTable(host,rows){
   if(!rows.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks match these filters."})));return;}
   var flashing=flashId&&Date.now()-flashAt<4000;
   var sorted=rows.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:String(a.engineer).localeCompare(String(b.engineer));});
-  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h","r"],["Rem. h","r"],"Status","Submission Path","Send to",""];
+  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h","r"],["Rem. h","r"],"Status","Comments","Submission Path","Send to",""];
   var tb=h("tbody");
   sorted.forEach(function(t){
     var ov=overrun(t);
@@ -1397,6 +1459,7 @@ function buildTable(host,rows){
       h("td",{class:"r num"},canManageRows(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.01",inputmode:"decimal",value:fmt(num(t.actual)),title:"Correct the timed hours","aria-label":"Actual hours for "+(t.task||"task")}):h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
       h("td",{class:"r num"},h("span",{"data-live":"rem","data-tid":t.id,text:fmt(liveRem(t))}),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
       h("td",null,statusCell(t)),
+      h("td",{"class":"cmt-td"},commentCell(t)),
       h("td",{"class":"path"},canEdit(t)?inlineInput(t,"submission_path",{"class":"cell-path",type:"text",maxlength:"400",value:t.submission_path,placeholder:"Folder or link","aria-label":"Submission path for "+(t.task||"task")}):(t.submission_path||"—")),
       h("td",{"class":"send"},sendCell(t)),
       h("td",{class:"r"},h("div",{"class":"row-acts"},canPing(t)?h("button",{"class":"btn small alert-btn",type:"button","aria-label":"Alert "+t.engineer+" about "+(t.task||"this task"),onclick:function(){openAlert(t);}},"Alert"):null,canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null))));
@@ -1699,7 +1762,7 @@ function loadTasks(){
   }
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
 }
-function loadAll(){return Promise.all([loadTasks(),loadSettings(),loadRounds(),loadDirectory(),loadNotifs(),loadTime()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
+function loadAll(){return Promise.all([loadTasks(),loadSettings(),loadRounds(),loadDirectory(),loadNotifs(),loadTime(),loadComments()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
 function refresh(){if(!sb||!me)return;loadAll().catch(function(){S.conn="off";render();});}
 function settingsChanged(){loadSettings().then(function(){render();if($("teamDlg").open)renderTeam();}).catch(function(){});}
 function subscribe(){
@@ -1721,6 +1784,7 @@ function subscribe(){
         if(p.eventType==="DELETE"){if(p.old&&p.old.id){S.time=(S.time||[]).filter(function(w){return w.id!==String(p.old.id);});indexTime();}}
         else if(p["new"]&&p["new"].id)upsertTime(p["new"]);
         render();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_task_comments"},function(){loadComments().then(function(){if($("cmtDlg").open)renderCommentList();render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
       .subscribe();
@@ -1839,7 +1903,7 @@ function roundRow(t,r,fl,more){
       dateEl.addEventListener("change",function(){commitRoundDate(r,dateEl);});}
     else dateEl=h("strong",{text:r.work_date?niceDate(r.work_date):"—"});
   }
-  return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"14"},h("div",{"class":"round-line"+(nd?" nd":"")},
+  return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"15"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
     h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
@@ -2020,7 +2084,8 @@ function gotNotif(o){
     toast(mineNote?"Reminder: "+n.task+(n.note?" · "+n.note:""):n.message+": "+(n.note||n.task));
     osNotify(n.message,mineNote?n.task+(n.note?"\n"+n.note:""):n.note||n.task,{always:!document.hasFocus()||mineNote,sticky:mineNote,tag:"r-"+n.id});
     if(mineNote){beep();loadReview();}if($("notifDlg").open)renderNotifs();return;}
-  toast(n.message+": "+n.task+" · from "+n.from_name);
+  toast(n.message+": "+n.task+" · from "+n.from_name+(n.kind==="comment"&&n.note?" · "+n.note.slice(0,80):""));
+  if(n.kind==="comment")loadComments().then(function(){if($("cmtDlg").open)renderCommentList();render();});
   osNotify(n.message,n.task+(n.project?" · "+n.project:"")+"\nFrom "+n.from_name,{tag:"n-"+n.id});
   if($("notifDlg").open)renderNotifs();
 }
@@ -2049,7 +2114,7 @@ function pauseRow(t,fl){
   var reasonEl=editing
     ?inlineInput(t,"reason",{"class":"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:hold?"Write why this task is on hold, then press Enter":"Write why this task is delayed, then press Enter","aria-label":(hold?"Reason for hold for ":"Reason for delay for ")+(t.task||"task")})
     :h("span",{"class":"reason-text",text:t.reason||"No reason written yet."});
-  return h("tr",{"class":"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"14"},h("div",{"class":"reason-line"+(hold?" hold":"")},
+  return h("tr",{"class":"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"15"},h("div",{"class":"reason-line"+(hold?" hold":"")},
     h("span",{"class":"label",text:hold?"Reason for hold":"Reason for delay"}),
     reasonEl,
     (ed&&!editing)?h("button",{"class":"btn small",type:"button",onclick:function(){editReason[t.id]=true;focusReq={tid:t.id,field:"reason"};render();}},"Edit reason"):null,
@@ -2723,6 +2788,9 @@ function wire(){
   $("btnNotif").addEventListener("click",openNotifs);
   $("btnNotifClose").addEventListener("click",function(){$("notifDlg").close();});
   $("btnPingOk").addEventListener("click",ackPings);
+  $("cmtForm").addEventListener("submit",sendComment);
+  $("btnCmtClose").addEventListener("click",function(){$("cmtDlg").close();});
+  $("cmtBody").addEventListener("keydown",function(ev){if(ev.key==="Enter"&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();sendComment(ev);}});
   $("tabReview").addEventListener("click",function(){setView("review");if(!rvLoaded)loadReview();});
   $("noteForm").addEventListener("submit",submitNote);
   $("noteCancel").addEventListener("click",resetNoteForm);
@@ -3165,6 +3233,7 @@ function tick(){
     if(k==="soon"){var x=engLeft(el.getAttribute("data-eng"));if(x)paintCd(el,x);return;}
     if(k==="teng"||k==="pzeng"){var en=el.getAttribute("data-eng"),eo=null;S.settings.engineers.forEach(function(q){if(q.name===en)eo=q;});if(!eo)return;var es=engState(eo);
       if(k==="teng")el.textContent=stateLeftTxt(es);else if(es.pause)el.textContent=durTxt(spanSecs(es.pause));return;}
+    if(k==="tact"||k==="tearn"){if(!t)return;el.textContent=h1(k==="tact"?liveAct(t):doneHours(t));return;}
     if(k==="sum"){var sc2=el.getAttribute("data-scope"),wh=el.getAttribute("data-what"),ck=sc2+"|"+wh,sv=progCache[ck];if(sv===undefined)sv=progCache[ck]=sumOf(scopeRows(sc2),wh);el.textContent=h1(sv);return;}
     if(k==="prog"||k==="progbar"){var sc=el.getAttribute("data-scope"),pv=progCache[sc];if(pv===undefined)pv=progCache[sc]=progressOf(scopeRows(sc));
       if(k==="prog")el.textContent=pctTxt(pv);else el.style.width=Math.max(0,Math.min(100,pv))+"%";return;}
@@ -3559,7 +3628,7 @@ function engStats(name,rows){
   var score=null;
   if(done.length&&eff!==null)score=Math.round(40*Math.min(eff,1.2)/1.2+25*onR+20*(1-Math.min(cpt,1))+15*(1-stopR));
   var disc="";S.settings.engineers.forEach(function(e){if(e.name===name)disc=e.discipline;});if(!disc&&mine.length)disc=mine[0].discipline;
-  return {name:name,disc:disc,n:mine.length,done:done.length,est:est,act:act,earn:sumOf(mine,"earn"),prog:progressOf(mine),eff:eff,onR:onR,cpt:cpt,stopped:stopped,pz:pz,pzN:pzN,score:score};
+  return {mine:mine,dEst:dEst,dAct:dAct,onEst:onEst,cmts:cmts,stopR:stopR,name:name,disc:disc,n:mine.length,done:done.length,est:est,act:act,earn:sumOf(mine,"earn"),prog:progressOf(mine),eff:eff,onR:onR,cpt:cpt,stopped:stopped,pz:pz,pzN:pzN,score:score};
 }
 function renderEngScore(){
   var host=clear($("mEng"));if(!S.tasksLoaded)return;
@@ -3573,19 +3642,22 @@ function renderEngScore(){
   [[""," All"]].concat(discs.map(function(d){return [d,titleCase(d)];})).forEach(function(o){seg.append(h("button",{type:"button","aria-pressed":String(escDisc===o[0]),onclick:function(){escDisc=o[0];renderEngScore();}},o[1].trim()));});
   host.append(h("div",{"class":"etools"},seg));
   if(escDisc)list=list.filter(function(x){return x.disc===escDisc;});
+  var ec=engCharts(list);if(ec)host.append(ec);
   var cols=[["rank","#"],["name","Engineer"],["disc","Discipline"],["n","Tasks"],["est","Est. h"],["act","Actual h (Timer)"],["earn","Earned h (time used)"],["prog","Progress"],["eff","Efficiency"],["onR","On estimate"],["cpt","Comments / task"],["stopped","Delayed / held"],["pz","Paused"],["score","Score"]];
   function val(x,k){var v=x[k];return v===null||v===undefined?-Infinity:v;}
   var byScore=list.slice().sort(function(a,b){return val(b,"score")-val(a,"score")||b.prog-a.prog;});byScore.forEach(function(x,i){x.rank=x.score===null?null:i+1;});
-  list.sort(function(a,b){var k=escSort.k==="rank"?"score":escSort.k,va=val(a,k),vb=val(b,k);if(typeof a[k]==="string")return escSort.d*String(a[k]).localeCompare(String(b[k]));return escSort.d*(va-vb)||a.name.localeCompare(b.name);});
+  list.sort(function(a,b){var k=escSort.k==="rank"?"score":escSort.k,va=val(a,k),vb=val(b,k);if(typeof a[k]==="string")return escSort.d*String(a[k]).localeCompare(String(b[k]));return escSort.d*(va-vb)||((a.rank||999)-(b.rank||999))||a.name.localeCompare(b.name);});
   if(escSort.k==="cpt"||escSort.k==="stopped"||escSort.k==="pz"){}
   var thr=h("tr");cols.forEach(function(c){thr.append(h("th",{scope:"col","aria-sort":escSort.k===c[0]?(escSort.d<0?"descending":"ascending"):"none",onclick:function(){if(escSort.k===c[0])escSort.d=-escSort.d;else{escSort.k=c[0];escSort.d=(c[0]==="name"||c[0]==="disc"||c[0]==="cpt"||c[0]==="stopped"||c[0]==="pz")?1:-1;}renderEngScore();}},c[1]));});
   var tb=h("tbody");
   list.forEach(function(x){
     var pb=h("span",{"class":"pb",title:"Progress = Earned ÷ Estimated = "+h1(x.earn)+" ÷ "+h1(x.est)},h("span",{"class":"trk"},h("span",{"class":"fill","data-live":"progbar","data-scope":"e:"+x.name,style:"width:"+Math.min(100,x.prog)+"%"})),h("span",{"data-live":"prog","data-scope":"e:"+x.name,text:pctTxt(x.prog)}));
     function pc(v,good,weak){if(v===null)return h("span",{text:"—"});var p=Math.round(v*100);return h("span",{"class":v>=good?"good":v<weak?"weak":null,text:p+"%"});}
-    tb.append(h("tr",{"class":x.rank===1?"top1":null},
+    var open=!!escOpen[x.name];
+    tb.append(h("tr",{"class":"erow"+(x.rank===1?" top1":"")+(open?" open":""),tabindex:"0",role:"button","aria-expanded":String(open),title:open?"Hide the breakdown":"Show how "+x.name+"'s numbers are calculated",
+        onclick:function(){escOpen[x.name]=!escOpen[x.name];renderEngScore();},onkeydown:function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();escOpen[x.name]=!escOpen[x.name];renderEngScore();}}},
       h("td",null,x.rank?h("span",{"class":"rank",text:String(x.rank)}):"—"),
-      h("td",null,h("strong",{text:x.name})),h("td",{text:titleCase(x.disc||"")}),
+      h("td",null,h("span",{"class":"chev",text:open?"▾":"▸"}),h("strong",{text:x.name})),h("td",{text:titleCase(x.disc||"")}),
       h("td",{text:x.done+" / "+x.n}),h("td",{text:h1(x.est)}),
       h("td",null,h("span",{"data-live":"sum","data-what":"act","data-scope":"e:"+x.name,text:h1(x.act)})),
       h("td",null,h("span",{"data-live":"sum","data-what":"earn","data-scope":"e:"+x.name,text:h1(x.earn)})),
@@ -3595,6 +3667,7 @@ function renderEngScore(){
       h("td",{text:String(x.stopped)}),
       h("td",{text:x.pzN?durTxt(x.pz*3600)+" ("+x.pzN+")":"—"}),
       h("td",null,x.score===null?h("span",{"class":"sc",title:"Needs at least one finished task with hours",text:"—"}):h("span",{"class":"sc"+(x.score>=75?" hi":x.score<50?" lo":""),text:String(x.score)}))));
+    if(open)tb.append(h("tr",{"class":"edet-row"},h("td",{colspan:"14"},engDetail(x))));
   });
   host.append(h("div",{"class":"tablewrap"},h("table",{"class":"escore"},h("thead",null,thr),tb)));
   var tot=list.reduce(function(a,x){a.e+=x.est;a.w+=x.act;a.r+=x.earn;a.n+=x.n;a.d+=x.done;return a;},{e:0,w:0,r:0,n:0,d:0});
@@ -3603,6 +3676,152 @@ function renderEngScore(){
   host.append(h("p",{"class":"ehow"},"Progress = Earned h ÷ Est. h. Earned = hours worked on each task, counted up to its estimate (finished tasks count in full). Actual h (Timer) = timer + corrections. Earned h (time used) = the same hours, counted up to each estimate. They move live with the timers. ",
     h("br"),"Efficiency = estimated ÷ actual hours on finished tasks (above 100% = faster than estimate). On estimate = finished tasks done within their estimate (+5%). Comments / task = comment rounds per finished task (lower is better). Paused = breaks and other pauses, not task switches or next-day stops.",
     h("br"),"Score (0–100) = 40 efficiency (capped at 120%) + 25 on estimate + 20 few comments + 15 few delayed or held tasks. It needs at least one finished task."));
+}
+/* ---------- productivity charts: engineers on the horizontal axis ---------- */
+function colChart(o){
+  // o: {cats:[names], series:[{key,label,color}], val:function(cat,key), fmt:function(v), ref:{v,label}|null, labels:bool, aria}
+  var wrap=h("div",{"class":"cplot ecol"}),n=o.cats.length,ns=o.series.length;
+  var W=Math.max(420,($("mEng").clientWidth||980)/(o.half?2:1)-60),H=280,ml=46,mr=14,mt=18,mb=48,iw=W-ml-mr,ih=H-mt-mb;
+  var max=0;o.cats.forEach(function(c){o.series.forEach(function(s){max=Math.max(max,o.val(c,s.key)||0);});});if(o.ref)max=Math.max(max,o.ref.v);
+  var ymax=niceMax(max*1.08),band=iw/Math.max(1,n),bw=Math.min(24,(band*0.72-(ns-1)*2)/ns),gw=ns*bw+(ns-1)*2;
+  function Y(v){return mt+ih-(v/ymax)*ih;}
+  var svg=svgEl("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":o.aria});
+  for(var g=0;g<=4;g++){var v=ymax*g/4,y=Y(v);svg.append(svgEl("line",{"class":"gl",x1:ml,x2:ml+iw,y1:y,y2:y}));var t=svgEl("text",{"class":"ax",x:ml-8,y:y+4,"text-anchor":"end"});t.textContent=o.fmt(v);svg.append(t);}
+  o.cats.forEach(function(c,i){var cx=ml+band*i+band/2,x0=cx-gw/2;
+    o.series.forEach(function(s,j){var v=o.val(c,s.key)||0,x=x0+j*(bw+2),y=Y(v),hgt=Math.max(0,mt+ih-y),r=Math.min(4,bw/2,hgt);
+      var d="M"+x+","+(mt+ih)+"V"+(y+r)+"Q"+x+","+y+" "+(x+r)+","+y+"H"+(x+bw-r)+"Q"+(x+bw)+","+y+" "+(x+bw)+","+(y+r)+"V"+(mt+ih)+"Z";
+      svg.append(svgEl("path",{d:hgt>0?d:"",fill:"var("+s.color+")"}));
+      if(o.labels&&hgt>=0){var lt=svgEl("text",{"class":"lbl",x:x+bw/2,y:y-6,"text-anchor":"middle"});lt.textContent=o.fmt(v);svg.append(lt);}});
+    var nm=svgEl("text",{"class":"ax",x:cx,y:H-mb+16,"text-anchor":"middle"});nm.textContent=c.length>14?c.slice(0,13)+"…":c;svg.append(nm);});
+  if(o.ref){var ry=Y(o.ref.v);svg.append(svgEl("line",{x1:ml,x2:ml+iw,y1:ry,y2:ry,stroke:"var(--ink)","stroke-width":"1",opacity:".55"}));
+    var rt=svgEl("text",{"class":"ax",x:ml+iw,y:ry-5,"text-anchor":"end"});rt.textContent=o.ref.label;svg.append(rt);}
+  var tip=h("div",{"class":"ctip",hidden:""}),hl=svgEl("rect",{x:0,y:mt,width:band,height:ih,fill:"var(--ink)",opacity:"0",rx:"6"});svg.insertBefore(hl,svg.firstChild);
+  var hit=svgEl("rect",{x:ml,y:mt,width:iw,height:ih+mb-10,fill:"transparent"});svg.append(hit);
+  hit.addEventListener("mousemove",function(ev){var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*W/r.width,i=Math.max(0,Math.min(n-1,Math.floor((sx-ml)/band))),c=o.cats[i];
+    hl.setAttribute("x",ml+band*i);hl.setAttribute("opacity",".05");clear(tip);tip.append(h("div",null,h("b",{text:c})));
+    o.series.forEach(function(s){tip.append(h("div",null,h("i",{style:"background:var("+s.color+")"}),s.label+": ",h("b",{text:o.fmt(o.val(c,s.key)||0)})));});
+    if(o.extra)o.extra(c).forEach(function(l){tip.append(h("div",{text:l}));});
+    tip.hidden=false;var px=(ml+band*i+band/2)*r.width/W,left=px+14;if(left+tip.offsetWidth>r.width)left=px-14-tip.offsetWidth;tip.style.left=Math.max(0,left)+"px";tip.style.top="6px";});
+  hit.addEventListener("mouseleave",function(){tip.hidden=true;hl.setAttribute("opacity","0");});
+  wrap.append(svg,tip);return wrap;
+}
+function engCharts(list){
+  if(!list.length)return null;
+  var by={};list.forEach(function(x){by[x.name]=x;});
+  var cats1=list.slice().sort(function(a,b){return b.earn-a.earn;}).map(function(x){return x.name;});
+  var hours=colChart({cats:cats1,half:true,aria:"Estimated, actual (timer) and earned hours by engineer",
+    series:[{key:"est",label:"Estimated",color:"--s-plan"},{key:"act",label:"Actual (Timer)",color:"--s-act"},{key:"earn",label:"Earned (time used)",color:"--s-earn"}],
+    val:function(c,k){return by[c][k];},fmt:function(v){return fmt(Math.round(v*10)/10);},
+    extra:function(c){var x=by[c];return ["Progress: "+pctTxt(x.prog)+" (Earned ÷ Estimated)"];}});
+  var prodRows=list.filter(function(x){return x.act>0;}).map(function(x){return {name:x.name,p:x.earn/x.act*100};}).sort(function(a,b){return b.p-a.p;});
+  var pby={};prodRows.forEach(function(r){pby[r.name]=r.p;});
+  var prod=prodRows.length?colChart({cats:prodRows.map(function(r){return r.name;}),half:true,labels:true,aria:"Productivity by engineer: earned hours divided by actual timer hours",
+    series:[{key:"p",label:"Productivity (Earned ÷ Actual)",color:"--s-plan"}],val:function(c){return pby[c];},fmt:function(v){return Math.round(v)+"%";},
+    ref:{v:100,label:"100% = on estimate"},
+    extra:function(c){var x=by[c];return ["Earned "+h1(x.earn)+" h ÷ Actual "+h1(x.act)+" h"];}}):h("p",{"class":"hint",text:"No timed hours yet in this period."});
+  var lg=h("div",{"class":"clegend"});[["Estimated","--s-plan"],["Actual (Timer)","--s-act"],["Earned (time used)","--s-earn"]].forEach(function(s_){lg.append(h("span",null,h("i",{style:"background:var("+s_[1]+")"}),s_[0]));});
+  return h("div",{"class":"echarts"},
+    h("section",{"class":"chart"},h("div",{"class":"chart-h"},h("h3",{text:"Hours by engineer"}),h("p",{text:"Sorted by earned hours · "+periodName()})),lg,hours),
+    h("section",{"class":"chart"},h("div",{"class":"chart-h"},h("h3",{text:"Productivity by engineer"}),h("p",{text:"Earned ÷ Actual (Timer) · above 100% = faster than estimated"})),prod));
+}
+/* ---------- engineer row → breakdown of every number ---------- */
+var escOpen={};
+function pausedOf(t){var s=0,n=0;timeOf(t).forEach(function(w){if(w.kind==="pause"&&w.reason!=="Continues next day"&&w.reason.indexOf("Another task")!==0){s+=spanSecs(w)/3600;n++;}});return {h:s,n:n};}
+function engDetail(x){
+  var box=h("div",{"class":"edet"});
+  var tasks=x.mine.slice().sort(function(a,b){var da=a.status==="Completed"?0:1,db=b.status==="Completed"?0:1;return da-db||(a.date<b.date?1:a.date>b.date?-1:0);});
+  var tb=h("tbody");
+  tasks.forEach(function(t){
+    var e=estT(t),a=liveAct(t),done=t.status==="Completed",ov=a-e,cm=roundsOf(t).filter(function(r){return r.kind==="comment";}).length,pz=pausedOf(t);
+    var why=done?(e>0&&a<=e*1.05?"Done on time → full estimate":"Done late → capped at estimate"):(e<=0?"No estimate → not counted":a>=e?"Open, over estimate → capped":"Open → hours worked so far");
+    tb.append(h("tr",{"class":done?"dn":null},
+      h("td",{text:(function(d){return d?d.getDate()+" "+d.toLocaleString("en-GB",{month:"short"}):"—";})(parseDate(t.date))}),h("td",{text:t.project||"—"}),h("td",{"class":"tk",text:t.task||"—"}),
+      h("td",null,h("span",{"class":"pill "+(SCLS[t.status]||"idle"),text:STATUS_LABEL[t.status]||t.status})),
+      h("td",{"class":"n",text:h1(e)}),
+      h("td",{"class":"n"},h("span",{"data-live":"tact","data-tid":t.id,text:h1(a)})),
+      h("td",{"class":"n"},h("b",{"data-live":"tearn","data-tid":t.id,text:h1(doneHours(t))})),
+      h("td",{"class":"n",text:e>0?Math.round(doneHours(t)/e*100)+"%":"—"}),
+      h("td",{"class":"n "+(ov>0.05?"bad":ov<-0.05&&done?"good":""),text:e>0?(ov>0.05?"+"+h1(ov)+" h over":done&&ov<-0.05?h1(-ov)+" h saved":"—"):"—"}),
+      h("td",{"class":"n",text:done?String(cm):"—"}),
+      h("td",{"class":"n",text:t.pause_kind?"Yes":"—"}),
+      h("td",{"class":"n",text:pz.n?durTxt(pz.h*3600)+" ("+pz.n+")":"—"}),
+      h("td",{"class":"why",text:why})));
+  });
+  tb.append(h("tr",{"class":"tt"},h("td",{colspan:"4",text:"Total · "+x.n+" tasks, "+x.done+" finished"}),h("td",{"class":"n",text:h1(x.est)}),
+    h("td",{"class":"n",text:h1(x.act)}),h("td",{"class":"n",text:h1(x.earn)}),h("td",{"class":"n",text:pctTxt(x.prog)}),h("td",{colspan:"5"})));
+  var head=h("tr",null,["Date","Project","Task","Status",["Est. h","n"],["Actual h (Timer)","n"],["Earned h","n"],["Task progress","n"],["Over / saved","n"],["Comments","n"],["Delayed / held","n"],["Paused","n"],"How it counts"].map(function(c){return Array.isArray(c)?h("th",{"class":c[1],text:c[0]}):h("th",{text:c});}));
+  box.append(h("div",{"class":"edet-h"},h("b",{text:x.name+" · task by task"}),h("span",{text:periodName()+" · finished tasks first"})),
+    h("div",{"class":"edet-wrap"},h("table",{"class":"edt"},h("thead",null,head),tb)));
+  // how each number in the row was calculated
+  function card(title,formula,result,note){return h("div",{"class":"ecalc"},h("span",{"class":"t",text:title}),h("span",{"class":"f",text:formula}),h("b",{text:result}),note?h("small",{text:note}):null);}
+  var cards=h("div",{"class":"ecalcs"});
+  cards.append(card("Progress","Earned ÷ Estimated = "+h1(x.earn)+" ÷ "+h1(x.est),pctTxt(x.prog),"all "+x.n+" tasks"));
+  cards.append(card("Efficiency",x.done?"Est. ÷ Actual of finished = "+h1(x.dEst)+" ÷ "+h1(x.dAct):"needs a finished task",x.eff===null?"—":Math.round(x.eff*100)+"%",x.done?(x.eff>=1?"faster than estimated":"slower than estimated"):null));
+  cards.append(card("On estimate",x.done?x.onEst+" of "+x.done+" finished within estimate (+5%)":"needs a finished task",x.onR===null?"—":Math.round(x.onR*100)+"%",null));
+  cards.append(card("Comments / task",x.done?x.cmts+" comment rounds ÷ "+x.done+" finished":"needs a finished task",x.cpt===null?"—":(Math.round(x.cpt*10)/10).toFixed(1),"lower is better"));
+  cards.append(card("Delayed / held",x.stopped+" of "+x.n+" tasks were ever Delayed or On Hold",String(x.stopped),null));
+  if(x.score!==null){
+    var p1=40*Math.min(x.eff,1.2)/1.2,p2=25*x.onR,p3=20*(1-Math.min(x.cpt,1)),p4=15*(1-x.stopR);
+    cards.append(h("div",{"class":"ecalc wide"},h("span",{"class":"t",text:"Score"}),
+      h("span",{"class":"f",text:"Efficiency "+Math.round(p1*10)/10+" / 40  +  On estimate "+Math.round(p2*10)/10+" / 25  +  Few comments "+Math.round(p3*10)/10+" / 20  +  Few delays "+Math.round(p4*10)/10+" / 15"}),
+      h("b",{text:String(x.score)+" / 100"}),h("small",{text:"Efficiency counts up to 120%. Delays = "+x.stopped+" of "+x.n+" tasks."})));
+  }else cards.append(card("Score","needs at least one finished task","—",null));
+  box.append(cards);
+  return box;
+}
+/* ---------- review comments on a task ---------- */
+var cmtsBy={},cmtTask=null,cmtArmed=null;
+function row2cmt(o){return {id:String(o.id),task_id:String(o.task_id),body:String(o.body||""),author_email:String(o.author_email||""),author_name:String(o.author_name||o.author_email||""),
+  created_at:String(o.created_at||""),done_at:o.done_at?String(o.done_at):"",done_by:o.done_by?String(o.done_by):""};}
+function loadComments(){
+  if(!sb)return Promise.resolve();
+  var out=[],size=1000;
+  function page(from){return run(sb.from("tt_task_comments").select("id,task_id,body,author_email,author_name,created_at,done_at,done_by").order("created_at").range(from,from+size-1))
+    .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});}
+  return page(0).then(function(all){var m={};all.map(row2cmt).forEach(function(c){(m[c.task_id]=m[c.task_id]||[]).push(c);});cmtsBy=m;}).catch(function(){cmtsBy={};});
+}
+function cmtsOf(t){return cmtsBy[t.id]||[];}
+function canComment(t){return canManageRows(t);}
+function commentCell(t){
+  var list=cmtsOf(t),open=list.filter(function(c){return !c.done_at;}).length;
+  if(!list.length)return canComment(t)?h("button",{"class":"cmt-pill add",type:"button",title:"Write a comment for "+t.engineer,onclick:function(){openComments(t);}},"+ Add"):"—";
+  return h("button",{"class":"cmt-pill "+(open?"open":"done"),type:"button",title:"Open the comments",onclick:function(){openComments(t);}},
+    open?open+(open===1?" open":" open")+(list.length>open?" · "+(list.length-open)+" done":""):"✓ "+list.length+" done");
+}
+function openComments(t){
+  cmtTask=t;cmtArmed=null;$("cmtTitle").textContent="Comments";
+  $("cmtFor").textContent=(t.task||"Task")+" · "+t.engineer+(t.project?" · "+t.project:"")+" · "+(STATUS_LABEL[t.status]||t.status);
+  $("cmtBody").value="";$("cmtErr").textContent="";$("cmtSend").disabled=false;
+  $("cmtStatus").checked=t.status==="Completed";$("cmtStatus").parentNode.hidden=t.status==="Comment";
+  $("cmtForm").hidden=!canComment(t);renderCommentList();$("cmtDlg").showModal();
+  if(canComment(t))$("cmtBody").focus();
+}
+function renderCommentList(){
+  var t=cmtTask,host=clear($("cmtList"));if(!t)return;
+  var list=cmtsOf(t),mine=isEng()&&me.engineer===t.engineer,canTick=mine||canComment(t);
+  if(!list.length){host.append(h("p",{"class":"rv-hint",text:canComment(t)?"No comments yet. Write the first one below.":"No comments on this task."}));return;}
+  list.forEach(function(c){
+    var cb=h("input",{type:"checkbox","aria-label":(c.done_at?"Mark not done: ":"Mark done: ")+c.body.slice(0,40)});cb.checked=!!c.done_at;cb.disabled=!canTick;
+    cb.addEventListener("change",function(){cb.disabled=true;run(sb.rpc("tt_comment_done",{p_id:c.id,p_done:cb.checked})).then(function(){toast(cb.checked?"Comment marked done.":"Comment opened again.");return loadComments();})
+      .then(function(){renderCommentList();render();}).catch(function(e){toast(writeError(e).replace(/^Could not save:\s*/,""),true);cb.disabled=false;cb.checked=!cb.checked;});});
+    var canDel=c.author_email===me.email||isAdmin(),key="c"+c.id,del=null;
+    if(canDel)del=h("button",{"class":"btn small "+(cmtArmed===key?"danger":"quiet"),type:"button",onclick:function(ev){
+      if(cmtArmed!==key){cmtArmed=key;renderCommentList();return;}cmtArmed=null;ev.currentTarget.disabled=true;
+      run(sb.rpc("tt_comment_delete",{p_id:c.id})).then(function(){toast("Comment deleted.");return loadComments();}).then(function(){renderCommentList();render();}).catch(function(e){toast(writeError(e),true);});}},cmtArmed===key?"Delete?":"Delete");
+    host.append(h("div",{"class":"cmt-item"+(c.done_at?" done":"")},cb,h("div",{"class":"cmt-b",text:c.body}),del||h("span"),
+      h("div",{"class":"cmt-m"},"By "+c.author_name+" · "+niceStamp(c.created_at),c.done_at?h("span",null," · ",h("span",{"class":"ok",text:"Done "+niceStamp(c.done_at)+(c.done_by?" by "+personName(c.done_by):"")})):" · open")));
+  });
+}
+function sendComment(ev){
+  ev.preventDefault();var t=cmtTask;if(!t||!sb)return;
+  var body=$("cmtBody").value.trim();if(!body){$("cmtErr").textContent="Write the comment first.";$("cmtBody").focus();return;}
+  var setSt=!$("cmtStatus").parentNode.hidden&&$("cmtStatus").checked;
+  $("cmtSend").disabled=true;$("cmtErr").textContent="";
+  run(sb.rpc("tt_comment_add",{p_task:t.id,p_body:body,p_set_status:setSt})).then(function(){
+    toast("Comment sent to "+t.engineer+"."+(setSt?" The task is now in Comment.":""));$("cmtBody").value="";
+    return Promise.all([loadComments(),setSt?refreshTimer([t.id]):null]);
+  }).then(function(){var nt=taskById(t.id);if(nt)cmtTask=nt;$("cmtStatus").parentNode.hidden=cmtTask.status==="Comment";renderCommentList();render();})
+    .catch(function(e){$("cmtErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");}).then(function(){$("cmtSend").disabled=false;});
 }
 start();
 })();
