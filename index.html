@@ -234,6 +234,47 @@ td .sub.wait{color:var(--warn);font-weight:600}
 .round-line.nd .label{color:var(--nxt)}
 .round-line input[type="date"]{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:3px 6px}
 .reason-text{font-weight:500;color:var(--ink)}
+.views button .badge{margin-left:4px;font-family:var(--font-body,system-ui);letter-spacing:0;vertical-align:1px}
+.rv-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;margin-top:14px;align-items:start}
+@media (max-width:900px){.rv-grid{grid-template-columns:1fr}}
+.rv-col{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.rv-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.rv-head h3{margin:0;font-family:var(--font-display);font-weight:600;font-size:21px;letter-spacing:.06em;text-transform:uppercase}
+.rv-add{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px dashed var(--line);border-radius:10px;background:var(--surface-2)}
+.rv-add.editing{border-style:solid;border-color:var(--accent)}
+.rv-when{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px}
+.rv-when .field{flex:1 1 200px}
+.rv-quick{display:flex;flex-wrap:wrap;gap:6px}
+.rv-actions{display:flex;justify-content:flex-end;gap:8px}
+.rv-group{display:flex;flex-direction:column;gap:6px}
+.rv-gh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--font-display);font-weight:600;font-size:13.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.rv-gh.late{color:var(--bad)}
+.rv-note{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.rv-note.late{border-left:4px solid var(--bad)}
+.rv-note.soon{border-left:4px solid var(--warn)}
+.rv-note.done{opacity:.65}
+.rv-note.done .rv-t{text-decoration:line-through}
+.rv-note input[type="checkbox"]{width:18px;height:18px;margin-top:2px;accent-color:var(--accent)}
+.rv-body{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rv-t{font-weight:600;overflow-wrap:anywhere}
+.rv-d{font-size:13px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.rv-m{font-size:12px;color:var(--muted)}
+.rv-m .late{color:var(--bad);font-weight:600}
+.rv-btns{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.rv-btns .btn{padding:2px 9px;font-size:12.5px}
+.rv-empty{color:var(--muted);font-size:13.5px;padding:10px 2px}
+.rv-task{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.rv-task.ok{background:var(--surface-2)}
+.rv-row1{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.rv-row1 strong{font-size:15px;overflow-wrap:anywhere}
+.rv-facts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted)}
+.rv-facts b{color:var(--ink);font-weight:600}
+.rv-facts .over{color:var(--bad);font-weight:600}
+.rv-facts a{color:var(--accent);overflow-wrap:anywhere}
+.rv-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.rv-foot input{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:5px 8px;font-size:13px}
+.rv-ok{font-size:12.5px;color:var(--ok);font-weight:600}
+.rv-more summary{cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;padding:4px 0}
 .tm{display:flex;flex-direction:column;gap:3px;margin-top:6px}
 .tm-now{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px}
 .tm-state{display:inline-flex;align-items:center;gap:6px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
@@ -562,7 +603,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <header class="band" id="appBand" hidden>
   <div class="band-in">
     <div class="brand"><div class="logo sm" role="img" aria-label="IBIMS, Integrated BIM Services"></div><span>Team Task Tracker</span></div>
-    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button></nav>
+    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
     <div class="band-tools">
       <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
       <button class="btn ghost" id="btnNotif" type="button"><span>Notifications</span><b class="badge" id="notifCount" hidden>0</b></button>
@@ -615,6 +656,33 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <div class="sec-head"><h2>Delayed tasks</h2><p id="mDelaySub"></p></div>
       <div id="mDelays"></div>
     </section>
+  </div>
+
+  <div id="viewReview" class="view" hidden>
+    <div class="mhead"><div><h2>My review</h2><p>Only you can see this page. Finished tasks land here to check, and you can keep your own reminders.</p></div></div>
+    <div class="rv-grid">
+      <section class="rv-col" aria-labelledby="rvNotesH">
+        <div class="rv-head"><h3 id="rvNotesH">Reminders</h3><span class="hint" id="rvNotesCount"></span></div>
+        <form class="rv-add" id="noteForm" novalidate>
+          <input type="hidden" id="noteId"><input type="hidden" id="noteTask">
+          <label class="field"><span>What do you need to remember?</span><input type="text" id="noteTitle" maxlength="160" autocomplete="off" placeholder="e.g. Check S-101 comments with the consultant"></label>
+          <label class="field"><span>Details (optional)</span><textarea id="noteText" rows="2" maxlength="1000"></textarea></label>
+          <div class="rv-when">
+            <label class="field"><span>Remind me at (optional)</span><input type="datetime-local" id="noteDue"></label>
+            <div class="rv-quick"><button class="btn small" type="button" data-q="1h">In 1 hour</button><button class="btn small" type="button" data-q="pm">Today 16:00</button><button class="btn small" type="button" data-q="tm">Tomorrow 9:00</button></div>
+          </div>
+          <p class="hint" id="noteLink" hidden></p>
+          <p class="err" id="noteErr" role="alert"></p>
+          <div class="rv-actions"><button class="btn" type="button" id="noteCancel" hidden>Cancel</button><button class="btn primary" type="submit" id="noteSave">Add reminder</button></div>
+        </form>
+        <div id="rvNotes"></div>
+      </section>
+      <section class="rv-col" aria-labelledby="rvDoneH">
+        <div class="rv-head"><h3 id="rvDoneH">Finished tasks</h3><div class="seg" id="rvSeg" role="group" aria-label="Show"></div></div>
+        <p class="hint">Tasks finished in the last 30 days in your scope. Mark each one reviewed when you have checked it.</p>
+        <div id="rvDone"></div>
+      </section>
+    </div>
   </div>
 
   <div id="viewTracker" class="view">
@@ -1263,12 +1331,14 @@ function setView(v){S.view=v;saveView();render();}
 function render(){
   renderFilters();renderInbox();
   if(S.view==="management"&&!editAll())S.view="tracker";
+  if(S.view==="review"&&!canReview())S.view="tracker";
   var rows=S.tasks.filter(match),v=S.view;
   $("tabMgmt").hidden=!editAll();$("btnUsers").hidden=!isAdmin();$("fEngineer").parentNode.hidden=!seesTeam();$("btnOnline").hidden=!seesTeam();
-  $("viewTracker").hidden=v!=="tracker";$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
-  $("filtersBox").hidden=v==="management";$("stats").hidden=v==="management";
+  $("viewTracker").hidden=v!=="tracker";$("viewReview").hidden=v!=="review";$("tabReview").hidden=!canReview();$("tabReview").setAttribute("aria-pressed",String(v==="review"));paintReviewCount();$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
+  $("filtersBox").hidden=v==="management"||v==="review";$("stats").hidden=v==="management"||v==="review";
   $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
-  if(v==="management"){renderMgmt();renderMgmtCharts();}
+  if(v==="review")renderReview();
+  else if(v==="management"){renderMgmt();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
   $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
@@ -1702,8 +1772,10 @@ function gotNotif(o){
   if(notifs.some(function(x){return x.id===n.id;}))return;
   notifs.unshift(n);paintNotifs();render();
   if(n.kind==="ping"){showPings(true);if($("notifDlg").open)renderNotifs();return;}
-  if(n.kind==="remind"){toast(n.message+": "+(n.note||n.task));
-    osNotify(n.message,n.note||n.task,{always:!document.hasFocus(),tag:"r-"+n.id});if($("notifDlg").open)renderNotifs();return;}
+  if(n.kind==="remind"){var mineNote=n.message==="Reminder";
+    toast(mineNote?"Reminder: "+n.task+(n.note?" · "+n.note:""):n.message+": "+(n.note||n.task));
+    osNotify(n.message,mineNote?n.task+(n.note?"\n"+n.note:""):n.note||n.task,{always:!document.hasFocus()||mineNote,sticky:mineNote,tag:"r-"+n.id});
+    if(mineNote){beep();loadReview();}if($("notifDlg").open)renderNotifs();return;}
   toast(n.message+": "+n.task+" · from "+n.from_name);
   osNotify(n.message,n.task+(n.project?" · "+n.project:"")+"\nFrom "+n.from_name,{tag:"n-"+n.id});
   if($("notifDlg").open)renderNotifs();
@@ -2314,7 +2386,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopReminders();stopMotd();stopTick();S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopReminders();stopMotd();stopTick();stopReview();S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -2324,7 +2396,7 @@ function enter(session){
   showAuth("note","Loading…");
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
-    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();
+    me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();
     return loadAll().then(subscribe);
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
@@ -2407,6 +2479,10 @@ function wire(){
   $("btnNotif").addEventListener("click",openNotifs);
   $("btnNotifClose").addEventListener("click",function(){$("notifDlg").close();});
   $("btnPingOk").addEventListener("click",ackPings);
+  $("tabReview").addEventListener("click",function(){setView("review");if(!rvLoaded)loadReview();});
+  $("noteForm").addEventListener("submit",submitNote);
+  $("noteCancel").addEventListener("click",resetNoteForm);
+  Array.prototype.forEach.call(document.querySelectorAll(".rv-quick button"),function(b){b.addEventListener("click",function(){quickDue(b.getAttribute("data-q"));});});
   $("btnPauseCancel").addEventListener("click",function(){$("pauseDlg").close();});
   $("btnPauseGo").addEventListener("click",pauseGo);
   $("pauseReason").addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();pauseGo();}});
@@ -2798,6 +2874,175 @@ function tick(){
 }
 function startTick(){stopTick();syncClock();tickTimer=setInterval(tick,1000);}
 function stopTick(){if(tickTimer)clearInterval(tickTimer);tickTimer=null;}
+/* ---------- My review: private review list and reminders ---------- */
+var rvMap={},rvNotes=[],rvShow="todo",rvLoaded=false,noteTimer=null,rvArmed=null;
+function canReview(){return !!me&&(me.role==="admin"||((me.role==="teamleader"||me.role==="senior")&&!!me.discipline));}
+function loadReview(){
+  if(!sb||!canReview())return Promise.resolve();
+  return Promise.all([run(sb.from("tt_review").select("task_id,reviewed_at,note").eq("owner_email",me.email)),
+                      run(sb.from("tt_notes").select("id,title,note,due_at,task_id,done_at,reminded_at,created_at").eq("owner_email",me.email).order("created_at",{ascending:false}))])
+    .then(function(r){rvMap={};(r[0]||[]).forEach(function(o){rvMap[String(o.task_id)]={reviewed_at:o.reviewed_at?String(o.reviewed_at):"",note:String(o.note||"")};});
+      rvNotes=(r[1]||[]).map(function(o){return {id:String(o.id),title:String(o.title||""),note:String(o.note||""),due_at:o.due_at?String(o.due_at):"",task_id:o.task_id?String(o.task_id):"",
+        done_at:o.done_at?String(o.done_at):"",reminded_at:o.reminded_at?String(o.reminded_at):"",created_at:String(o.created_at||"")};});
+      rvLoaded=true;scheduleNotes();render();})
+    .catch(function(){rvLoaded=false;});
+}
+function stopReview(){if(noteTimer)clearTimeout(noteTimer);noteTimer=null;rvMap={};rvNotes=[];rvLoaded=false;}
+function doneAt(t){return t.completed_at||(t.date?t.date+"T12:00:00Z":"");}
+function reviewTasks(){
+  var since=nowMs()-30*86400000;
+  return S.tasks.filter(function(t){return t.status==="Completed"&&Date.parse(doneAt(t))>=since;})
+    .sort(function(a,b){return doneAt(a)<doneAt(b)?1:doneAt(a)>doneAt(b)?-1:0;});
+}
+function isReviewed(t){var r=rvMap[t.id];return !!(r&&r.reviewed_at);}
+function noteState(n){
+  if(n.done_at)return "done";if(!n.due_at)return "none";var d=Date.parse(n.due_at),now=nowMs();
+  if(d<=now)return "late";
+  var end=new Date(nowMs());end.setHours(23,59,59,999);return d<=end.getTime()?"today":"later";
+}
+function paintReviewCount(){
+  var el=$("reviewCount");if(!el)return;
+  var n=canReview()&&rvLoaded?reviewTasks().filter(function(t){return !isReviewed(t);}).length+rvNotes.filter(function(x){return noteState(x)==="late";}).length:0;
+  el.textContent=String(n);el.hidden=!n;
+}
+function dayLabel(iso){
+  var d=new Date(iso),t=new Date(nowMs()),y=new Date(nowMs()-86400000),tm=new Date(nowMs()+86400000);
+  if(d.toDateString()===t.toDateString())return "Today";if(d.toDateString()===y.toDateString())return "Yesterday";if(d.toDateString()===tm.toDateString())return "Tomorrow";
+  return d.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"});
+}
+function whenTxt(iso){var d=new Date(iso);return dayLabel(iso)+" "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});}
+function taskById(id){for(var i=0;i<S.tasks.length;i++)if(S.tasks[i].id===id)return S.tasks[i];return null;}
+function renderReview(){
+  if(!rvLoaded){clear($("rvNotes")).append(h("p",{"class":"rv-empty",text:"Loading…"}));clear($("rvDone"));return;}
+  renderNotes();renderDone();
+}
+function renderNotes(){
+  var host=clear($("rvNotes")),open=rvNotes.filter(function(n){return !n.done_at;}),done=rvNotes.filter(function(n){return !!n.done_at;});
+  $("rvNotesCount").textContent=open.length?open.length+" open":"";
+  if(!rvNotes.length){host.append(h("p",{"class":"rv-empty",text:"No reminders yet. Add anything you need to come back to."}));return;}
+  var groups=[["late","Overdue"],["today","Today"],["later","Coming up"],["none","No time set"]];
+  groups.forEach(function(g){
+    var list=open.filter(function(n){return noteState(n)===g[0];}).sort(function(a,b){return (a.due_at||a.created_at)<(b.due_at||b.created_at)?-1:1;});
+    if(!list.length)return;
+    var box=h("div",{"class":"rv-group"},h("div",{"class":"rv-gh"+(g[0]==="late"?" late":"")},h("span",{text:g[1]+" · "+list.length})));
+    list.forEach(function(n){box.append(noteItem(n));});host.append(box);
+  });
+  if(!open.length)host.append(h("p",{"class":"rv-empty",text:"All reminders are done."}));
+  if(done.length){var det=h("details",{"class":"rv-more"},h("summary",{text:"Done · "+done.length}));
+    var g=h("div",{"class":"rv-group"});done.slice(0,50).forEach(function(n){g.append(noteItem(n));});det.append(g);host.append(det);}
+}
+function noteItem(n){
+  var st=noteState(n),t=n.task_id?taskById(n.task_id):null;
+  var cb=h("input",{type:"checkbox","aria-label":(n.done_at?"Mark not done: ":"Mark done: ")+n.title});cb.checked=!!n.done_at;
+  cb.addEventListener("change",function(){saveNote(n.id,{done_at:cb.checked?new Date(nowMs()).toISOString():null},cb.checked?"Reminder done.":"Reminder opened again.");});
+  var meta=[];
+  if(n.due_at)meta.push(h("span",{"class":st==="late"?"late":null,text:(st==="late"?"Was due ":"")+whenTxt(n.due_at)}));
+  if(t)meta.push(h("span",{text:(meta.length?" · ":"")+"Task: "+t.task+" ("+t.engineer+")"}));
+  if(n.done_at)meta.push(h("span",{text:(meta.length?" · ":"")+"Done "+whenTxt(n.done_at)}));
+  var key="n"+n.id,armed=rvArmed===key;
+  return h("div",{"class":"rv-note "+(st==="late"?"late":st==="today"?"soon":st==="done"?"done":"")},cb,
+    h("div",{"class":"rv-body"},h("span",{"class":"rv-t",text:n.title}),n.note?h("span",{"class":"rv-d",text:n.note}):null,meta.length?h("span",{"class":"rv-m"},meta):null),
+    h("div",{"class":"rv-btns"},
+      n.done_at?null:h("button",{"class":"btn small",type:"button",onclick:function(){editNote(n);}},"Edit"),
+      h("button",{"class":"btn small danger",type:"button",onclick:function(){
+        if(rvArmed!==key){rvArmed=key;renderNotes();setTimeout(function(){if(rvArmed===key){rvArmed=null;renderNotes();}},4000);return;}
+        rvArmed=null;delNote(n);}},armed?"Click again":"Delete")));
+}
+function renderDone(){
+  var all=reviewTasks(),todo=all.filter(function(t){return !isReviewed(t);}),ok=all.filter(isReviewed);
+  var seg=clear($("rvSeg"));
+  [["todo","To review · "+todo.length],["ok","Reviewed · "+ok.length]].forEach(function(o){
+    seg.append(h("button",{type:"button","aria-pressed":String(rvShow===o[0]),onclick:function(){rvShow=o[0];renderDone();}},o[1]));});
+  var list=rvShow==="todo"?todo:ok,host=clear($("rvDone"));
+  if(!list.length){host.append(h("p",{"class":"rv-empty",text:rvShow==="todo"?(all.length?"Everything is reviewed. Nice.":"No finished tasks in the last 30 days."):"Nothing marked reviewed yet."}));return;}
+  var days=[],by={};
+  list.forEach(function(t){var k=new Date(doneAt(t)).toDateString();if(!by[k]){by[k]=[];days.push(k);}by[k].push(t);});
+  days.forEach(function(k){
+    var ts=by[k],head=h("div",{"class":"rv-gh"},h("span",{text:dayLabel(doneAt(ts[0]))+" · "+ts.length}));
+    if(rvShow==="todo"&&ts.length>1)head.append(h("button",{"class":"btn small",type:"button",onclick:function(ev){markReviewed(ts,true,ev.currentTarget);}},"Mark all reviewed"));
+    var box=h("div",{"class":"rv-group"},head);ts.forEach(function(t){box.append(reviewItem(t));});host.append(box);
+  });
+}
+function reviewItem(t){
+  var r=rvMap[t.id]||{},ok=!!r.reviewed_at,est=estT(t),act=actT(t),ov=act-est;
+  var facts=[h("span",null,"Engineer ",h("b",{text:t.engineer||"—"})),
+    h("span",null,"Est ",h("b",{text:fmt(est)+" h"})," · Actual ",h("b",{text:fmt(Math.round(act*100)/100)+" h"}),ov>0.05&&est>0?h("span",{"class":"over",text:" (over by "+fmt(Math.round(ov*100)/100)+" h)"}):null),
+    t.completed_at?h("span",{text:"Finished "+new Date(t.completed_at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}):null];
+  if(t.level||t.element)facts.push(h("span",{text:[t.level,t.element].filter(Boolean).join(" · ")}));
+  if(t.submission_path){var p=t.submission_path;facts.push(/^https?:\/\//i.test(p)?h("a",{href:p,target:"_blank",rel:"noopener"},"Submission link"):h("span",null,"Path ",h("b",{text:p})));}
+  if(t.sent_to)facts.push(h("span",{text:"Sent to "+personName(t.sent_to)}));
+  var rounds=roundsOf(t).filter(function(x){return x.kind==="comment";}).length;if(rounds)facts.push(h("span",{text:rounds+(rounds===1?" comment round":" comment rounds")}));
+  var noteInp=h("input",{type:"text",maxlength:"500",value:r.note||"",placeholder:"Private note (only you see it)","aria-label":"Private note for "+(t.task||"task")});
+  function saveNoteField(){var v=noteInp.value.trim();if(v===(r.note||""))return;reviewWrite(t,{note:v},"Note saved.");}
+  noteInp.addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();noteInp.blur();}});
+  noteInp.addEventListener("blur",saveNoteField);
+  return h("div",{"class":"rv-task"+(ok?" ok":"")},
+    h("div",{"class":"rv-row1"},h("strong",{text:t.task||"—"}),h("span",{"class":"proj",text:t.project}),h("span",{"class":"code",text:t.discipline.slice(0,3)})),
+    h("div",{"class":"rv-facts"},facts),
+    h("div",{"class":"rv-foot"},noteInp,
+      ok?h("span",{"class":"rv-ok",text:"Reviewed "+whenTxt(r.reviewed_at)}):null,
+      ok?h("button",{"class":"btn small",type:"button",onclick:function(ev){markReviewed([t],false,ev.currentTarget);}},"Undo")
+        :h("button",{"class":"btn small primary",type:"button",onclick:function(ev){markReviewed([t],true,ev.currentTarget);}},"Mark reviewed"),
+      h("button",{"class":"btn small",type:"button",onclick:function(){remindAbout(t);}},"Remind me")));
+}
+function reviewWrite(t,patch,msg){
+  var cur=rvMap[t.id]||{reviewed_at:"",note:""},row={owner_email:me.email,task_id:t.id,reviewed_at:("reviewed_at" in patch?patch.reviewed_at:cur.reviewed_at)||null,note:"note" in patch?patch.note:cur.note};
+  return run(sb.from("tt_review").upsert(row)).then(function(){rvMap[t.id]={reviewed_at:row.reviewed_at||"",note:row.note};if(msg)toast(msg);render();})
+    .catch(function(e){toast(writeError(e),true);});
+}
+function markReviewed(list,on,btn){
+  if(!sb)return;if(btn)btn.disabled=true;var ts=new Date(nowMs()).toISOString();
+  var rows=list.map(function(t){var cur=rvMap[t.id]||{};return {owner_email:me.email,task_id:t.id,reviewed_at:on?ts:null,note:cur.note||""};});
+  run(sb.from("tt_review").upsert(rows)).then(function(){rows.forEach(function(r){rvMap[r.task_id]={reviewed_at:r.reviewed_at||"",note:r.note};});
+    toast(on?(rows.length===1?"Marked reviewed.":rows.length+" tasks marked reviewed."):"Moved back to review.");render();})
+    .catch(function(e){if(btn)btn.disabled=false;toast(writeError(e),true);});
+}
+function toLocalVal(ms){return toLocalInput(new Date(ms).toISOString());}
+function quickDue(q){
+  var d=new Date(nowMs());
+  if(q==="1h")d=new Date(nowMs()+3600000);
+  else if(q==="pm"){d.setHours(16,0,0,0);if(d.getTime()<=nowMs())d=new Date(d.getTime()+86400000);}
+  else{d.setDate(d.getDate()+1);d.setHours(9,0,0,0);}
+  $("noteDue").value=toLocalVal(d.getTime());
+}
+function resetNoteForm(){
+  $("noteId").value="";$("noteTask").value="";$("noteTitle").value="";$("noteText").value="";$("noteDue").value="";$("noteErr").textContent="";
+  $("noteLink").hidden=true;$("noteCancel").hidden=true;$("noteSave").textContent="Add reminder";$("noteForm").classList.remove("editing");
+}
+function editNote(n){
+  $("noteId").value=n.id;$("noteTask").value=n.task_id||"";$("noteTitle").value=n.title;$("noteText").value=n.note;$("noteDue").value=n.due_at?toLocalInput(n.due_at):"";
+  var t=n.task_id?taskById(n.task_id):null;$("noteLink").hidden=!t;if(t)$("noteLink").textContent="Linked to task: "+t.task+" ("+t.engineer+")";
+  $("noteCancel").hidden=false;$("noteSave").textContent="Save reminder";$("noteForm").classList.add("editing");$("noteErr").textContent="";
+  $("noteForm").scrollIntoView({block:"nearest"});$("noteTitle").focus();
+}
+function remindAbout(t){
+  resetNoteForm();$("noteTask").value=t.id;$("noteTitle").value="Follow up: "+(t.task||"task");quickDue("tm");
+  $("noteLink").hidden=false;$("noteLink").textContent="Linked to task: "+t.task+" ("+t.engineer+")";$("noteCancel").hidden=false;
+  $("noteForm").scrollIntoView({block:"nearest"});$("noteTitle").focus();$("noteTitle").select();
+}
+function submitNote(ev){
+  ev.preventDefault();if(!sb)return;
+  var id=$("noteId").value,title=$("noteTitle").value.trim(),dv=$("noteDue").value,due=null;
+  if(!title){$("noteErr").textContent="Write what you need to remember.";$("noteTitle").focus();return;}
+  if(dv){var d=new Date(dv);if(isNaN(d)){$("noteErr").textContent="Pick a valid time.";return;}due=d.toISOString();}
+  var row={title:title,note:$("noteText").value.trim(),due_at:due,task_id:$("noteTask").value||null};
+  $("noteSave").disabled=true;
+  var q=id?sb.from("tt_notes").update(row).eq("id",id):sb.from("tt_notes").insert(Object.assign({owner_email:me.email},row));
+  run(q).then(function(){toast(id?"Reminder saved.":due?"Reminder set for "+whenTxt(due)+".":"Reminder added.");resetNoteForm();return loadReview();})
+    .catch(function(e){$("noteErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");})
+    .then(function(){$("noteSave").disabled=false;});
+}
+function saveNote(id,patch,msg){run(sb.from("tt_notes").update(patch).eq("id",id)).then(function(){if(msg)toast(msg);return loadReview();}).catch(function(e){toast(writeError(e),true);loadReview();});}
+function delNote(n){run(sb.from("tt_notes").delete().eq("id",n.id)).then(function(){toast("Reminder deleted.");if($("noteId").value===n.id)resetNoteForm();return loadReview();}).catch(function(e){toast(writeError(e),true);});}
+/* fire due reminders on time while the app is open (the server also checks every 10 minutes) */
+function scheduleNotes(){
+  if(noteTimer)clearTimeout(noteTimer);noteTimer=null;
+  var now=nowMs(),next=null,due=false;
+  rvNotes.forEach(function(n){if(n.done_at||n.reminded_at||!n.due_at)return;var d=Date.parse(n.due_at);if(d<=now)due=true;else if(next===null||d<next)next=d;});
+  if(due){runReminders();setTimeout(loadReview,2500);}
+  if(next!==null)noteTimer=setTimeout(function(){noteTimer=null;runReminders();setTimeout(loadReview,2500);},Math.min(next-now+1500,6*3600000));
+  else if(rvNotes.length)noteTimer=setTimeout(scheduleNotes,6*3600000);
+}
 start();
 })();
 </script>
