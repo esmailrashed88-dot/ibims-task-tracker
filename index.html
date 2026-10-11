@@ -2028,7 +2028,7 @@ function roundDone(r,btn){
 
 /* ---------- send to + notifications ---------- */
 var directory=[],notifs=[];
-function loadDirectory(){return run(sb.rpc("tt_directory")).then(function(d){directory=(d||[]).map(function(u){return {email:String(u.email),name:String(u.full_name||""),role:String(u.role||""),engineer:String(u.engineer||"")};});});}
+function loadDirectory(){return run(sb.rpc("tt_directory")).then(function(d){directory=(d||[]).map(function(u){return {email:String(u.email),name:String(u.full_name||""),role:String(u.role||""),engineer:String(u.engineer||""),discipline:String(u.discipline||"")};});});}
 function personName(email){for(var i=0;i<directory.length;i++)if(directory[i].email===email)return directory[i].name||email;return email;}
 function sendCell(t){
   var note=t.sent_to?h("span",{"class":"sub",text:"Sent "+(t.sent_at?niceStamp(t.sent_at):"")}):null;
@@ -3987,10 +3987,13 @@ function renderAtt(){
   }
   if(seesTeam_){
     var people={};others.forEach(function(x){people[x.email]=people[x.email]||{name:x.name,disc:x.discipline,rows:[]};people[x.email].rows.push(x);});
-    directory.forEach(function(u){if(u.role!=="engineer"||!u.engineer||people[u.email]||(me&&u.email===me.email))return;
-      var e=null;S.settings.engineers.forEach(function(q){if(q.name===u.engineer)e=q;});if(!e)return;if(!editAll()&&e.discipline!==me.discipline)return;
-      people[u.email]={name:u.name||u.engineer,disc:e.discipline,rows:[]};});
-    var ps=Object.keys(people).map(function(k){var p=people[k];return attPerson(k,p.name,p.disc,p.rows);}).sort(function(a,b){return a.name.localeCompare(b.name);});
+    // everyone who clocks in: engineers, mid seniors, seniors and team leaders, within the viewer's scope
+    directory.forEach(function(u){if(["engineer","midsenior","senior","teamleader"].indexOf(u.role)<0||people[u.email]||(me&&u.email===me.email))return;
+      var d=u.discipline;if(!d&&u.engineer)S.settings.engineers.forEach(function(q){if(q.name===u.engineer)d=q.discipline;});
+      if(u.role==="engineer"&&!u.engineer)return;if(!editAll()&&d!==me.discipline)return;
+      people[u.email]={name:u.name||u.engineer||u.email,disc:d,role:u.role,rows:[]};});
+    var roleOf={};directory.forEach(function(u){roleOf[u.email]=u.role;});
+    var ps=Object.keys(people).map(function(k){var p=people[k],o=attPerson(k,p.name,p.disc,p.rows);o.role=p.role||roleOf[k]||"";return o;}).sort(function(a,b){return a.name.localeCompare(b.name);});
     var agg_={tot:{present:0,absent:0,h:0,ot:0,sf:0}};ps.forEach(function(p){["present","absent","h","ot","sf"].forEach(function(k){agg_.tot[k]+=p.tot[k];});});
     attTiles(agg_,"Days present (team)");
     var tb=h("tbody");
@@ -3998,7 +4001,7 @@ function renderAtt(){
       var open=!!attOpen[p.email],net=p.tot.ot-p.tot.sf;
       tb.append(h("tr",{"class":"erow"+(open?" open":""),tabindex:"0","aria-expanded":String(open),onclick:function(){attOpen[p.email]=!attOpen[p.email];renderAtt();},
           onkeydown:function(ev){if(ev.key==="Enter"){attOpen[p.email]=!attOpen[p.email];renderAtt();}}},
-        h("td",null,h("span",{"class":"chev",text:open?"▾ ":"▸ "}),h("strong",{text:p.name})),h("td",{text:titleCase(p.disc||"")}),
+        h("td",null,h("span",{"class":"chev",text:open?"▾ ":"▸ "}),h("strong",{text:p.name}),p.role&&p.role!=="engineer"?h("small",{"class":"rv-hint",text:" · "+roleName(p.role)}):null),h("td",{text:titleCase(p.disc||"")}),
         h("td",{"class":"ses"},p.open?h("span",{"class":"att-in"},h("i"),"In since "+tOnly(p.open.in_at)):h("span",{"class":"att-out",text:"Out"})),
         h("td",{text:String(p.tot.present)}),h("td",{"class":p.tot.absent?"sf":null,text:String(p.tot.absent)}),
         h("td",{text:hm(p.tot.h)}),h("td",{"class":p.tot.ot?"ot":null,text:p.tot.ot?"+"+hm(p.tot.ot):"—"}),h("td",{"class":p.tot.sf?"sf":null,text:p.tot.sf?"-"+hm(p.tot.sf):"—"}),
