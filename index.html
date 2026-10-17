@@ -748,6 +748,26 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
+.rq-h{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.rq-btns{display:flex;flex-wrap:wrap;gap:8px}
+.rq-bal{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px;color:var(--muted)}.rq-bal b{color:var(--ink)}
+.rq-bar{width:180px;max-width:100%;height:8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}.rq-bar i{display:block;height:100%;background:var(--accent)}
+.rq-st{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;letter-spacing:.03em}
+.rq-st.pending{background:var(--warn-soft);color:var(--warn)}.rq-st.approved{background:var(--ok-soft);color:var(--ok)}
+.rq-st.rejected{background:var(--bad-soft);color:var(--bad)}.rq-st.cancelled{background:var(--surface-2);color:var(--muted)}
+.rq-pend{border-color:var(--warn);border-width:2px}
+table.att.rq td{vertical-align:middle}
+table.att.rq th,table.att.rq td{text-align:left}table.att.rq th:last-child,table.att.rq td:last-child{text-align:right}
+.rq-act{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+.rq-note{font:inherit;font-size:12.5px;padding:4px 7px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink);width:150px}
+.rq-tag{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:6px;font-size:12px}
+.rq-tag.lv{background:var(--accent-soft);color:var(--accent)}.rq-tag.pm{background:var(--warn-soft);color:var(--warn)}
+.rq-up{display:flex;flex-wrap:wrap;gap:4px}
+table.att tr.onleave td{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}
+.rq-seg{margin-bottom:6px}
+.rq-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:520px){.rq-3{grid-template-columns:1fr}}
+.hint.bad{color:var(--bad);font-weight:600}
 .bc{border:1px solid var(--gold-line);border-left:5px solid var(--gold-mark);background:var(--gold-soft);border-radius:10px;padding:12px 14px;display:grid;gap:6px}
 .bc.new{box-shadow:0 0 0 3px color-mix(in srgb,var(--gold-mark) 25%,transparent)}
 .bc.seen{border-left-color:var(--gold-line)}
@@ -893,7 +913,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <header class="band" id="appBand" hidden>
   <div class="band-in">
     <div class="brand"><div class="logo sm" role="img" aria-label="IBIMS, Integrated BIM Services"></div><span>Team Task Tracker</span></div>
-    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
+    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance <b class="badge" id="attCount" hidden>0</b></button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
     <div class="band-tools">
       <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
       <button class="btn punch" id="btnPunch" type="button" hidden></button>
@@ -995,6 +1015,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <div class="mhead"><div><h2>Attendance</h2><p id="attSub"></p></div>
       <label class="field att-month"><span>Month</span><input type="month" id="attMonth"></label></div>
     <section class="stats att-stats" id="attStats" aria-label="Attendance summary"></section>
+    <div id="attReq"></div>
     <div id="attTeam"></div>
     <div id="attMine"></div>
   </div>
@@ -1128,6 +1149,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
         <fieldset class="rm-days" id="rmDays"><legend>Working days</legend></fieldset>
       </div>
       <label class="copy-chk">Required office hours per day <input type="number" id="attHours" class="inl-num" min="1" max="16" step="0.25" aria-label="Required office hours per day"></label>
+      <label class="copy-chk">Permission allowed per person a month <input type="number" id="permHours" class="inl-num" min="0" max="40" step="0.5" aria-label="Permission hours a month"> h</label>
       <label class="copy-chk"><input type="checkbox" id="motdOn"> Show the daily award to everyone, titled <input type="text" id="motdTitle" class="inl-time" maxlength="40" aria-label="Award title" style="width:170px"></label>
       <label class="copy-chk">When a female engineer wins, titled <input type="text" id="motdTitleF" class="inl-time" maxlength="40" aria-label="Award title for a female engineer" style="width:170px"></label>
       <div class="copy-bar"><button class="btn small primary" id="btnRmSave" type="button">Save settings</button><span class="hint" id="rmMsg" aria-live="polite"></span></div>
@@ -1234,6 +1256,29 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   </form>
   <div class="team-b" id="bcList"></div>
   <div class="dlg-f"><button class="btn" id="bcClose" type="button">Close</button></div>
+</dialog>
+
+<dialog id="reqDlg" aria-labelledby="rqTitle">
+  <div class="dlg-h"><h3 id="rqTitle">Ask for permission</h3></div>
+  <form id="rqForm">
+    <div class="team-b">
+      <div class="seg rq-seg" id="rqSeg" role="group" aria-label="Request type"><button type="button" data-k="permission" aria-pressed="true">Permission</button><button type="button" data-k="leave" aria-pressed="false">Leave</button></div>
+      <div id="rqPerm" class="copy-dates rq-3">
+        <label class="field"><span>Day</span><input type="date" id="rqDay"></label>
+        <label class="field"><span>From</span><input type="time" id="rqFrom" step="900"></label>
+        <label class="field"><span>To</span><input type="time" id="rqTo" step="900"></label>
+      </div>
+      <div id="rqLeave" class="copy-dates rq-3" hidden>
+        <label class="field"><span>Type</span><select id="rqType"><option value="Annual">Annual</option><option value="Casual">Casual</option><option value="Sick">Sick</option></select></label>
+        <label class="field"><span>First day</span><input type="date" id="rqD1"></label>
+        <label class="field"><span>Last day</span><input type="date" id="rqD2"></label>
+      </div>
+      <p class="hint" id="rqInfo"></p>
+      <label class="field"><span>Reason (optional)</span><input type="text" id="rqReason" maxlength="500" autocomplete="off"></label>
+      <p class="err" id="rqErr" role="alert"></p>
+    </div>
+    <div class="dlg-f"><button class="btn" id="rqCancel" type="button">Cancel</button><button class="btn primary" id="rqSend" type="submit">Send request</button></div>
+  </form>
 </dialog>
 
 <dialog id="attDlg" aria-labelledby="attTitle">
@@ -1750,7 +1795,7 @@ function render(){
   else if(v==="review")renderReview();
   else if(v==="management"){renderMgmt();renderCurves();renderEngScore();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
-  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
+  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();paintReqBadge();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
   $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
 }
@@ -1892,6 +1937,7 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_broadcasts"},function(){loadBc();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_requests"},function(){loadReq().then(function(){if(S.view==="attendance")renderAtt();});})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"tt_broadcast_seen"},function(){bcStatsLater();})
       .subscribe();
   }catch(e){chan=null;}
@@ -2191,6 +2237,7 @@ function gotNotif(o){
     osNotify(n.message,mineNote?n.task+(n.note?"\n"+n.note:""):n.note||n.task,{always:!document.hasFocus()||mineNote,sticky:mineNote,tag:"r-"+n.id});
     if(mineNote){beep();loadReview();}if($("notifDlg").open)renderNotifs();return;}
   toast(n.message+": "+n.task+" · from "+n.from_name+(n.kind==="comment"&&n.note?" · "+n.note.slice(0,80):""));
+  if(n.kind==="request")loadReq().then(function(){if(S.view==="attendance")renderAtt();});
   if(n.kind==="comment")loadComments().then(function(){if($("cmtDlg").open)renderCommentList();render();});
   osNotify(n.message,n.task+(n.project?" · "+n.project:"")+"\nFrom "+n.from_name,{tag:"n-"+n.id});
   if($("notifDlg").open)renderNotifs();
@@ -3032,7 +3079,7 @@ function renderRemind(){
   var wd=(c.workdays||"0,1,2,3,4").split(","),box=$("rmDays");
   Array.prototype.slice.call(box.querySelectorAll("label")).forEach(function(l){l.remove();});
   DAYS.forEach(function(d,i){var cb=h("input",{type:"checkbox",value:String(i)});cb.checked=wd.indexOf(String(i))>=0;box.append(h("label",null,cb,d));});
-  $("attHours").value=c.attend_hours||"7.5";
+  $("attHours").value=c.attend_hours||"7.5";$("permHours").value=c.perm_hours||"4";
   $("motdOn").checked=(c.motd_on||"on")==="on";$("motdTitle").value=c.motd_title||"Man of the day";$("motdTitleF").value=c.motd_title_f||"Star of the day";
   $("rmMsg").textContent="";
 }
@@ -3044,7 +3091,7 @@ function saveRemind(){
   if(!days.length){$("rmMsg").textContent="Pick at least one working day.";return;}
   var v={remind_hours_on:$("rmHoursOn").checked?"on":"off",remind_hours_at:at.slice(0,5),remind_ack_on:$("rmAckOn").checked?"on":"off",
          remind_ack_hours:String(hrs),timezone:$("rmTz").value,workdays:days.join(","),
-         attend_hours:String(num($("attHours").value)>0?num($("attHours").value):7.5),
+         attend_hours:String(num($("attHours").value)>0?num($("attHours").value):7.5),perm_hours:String(num($("permHours").value)>=0&&$("permHours").value!==""?num($("permHours").value):4),
          motd_on:$("motdOn").checked?"on":"off",motd_title:$("motdTitle").value.trim()||"Man of the day",motd_title_f:$("motdTitleF").value.trim()||"Star of the day"};
   var rows=Object.keys(v).map(function(k){return {key:k,value:v[k]};});$("btnRmSave").disabled=true;$("rmMsg").textContent="";
   run(sb.from("tt_config").upsert(rows)).then(function(){S.cfg=S.cfg||{};for(var k in v)S.cfg[k]=v[k];$("rmMsg").textContent="Settings saved.";loadMotd();render();})
@@ -3968,7 +4015,7 @@ function loadAtt(){
     .then(function(d){attRows=(d||[]).map(row2att).filter(function(x){return x.day<=r.to;});});
   var q2=canPunch()?run(sb.from("tt_attendance").select("id,email,engineer,full_name,discipline,day,in_at,out_at,edited_by").eq("email",me.email).is("out_at",null).order("in_at",{ascending:false}).range(0,9))
     .then(function(d){attMine=null;(d||[]).map(row2att).forEach(function(x){if(!attMine&&x.day===today())attMine=x;});}):Promise.resolve();
-  return Promise.all([q1,q2]).then(function(){paintPunch();if(S.view==="attendance")renderAtt();}).catch(function(){});
+  return Promise.all([q1,q2,loadReq()]).then(function(){paintPunch();if(S.view==="attendance")renderAtt();}).catch(function(){});
 }
 function sesHours(x){var a=Date.parse(x.in_at),b=x.out_at?Date.parse(x.out_at):(x.day===today()?nowMs():null);return b===null?0:Math.max(0,(b-a)/3600000);}
 function hm(hrs){var m=Math.round(hrs*60),s=m<0?"-":"";m=Math.abs(m);return s+Math.floor(m/60)+":"+(m%60<10?"0":"")+(m%60);}
@@ -3992,15 +4039,18 @@ function attPerson(email,name,disc,rows){
   var req=reqHours(),r=monthRange(),td=today(),days={};
   rows.forEach(function(x){(days[x.day]=days[x.day]||[]).push(x);});
   var wd=((S.cfg||{}).workdays||"0,1,2,3,4").split(","),first=null;rows.forEach(function(x){if(!first||x.day<first)first=x.day;});
-  var list=[],tot={h:0,ot:0,sf:0,present:0,absent:0,miss:0};
+  var list=[],tot={h:0,ot:0,sf:0,present:0,absent:0,miss:0,leave:0,perm:0};
+  var mine=approvedReqs(email);
   var d=new Date(r.from+"T00:00:00");
   while(ymd(d)<=r.to&&ymd(d)<=td){
-    var k=ymd(d),ses=days[k]||[];
+    var k=ymd(d),ses=days[k]||[],lv=leaveOn(mine,k),pm=permOn(mine,k),pmH=pm.reduce(function(a,x){return a+x.hours;},0),wday=wd.indexOf(String(d.getDay()))>=0;
+    tot.perm+=pmH;
     if(ses.length){var hrs=0,miss=false;ses.forEach(function(x){hrs+=sesHours(x);if(!x.out_at&&k!==td)miss=true;});
-      var done=k!==td||ses.every(function(x){return !!x.out_at;});
-      var ot=done?Math.max(0,hrs-req):0,sf=done&&!miss?Math.max(0,req-hrs):0;
-      list.push({day:k,ses:ses,h:hrs,ot:ot,sf:sf,miss:miss,today:k===td&&!done});tot.h+=hrs;tot.ot+=ot;tot.sf+=sf;tot.present++;if(miss)tot.miss++;}
-    else if(first&&k>=first&&k<td&&wd.indexOf(String(d.getDay()))>=0){list.push({day:k,absent:true});tot.absent++;}
+      var done=k!==td||ses.every(function(x){return !!x.out_at;}),need=Math.max(0,req-pmH);
+      var ot=done?Math.max(0,hrs-need):0,sf=done&&!miss?Math.max(0,need-hrs):0;
+      list.push({day:k,ses:ses,h:hrs,ot:ot,sf:sf,miss:miss,today:k===td&&!done,perm:pm,leave:lv});tot.h+=hrs;tot.ot+=ot;tot.sf+=sf;tot.present++;if(miss)tot.miss++;}
+    else if(lv&&wday){list.push({day:k,leave:lv,perm:pm});tot.leave++;}
+    else if(first&&k>=first&&k<td&&wday){list.push({day:k,absent:true,perm:pm});tot.absent++;}
     d.setDate(d.getDate()+1);
   }
   var open=null;rows.forEach(function(x){if(!x.out_at&&x.day===td)open=x;});
@@ -4010,12 +4060,16 @@ function attDayTable(p){
   var req=reqHours(),can=attManage(p.disc,p.email),tb=h("tbody");
   p.days.forEach(function(x){
     var dd=parseDate(x.day),dn=dd.toLocaleDateString("en-GB",{weekday:"short"});
+    if(x.leave&&!x.ses){tb.append(h("tr",{"class":"onleave"},h("td",{text:dd.getDate()+" "+dd.toLocaleString("en-GB",{month:"short"})}),h("td",{text:dn}),
+      h("td",{"class":"ses"},h("span",{"class":"rq-tag lv",text:x.leave.leave_type+" leave"}),x.leave.decided_name?h("small",{"class":"rv-hint",text:" approved by "+x.leave.decided_name}):null),
+      h("td",{text:"—"}),h("td",{text:"—"}),h("td",{text:"—"}),h("td")));return;}
     if(x.absent){tb.append(h("tr",{"class":"absent"},h("td",{text:dd.getDate()+" "+dd.toLocaleString("en-GB",{month:"short"})}),h("td",{text:dn}),h("td",{"class":"ses",text:"No clock-in"}),
       h("td",{text:"—"}),h("td",{text:"—"}),h("td",{text:"—"}),h("td",null,can?h("button",{"class":"btn small",type:"button",onclick:function(){openAttEdit(null,p,x.day);}},"Add"):"")));return;}
     var ses=h("td",{"class":"ses"});
     x.ses.forEach(function(s_){ses.append(h("span",{"class":"ses-chip"},tOnly(s_.in_at)+" → "+(s_.out_at?tOnly(s_.out_at):(x.day===today()?"now":"?")),
       !s_.out_at&&x.day!==today()?h("span",{"class":"miss",text:" missing clock-out"}):null,s_.edited_by?h("small",{"class":"rv-hint",text:" (corrected)"}):null,
       can?h("button",{type:"button",onclick:function(){openAttEdit(s_,p);}},"edit"):null));});
+    (x.perm||[]).forEach(function(q){ses.append(h("span",{"class":"rq-tag pm",title:q.reason||null,text:"Permission "+tOnly(q.start_at)+"–"+tOnly(q.end_at)+" · "+hm(q.hours)}));});
     tb.append(h("tr",null,h("td",{text:dd.getDate()+" "+dd.toLocaleString("en-GB",{month:"short"})}),h("td",{text:dn}),ses,
       h("td",null,x.today?h("span",{"data-live":"atth","data-id":x.ses[x.ses.length-1].id,text:hm(x.h)}):h("span",{text:hm(x.h)})),
       h("td",{"class":x.ot>0?"ot":null,text:x.ot>0?"+"+hm(x.ot):"—"}),
@@ -4023,14 +4077,14 @@ function attDayTable(p){
       h("td",null,can?h("button",{"class":"btn small quiet",type:"button",onclick:function(){openAttEdit(null,p,x.day);}},"+ session"):"")));
   });
   if(!p.days.length)tb.append(h("tr",null,h("td",{colspan:"7","class":"ses",text:"No attendance this month."})));
-  tb.append(h("tr",{"class":"tot"},h("td",{text:"Total"}),h("td",{text:p.tot.present+" days"}),h("td",{"class":"ses",text:p.tot.absent?p.tot.absent+" absent day"+(p.tot.absent===1?"":"s"):""}),
+  tb.append(h("tr",{"class":"tot"},h("td",{text:"Total"}),h("td",{text:p.tot.present+" days"}),h("td",{"class":"ses",text:[p.tot.absent?p.tot.absent+" absent day"+(p.tot.absent===1?"":"s"):"",p.tot.leave?p.tot.leave+" on leave":"",p.tot.perm?hm(p.tot.perm)+" permission":""].filter(Boolean).join(" · ")}),
     h("td",{text:hm(p.tot.h)}),h("td",{"class":"ot",text:p.tot.ot?"+"+hm(p.tot.ot):"—"}),h("td",{"class":"sf",text:p.tot.sf?"-"+hm(p.tot.sf):"—"}),h("td")));
   return h("div",{"class":"att-wrap"},h("table",{"class":"att"},h("thead",null,h("tr",null,["Date","Day","In → Out",["Hours"],["Overtime"],["Shortfall"],""].map(function(c){return h("th",{text:Array.isArray(c)?c[0]:c});}))),tb));
 }
 function attTiles(p,label){
   var net=p.tot.ot-p.tot.sf;
   clear($("attStats")).append(
-    stat(label||"Days present",String(p.tot.present),"",p.tot.absent?p.tot.absent+" absent working day"+(p.tot.absent===1?"":"s"):"no absences"),
+    stat(label||"Days present",String(p.tot.present),"",[p.tot.absent?p.tot.absent+" absent working day"+(p.tot.absent===1?"":"s"):"no absences",p.tot.leave?p.tot.leave+" on leave":"",p.tot.perm?hm(p.tot.perm)+" h permission":""].filter(Boolean).join(" · ")),
     stat("Office hours",hm(p.tot.h),"",p.tot.present?"avg "+hm(p.tot.h/p.tot.present)+" a day":"—"),
     stat("Overtime",p.tot.ot?"+"+hm(p.tot.ot):"0:00","","above "+reqHours()+" h a day"),
     stat("Shortfall",p.tot.sf?"-"+hm(p.tot.sf):"0:00","","below "+reqHours()+" h a day",p.tot.sf>0),
@@ -4038,7 +4092,7 @@ function attTiles(p,label){
 }
 function renderAtt(){
   if(!$("attMonth").value)$("attMonth").value=attMonthV||today().slice(0,7);
-  var r=monthRange(),team=clear($("attTeam")),mine=clear($("attMine"));
+  var r=monthRange(),team=clear($("attTeam")),mine=clear($("attMine"));renderReq();
   $("attSub").textContent="Required "+reqHours()+" h a day · overtime above, shortfall below · "+new Date(r.from+"T00:00:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"});
   var others=attRows.filter(function(x){return !me||x.email!==me.email;}),seesTeam_=editAll()||isTL();
   if(canPunch()){
@@ -4056,7 +4110,7 @@ function renderAtt(){
       people[u.email]={name:u.name||u.engineer||u.email,disc:d,role:u.role,rows:[]};});
     var roleOf={};directory.forEach(function(u){roleOf[u.email]=u.role;});
     var ps=Object.keys(people).map(function(k){var p=people[k],o=attPerson(k,p.name,p.disc,p.rows);o.role=p.role||roleOf[k]||"";return o;}).sort(function(a,b){return a.name.localeCompare(b.name);});
-    var agg_={tot:{present:0,absent:0,h:0,ot:0,sf:0}};ps.forEach(function(p){["present","absent","h","ot","sf"].forEach(function(k){agg_.tot[k]+=p.tot[k];});});
+    var agg_={tot:{present:0,absent:0,h:0,ot:0,sf:0,leave:0,perm:0}};ps.forEach(function(p){["present","absent","h","ot","sf","leave","perm"].forEach(function(k){agg_.tot[k]+=p.tot[k];});});
     attTiles(agg_,"Days present (team)");
     var tb=h("tbody");
     ps.forEach(function(p){
@@ -4067,12 +4121,14 @@ function renderAtt(){
         h("td",{"class":"ses"},p.open?h("span",{"class":"att-in"},h("i"),"In since "+tOnly(p.open.in_at)):h("span",{"class":"att-out",text:"Out"})),
         h("td",{text:String(p.tot.present)}),h("td",{"class":p.tot.absent?"sf":null,text:String(p.tot.absent)}),
         h("td",{text:hm(p.tot.h)}),h("td",{"class":p.tot.ot?"ot":null,text:p.tot.ot?"+"+hm(p.tot.ot):"—"}),h("td",{"class":p.tot.sf?"sf":null,text:p.tot.sf?"-"+hm(p.tot.sf):"—"}),
-        h("td",{"class":net<0?"sf":net>0?"ot":null,text:(net>=0?"+":"")+hm(net)}),h("td",{"class":p.tot.miss?"miss":null,text:p.tot.miss?p.tot.miss+" missing":"—"})));
-      if(open)tb.append(h("tr",{"class":"det"},h("td",{colspan:"10"},h("div",{"class":"att-det"},attDayTable(p)))));
+        h("td",{"class":net<0?"sf":net>0?"ot":null,text:(net>=0?"+":"")+hm(net)}),
+        h("td",{text:[p.tot.leave?p.tot.leave+" d":"",p.tot.perm?hm(p.tot.perm)+" h":""].filter(Boolean).join(" · ")||"—"}),
+        h("td",{"class":p.tot.miss?"miss":null,text:p.tot.miss?p.tot.miss+" missing":"—"})));
+      if(open)tb.append(h("tr",{"class":"det"},h("td",{colspan:"11"},h("div",{"class":"att-det"},attDayTable(p)))));
     });
-    if(!ps.length)tb.append(h("tr",null,h("td",{colspan:"10","class":"ses",text:"No engineers with a login yet."})));
+    if(!ps.length)tb.append(h("tr",null,h("td",{colspan:"11","class":"ses",text:"No engineers with a login yet."})));
     team.append(h("section",{"class":"att-sec"},h("h3",{text:"Team"}),h("span",{"class":"sub",text:(editAll()?"Everyone":titleCase(me.discipline)+" only")+" · click a name for the daily detail"}),
-      h("div",{"class":"att-wrap"},h("table",{"class":"att"},h("thead",null,h("tr",null,["Engineer","Discipline","Now","Days","Absent","Hours","Overtime","Shortfall","Balance","Clock-out"].map(function(c){return h("th",{text:c});}))),tb))));
+      h("div",{"class":"att-wrap"},h("table",{"class":"att"},h("thead",null,h("tr",null,["Engineer","Discipline","Now","Days","Absent","Hours","Overtime","Shortfall","Balance","Leave · Perm.","Clock-out"].map(function(c){return h("th",{text:c});}))),tb))));
   }
 }
 function openAttEdit(s_,p,day){
@@ -4210,6 +4266,113 @@ function renderBcList(focusId){
 (function(){var b=$("btnAnnounce");if(b)b.addEventListener("click",function(){openBc();});
   var f=$("bcForm");if(f)f.addEventListener("submit",function(ev){ev.preventDefault();sendBc();});
   var c=$("bcClose");if(c)c.addEventListener("click",function(){$("bcDlg").close();});})();
+
+/* ---------- leave and permission requests ---------- */
+var reqs=[];
+function permLimit(){var v=(S.cfg||{}).perm_hours;return v===undefined||v===""?4:num(v);}
+function canRequest(){return !!me&&(isWorkerRole(me.role)||isLeadRole(me.role));}
+function rankOf(r){return {sectionhead:4,teamleader:3,senior:2,midsenior:1}[r]||0;}
+function personRole(email){var r="";directory.forEach(function(u){if(u.email===email)r=u.role;});return r;}
+function canDecide(q){if(!me||q.email===me.email)return false;if(isAdmin())return true;
+  return isTL()&&personDiscs(q.email).indexOf(me.discipline)>=0&&rankOf(me.role)>rankOf(personRole(q.email));}
+function row2req(o){return {id:String(o.id),email:String(o.email),name:String(o.full_name||o.email),discipline:String(o.discipline||""),kind:String(o.kind),leave_type:o.leave_type?String(o.leave_type):"",
+  day_from:String(o.day_from||"").slice(0,10),day_to:String(o.day_to||"").slice(0,10),start_at:o.start_at?String(o.start_at):"",end_at:o.end_at?String(o.end_at):"",hours:num(o.hours),
+  reason:String(o.reason||""),status:String(o.status||"Pending"),decided_name:o.decided_name?String(o.decided_name):"",decided_at:o.decided_at?String(o.decided_at):"",note:String(o.decision_note||""),created_at:String(o.created_at||"")};}
+function loadReq(){
+  if(!sb||!me||!canAttend())return Promise.resolve();
+  var r=monthRange(),cur=today().slice(0,7)+"-01",from=r.from<cur?r.from:cur;
+  return run(sb.from("tt_requests").select("*").gte("day_to",from).order("day_from").range(0,2999))
+    .then(function(d){reqs=(d||[]).map(row2req);paintReqBadge();},function(){});
+}
+function approvedReqs(email){return reqs.filter(function(q){return q.email===email&&q.status==="Approved";});}
+function leaveOn(list,day){var f=null;list.forEach(function(q){if(q.kind==="leave"&&q.day_from<=day&&q.day_to>=day)f=q;});return f;}
+function permOn(list,day){return list.filter(function(q){return q.kind==="permission"&&q.day_from===day;});}
+function permUsed(email,month,skip){return reqs.filter(function(q){return q.email===email&&q.kind==="permission"&&(q.status==="Pending"||q.status==="Approved")&&q.day_from.slice(0,7)===month&&q.id!==skip;})
+  .reduce(function(a,q){return a+q.hours;},0);}
+function toDecide(){return reqs.filter(function(q){return q.status==="Pending"&&canDecide(q);});}
+function paintReqBadge(){var b=$("attCount");if(!b)return;var n=toDecide().length;b.textContent=String(n);b.hidden=!n;}
+function reqWhat(q){return q.kind==="permission"?"Permission":q.leave_type+" leave";}
+function reqWhen(q){var a=parseDate(q.day_from),f=function(d){return d.getDate()+" "+d.toLocaleString("en-GB",{month:"short"});};
+  if(q.kind==="permission")return f(a)+" ("+a.toLocaleDateString("en-GB",{weekday:"short"})+") · "+tOnly(q.start_at)+"–"+tOnly(q.end_at);
+  var n=Math.round((parseDate(q.day_to)-a)/86400000)+1;return f(a)+(n>1?" – "+f(parseDate(q.day_to)):"")+" · "+n+(n===1?" day":" days");}
+function reqSize(q){return q.kind==="permission"?hm(q.hours)+" h":"";}
+function stPill(q){return h("span",{"class":"rq-st "+q.status.toLowerCase(),text:q.status});}
+function renderReq(){
+  var host=$("attReq");if(!host)return;clear(host);
+  var pend=toDecide(),m=today().slice(0,7);
+  if(canRequest()){
+    var used=permUsed(me.email,m),lim=permLimit(),left=Math.max(0,lim-used);
+    var mine=reqs.filter(function(q){return q.email===me.email&&(q.day_to>=today()||q.day_from.slice(0,7)===monthRange().m||q.status==="Pending");}).sort(function(a,b){return a.day_from<b.day_from?1:-1;});
+    var sec=h("section",{"class":"att-sec rq-sec"},
+      h("div",{"class":"rq-h"},h("h3",{text:"Leave & permission"}),h("div",{"class":"rq-btns"},
+        h("button",{"class":"btn",type:"button",onclick:function(){openReq("permission");}},"Ask for permission"),
+        h("button",{"class":"btn",type:"button",onclick:function(){openReq("leave");}},"Ask for leave"))),
+      h("div",{"class":"rq-bal"},h("div",{"class":"rq-bar"},h("i",{style:"width:"+(lim>0?Math.min(100,used/lim*100):100)+"%"})),
+        h("span",null,h("b",{text:hm(used)+" of "+hm(lim)+" h"})," permission used this month · "+hm(left)+" h left")));
+    if(mine.length){var tb=h("tbody");mine.forEach(function(q){
+        var canCancel=q.status==="Pending"||(q.status==="Approved"&&(q.kind==="permission"?Date.parse(q.start_at)>nowMs():q.day_from>today()));
+        tb.append(h("tr",null,h("td",{text:reqWhat(q)}),h("td",{text:reqWhen(q)}),h("td",null,stPill(q)),
+          h("td",{"class":"ses",text:[q.decided_name?(q.status==="Approved"?"Approved by ":q.status==="Rejected"?"Rejected by ":"")+q.decided_name:"",q.note].filter(Boolean).join(" · ")||(q.status==="Pending"?"Waiting for your lead":"")}),
+          h("td",null,canCancel?h("button",{"class":"btn small quiet",type:"button",onclick:function(ev){cancelReq(q,ev.currentTarget);}},"Cancel"):"")));});
+      sec.append(h("div",{"class":"att-wrap"},h("table",{"class":"att rq"},h("thead",null,h("tr",null,["Request","When","Status","Note",""].map(function(c){return h("th",{text:c});}))),tb)));}
+    else sec.append(h("p",{"class":"sub",text:"No requests yet. A permission is up to "+hm(lim)+" h a month; a lead of your discipline approves it."}));
+    host.append(sec);
+  }
+  if(pend.length){
+    var tb2=h("tbody");
+    pend.forEach(function(q){var over=q.kind==="permission"&&permUsed(q.email,q.day_from.slice(0,7),q.id)+q.hours>permLimit()+0.001;
+      var note=h("input",{type:"text","class":"rq-note",maxlength:"300",placeholder:"Note (optional)","aria-label":"Note to "+q.name});
+      tb2.append(h("tr",null,h("td",null,h("strong",{text:q.name}),h("small",{"class":"rv-hint",text:" · "+titleCase(q.discipline)})),h("td",{text:reqWhat(q)}),h("td",{text:reqWhen(q)}),
+        h("td",{"class":"ses"},q.reason||"—",q.kind==="permission"?h("small",{"class":"rv-hint",text:" · "+hm(permUsed(q.email,q.day_from.slice(0,7),q.id))+" h used before this"}):null,over?h("span",{"class":"miss",text:" over the monthly limit"}):null),
+        h("td",{"class":"rq-act"},note,h("button",{"class":"btn small primary",type:"button",disabled:over,onclick:function(ev){decideReq(q,true,note.value,ev.currentTarget);}},"Approve"),
+          h("button",{"class":"btn small danger",type:"button",onclick:function(ev){decideReq(q,false,note.value,ev.currentTarget);}},"Reject"))));});
+    host.append(h("section",{"class":"att-sec rq-sec rq-pend"},h("h3",{text:"Waiting for your approval · "+pend.length}),
+      h("div",{"class":"att-wrap"},h("table",{"class":"att rq"},h("thead",null,h("tr",null,["Name","Request","When","Reason",""].map(function(c){return h("th",{text:c});}))),tb2))));
+  }
+  var team=reqs.filter(function(q){return q.email!==me.email&&q.status==="Approved"&&q.day_to>=today()&&!pend.some(function(x){return x.id===q.id;});});
+  if(team.length&&(editAll()||isTL())){
+    var ul=h("div",{"class":"rq-up"});team.slice(0,30).forEach(function(q){ul.append(h("span",{"class":"rq-tag "+(q.kind==="leave"?"lv":"pm")},h("b",{text:q.name+": "}),reqWhat(q)+" · "+reqWhen(q)));});
+    host.append(h("section",{"class":"att-sec rq-sec"},h("h3",{text:"Coming up"}),h("span",{"class":"sub",text:"Approved leave and permission from today on"}),ul));
+  }
+}
+function decideReq(q,ok,note,btn){if(!sb)return;btn.disabled=true;
+  run(sb.rpc("tt_req_decide",{p_id:q.id,p_approve:ok,p_note:note||""})).then(function(){toast((ok?"Approved: ":"Rejected: ")+q.name+" · "+reqWhat(q));return loadReq();})
+    .catch(function(e){toast(writeError(e),true);}).then(function(){renderAtt();});}
+function cancelReq(q,btn){if(btn.textContent!=="Click again to cancel"){btn.textContent="Click again to cancel";return;}btn.disabled=true;
+  run(sb.rpc("tt_req_cancel",{p_id:q.id})).then(function(){toast("Request cancelled.");return loadReq();}).catch(function(e){toast(writeError(e),true);}).then(function(){renderAtt();});}
+var reqKind="permission";
+function openReq(kind){
+  reqKind=kind;$("rqErr").textContent="";$("rqReason").value="";
+  var t=today();$("rqDay").value=t;$("rqFrom").value="13:00";$("rqTo").value="15:00";$("rqD1").value=t;$("rqD2").value=t;$("rqType").value="Annual";
+  syncReq();$("reqDlg").showModal();
+}
+function syncReq(){
+  var p=reqKind==="permission";$("rqTitle").textContent=p?"Ask for permission":"Ask for leave";
+  $("rqPerm").hidden=!p;$("rqLeave").hidden=p;
+  Array.prototype.forEach.call(document.querySelectorAll("#rqSeg button"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-k")===reqKind));});
+  var info=$("rqInfo");
+  if(p){var day=$("rqDay").value||today(),a=$("rqFrom").value,b=$("rqTo").value,hrs=0;
+    if(a&&b){var x=a.split(":"),y=b.split(":");hrs=((+y[0]*60+ +y[1])-(+x[0]*60+ +x[1]))/60;}
+    var used=permUsed(me.email,day.slice(0,7)),lim=permLimit(),left=Math.max(0,lim-used);
+    info.textContent=(hrs>0?hm(hrs)+" h · ":"")+hm(left)+" h of "+hm(lim)+" h left in "+parseDate(day).toLocaleDateString("en-GB",{month:"long"})+(hrs>left+0.001?" · this is more than you have left":"");
+    info.className="hint"+(hrs>left+0.001?" bad":"");}
+  else{var d1=$("rqD1").value,d2=$("rqD2").value,n=d1&&d2&&d2>=d1?Math.round((parseDate(d2)-parseDate(d1))/86400000)+1:0;
+    info.textContent=n?n+(n===1?" day":" days")+" · a lead of your discipline approves it":"Pick the first and the last day";info.className="hint";}
+}
+function sendReq(){
+  if(!sb||busy)return;var p=reqKind==="permission",args;
+  if(p){var day=$("rqDay").value,a=$("rqFrom").value,b=$("rqTo").value;if(!day||!a||!b){$("rqErr").textContent="Pick the day, the start and the end time.";return;}
+    args={p_kind:"permission",p_type:null,p_from:null,p_to:null,p_start:new Date(day+"T"+a+":00").toISOString(),p_end:new Date(day+"T"+b+":00").toISOString(),p_reason:$("rqReason").value};}
+  else{var d1=$("rqD1").value,d2=$("rqD2").value;if(!d1||!d2){$("rqErr").textContent="Pick the first and the last day.";return;}
+    args={p_kind:"leave",p_type:$("rqType").value,p_from:d1,p_to:d2,p_start:null,p_end:null,p_reason:$("rqReason").value};}
+  busy=true;$("rqSend").disabled=true;$("rqErr").textContent="";
+  run(sb.rpc("tt_req_submit",args)).then(function(){$("reqDlg").close();toast("Request sent. You will be notified when it is approved.");return loadReq();})
+    .then(function(){renderAtt();}).catch(function(e){$("rqErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");}).then(function(){busy=false;$("rqSend").disabled=false;});
+}
+(function(){var f=$("rqForm");if(!f)return;f.addEventListener("submit",function(ev){ev.preventDefault();sendReq();});
+  $("rqCancel").addEventListener("click",function(){$("reqDlg").close();});
+  Array.prototype.forEach.call(document.querySelectorAll("#rqSeg button"),function(b){b.addEventListener("click",function(){reqKind=b.getAttribute("data-k");syncReq();});});
+  ["rqDay","rqFrom","rqTo","rqD1","rqD2"].forEach(function(id){$(id).addEventListener("input",syncReq);$(id).addEventListener("change",syncReq);});})();
 
 start();
 })();
