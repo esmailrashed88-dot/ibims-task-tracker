@@ -745,6 +745,31 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:5px;padding:3px 4px 3px 9px;font-weight:500;font-size:13px}
 .chip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:2px 5px;border-radius:4px}
 .chip button:hover{color:var(--bad);background:var(--bad-soft)}
+.chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
+select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
+.bc-box{display:grid;gap:8px;margin:0 0 14px}
+.bc{border:1px solid var(--gold-line);border-left:5px solid var(--gold-mark);background:var(--gold-soft);border-radius:10px;padding:12px 14px;display:grid;gap:6px}
+.bc.new{box-shadow:0 0 0 3px color-mix(in srgb,var(--gold-mark) 25%,transparent)}
+.bc.seen{border-left-color:var(--gold-line)}
+.bc-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.bc-ic{flex:none;width:20px;height:20px;background:var(--gold);-webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z'/><path d='M15.5 8.5a5 5 0 0 1 0 7'/><path d='M18.5 5.5a9 9 0 0 1 0 13'/></svg>") center/contain no-repeat;mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z'/><path d='M15.5 8.5a5 5 0 0 1 0 7'/><path d='M18.5 5.5a9 9 0 0 1 0 13'/></svg>") center/contain no-repeat}
+.bc-kick{font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
+.bc-from{color:var(--muted);font-size:12.5px}
+.bc-msg{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.45;color:var(--ink)}
+.bc-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.bc.slim{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:7px 12px}
+.bc.slim .bc-line{flex:1 1 260px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bc.slim .bc-acts{margin-left:auto}
+.btn.announce{border-color:var(--gold-line)}
+#bcMsg{width:100%;min-height:110px;resize:vertical;font:inherit}
+.bc-lh{margin:14px 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.bc-item{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 8px;background:var(--surface-2)}
+.bc-item.focus{border-color:var(--gold-mark)}
+.bc-item-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}.bc-item-h span{color:var(--muted);font-size:12.5px;margin-right:auto}
+.bc-item .bc-msg{font-size:14px;margin:6px 0}
+.bc-seen,.bc-not{margin:2px 0;font-size:12.5px;color:var(--muted)}
+.bc-seen b{color:var(--ok)}
+@media print{.bc-box{display:none!important}}
 .chip button.sex{font-size:13px;color:var(--muted)}.chip button.sex:hover{color:var(--accent);background:var(--surface)}.chip.fem button.sex{color:#c2418a}
 .addrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
 .addrow .field{flex:1 1 150px}
@@ -872,6 +897,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <div class="band-tools">
       <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
       <button class="btn punch" id="btnPunch" type="button" hidden></button>
+      <button class="btn ghost announce" id="btnAnnounce" type="button" hidden>Announce</button>
       <button class="btn ghost" id="btnNotif" type="button"><span>Notifications</span><b class="badge" id="notifCount" hidden>0</b></button>
       <button class="btn ghost" id="btnOnline" type="button" hidden><i class="live-dot"></i><span id="onlineCount">Online</span></button>
       <button class="btn ghost" id="btnUsers" type="button" hidden>Users</button>
@@ -885,6 +911,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 </header>
 
 <main class="wrap" id="appMain" hidden>
+  <section id="bcBox" class="bc-box" aria-label="Announcements" aria-live="polite" hidden></section>
   <section id="backupNote" class="backup-note" hidden></section>
   <section id="motd" class="motd" aria-label="Man of the day" hidden></section>
   <section id="dueBox" class="due-box" aria-label="Reminders due now" aria-live="polite" hidden></section>
@@ -1193,6 +1220,22 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="dlg-f"><button class="btn" id="btnCmtClose" type="button">Close</button></div>
 </dialog>
 
+<dialog id="bcDlg" aria-labelledby="bcTitle">
+  <div class="dlg-h"><h3 id="bcTitle">Announcement</h3></div>
+  <form id="bcForm" class="team-b">
+    <label class="field"><span>Message</span><textarea id="bcMsg" maxlength="1000" placeholder="For example: The office closes at 3 pm today."></textarea></label>
+    <div class="copy-dates">
+      <label class="field"><span>Send to</span><select id="bcAud"></select></label>
+      <label class="field"><span>Stays up for</span><select id="bcDur"></select></label>
+    </div>
+    <p class="hint">It shows as a banner at the top of the tracker for everyone it is sent to until the time ends. "Got it" only makes it smaller, and you see who has seen it.</p>
+    <p class="err" id="bcErr" role="alert"></p>
+    <div class="dlg-f" style="padding:8px 0 0;border:0"><button class="btn primary" id="bcSend" type="submit">Send announcement</button></div>
+  </form>
+  <div class="team-b" id="bcList"></div>
+  <div class="dlg-f"><button class="btn" id="bcClose" type="button">Close</button></div>
+</dialog>
+
 <dialog id="attDlg" aria-labelledby="attTitle">
   <div class="dlg-h"><h3 id="attTitle">Correct attendance</h3></div>
   <div class="team-b">
@@ -1231,7 +1274,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
         <label class="field"><span>Password</span><input type="text" id="uPass" autocomplete="off" maxlength="72"></label>
       </div>
       <div class="addrow">
-        <label class="field"><span>Role</span><select id="uRole"><option value="engineer">Engineer</option><option value="teamleader">Team leader</option><option value="senior">Senior</option><option value="midsenior">Mid Senior</option><option value="manager">Manager</option><option value="admin">Admin</option></select></label>
+        <label class="field"><span>Role</span><select id="uRole"><option value="engineer">Engineer</option><option value="coordinator">Coordinator</option><option value="midsenior">Mid Senior</option><option value="senior">Senior</option><option value="teamleader">Team leader</option><option value="sectionhead">Section head</option><option value="manager">Manager</option><option value="projectmanager">Project manager</option><option value="topmanagement">Top management</option><option value="admin">Admin</option></select></label>
         <label class="field" id="uEngWrap"><span>Engineer name on the tracker</span><select id="uEng"></select></label>
         <label class="field" id="uDiscWrap" hidden><span>Discipline they lead</span><select id="uDisc"></select></label>
         <button class="btn primary" id="btnUserAdd" type="submit">Add user</button>
@@ -1358,7 +1401,7 @@ function revealTask(d){var f=S.f,ch=false;
 function allProjects(){var out=S.settings.projects.slice();S.tasks.forEach(function(t){if(t.project&&out.indexOf(t.project)<0)out.push(t.project);});return out;}
 function engineerDisc(name){var e=S.settings.engineers,i;for(i=0;i<e.length;i++)if(e[i].name===name)return e[i].discipline;
   for(i=0;i<S.tasks.length;i++)if(S.tasks[i].engineer===name)return S.tasks[i].discipline;return "";}
-function engineersFor(disc){var out=[];S.settings.engineers.forEach(function(e){if(!disc||e.discipline===disc)out.push(e.name);});
+function engineersFor(disc){var out=[];S.settings.engineers.forEach(function(e){if(!disc||inDisc(e,disc))out.push(e.name);});
   S.tasks.forEach(function(t){if(t.engineer&&(!disc||t.discipline===disc)&&out.indexOf(t.engineer)<0)out.push(t.engineer);});return out;}
 
 function segButton(label,value,current,key,count){
@@ -1423,8 +1466,8 @@ function renderBoard(rows){
   rows.forEach(function(t){if(!t.engineer)return;if(!by[t.engineer]){by[t.engineer]={name:t.engineer,discipline:t.discipline,tasks:[]};order.push(t.engineer);}by[t.engineer].tasks.push(t);});
   var narrowed=f.project||f.status||f.from||f.to;
   if(!narrowed){S.settings.engineers.forEach(function(e){
-    if(f.discipline&&e.discipline!==f.discipline)return;if(f.engineer&&e.name!==f.engineer)return;
-    if(!by[e.name]){by[e.name]={name:e.name,discipline:e.discipline,tasks:[]};order.push(e.name);}});}
+    if(f.discipline&&!inDisc(e,f.discipline))return;if(f.engineer&&e.name!==f.engineer)return;
+    if(!by[e.name]){by[e.name]={name:e.name,discipline:f.discipline||(isTL()&&inDisc(e,me.discipline)?me.discipline:e.discipline),tasks:[]};order.push(e.name);}});}
   $("boardTitle").textContent="Who is on "+(f.project||"all projects");
   $("boardSub").textContent=order.length?order.length+(order.length===1?" engineer":" engineers")+(f.discipline?" · "+titleCase(f.discipline):""):"";
   if(!S.tasksLoaded&&!S.settingsLoaded){
@@ -1576,7 +1619,7 @@ function renderDash(rows){
   var scale=0;groups.forEach(function(g){var m=summarize(g.tasks);scale=Math.max(scale,m.est,m.act);});
   var grid=h("div",{class:"dgrid"});
   groups.forEach(function(g){var names={};g.tasks.forEach(function(t){names[t.engineer]=1;});
-    var total=S.settings.engineers.filter(function(e){return e.discipline===g.d.k;}).length,active=Object.keys(names).length;
+    var total=S.settings.engineers.filter(function(e){return inDisc(e,g.d.k);}).length,active=Object.keys(names).length;
     grid.append(panel({title:g.d.k,code:g.d.c,tasks:g.tasks,scale:scale,
       sub:h("p",{class:"psub",text:total+(total===1?" engineer":" engineers")+" · "+active+" with tasks in this view"}),
       open:function(){openInTracker("discipline",g.d.k);}}));});
@@ -1585,8 +1628,8 @@ function renderDash(rows){
   var by={},order=[];
   rows.forEach(function(t){if(!t.engineer)return;if(!by[t.engineer]){by[t.engineer]={name:t.engineer,discipline:t.discipline,tasks:[]};order.push(t.engineer);}by[t.engineer].tasks.push(t);});
   if(!(f.project||f.status||f.from||f.to)){S.settings.engineers.forEach(function(e){
-    if(f.discipline&&e.discipline!==f.discipline)return;if(f.engineer&&e.name!==f.engineer)return;
-    if(!by[e.name]){by[e.name]={name:e.name,discipline:e.discipline,tasks:[]};order.push(e.name);}});}
+    if(f.discipline&&!inDisc(e,f.discipline))return;if(f.engineer&&e.name!==f.engineer)return;
+    if(!by[e.name]){by[e.name]={name:e.name,discipline:f.discipline||(isTL()&&inDisc(e,me.discipline)?me.discipline:e.discipline),tasks:[]};order.push(e.name);}});}
   $("engSub").textContent=order.length?order.length+(order.length===1?" engineer":" engineers"):"";
   if(!order.length){de.append(h("div",{class:"empty"},h("p",{text:"No engineer has tasks for these filters."})));return;}
   var escale=0;order.forEach(function(n){var m=summarize(by[n].tasks);escale=Math.max(escale,m.est,m.act);});
@@ -1707,7 +1750,7 @@ function render(){
   else if(v==="review")renderReview();
   else if(v==="management"){renderMgmt();renderCurves();renderEngScore();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
-  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
+  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
   $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
 }
@@ -1722,7 +1765,7 @@ function fillSelect(sel,values,current,placeholder){
 }
 function syncEngineerOptions(current){
   var d=$("f-discipline").value,names=[];
-  S.settings.engineers.forEach(function(e){if(e.discipline===d)names.push(e.name);});
+  S.settings.engineers.forEach(function(e){if(inDisc(e,d))names.push(e.name);});
   fillSelect($("f-engineer"),names,current&&(names.indexOf(current)>=0||editing)?current:"","Select engineer");
 }
 function syncDerived(){
@@ -1806,11 +1849,11 @@ function deleteTask(){
 /* ---------- loading and live updates ---------- */
 function loadSettings(){
   return Promise.all([run(sb.from("tt_projects").select("name,sort").order("sort").order("name")),
-                      run(sb.from("tt_engineers").select("name,discipline,sort,female").order("sort").order("name"))]).then(function(r){
+                      run(sb.from("tt_engineers").select("name,discipline,sort,female,also").order("sort").order("name"))]).then(function(r){
     S.settings={projects:(r[0]||[]).map(function(p){return String(p.name);}),
-                engineers:(r[1]||[]).map(function(e){return {name:String(e.name),discipline:String(e.discipline||""),female:!!e.female};})};
+                engineers:(r[1]||[]).map(function(e){return {name:String(e.name),discipline:String(e.discipline||""),female:!!e.female,also:Array.isArray(e.also)?e.also.map(String):[]};})};
     /* an engineer works only with their own name and tasks */
-    if(isTL())S.settings.engineers=S.settings.engineers.filter(function(e){return e.discipline===me.discipline;});
+    if(isTL())S.settings.engineers=S.settings.engineers.filter(function(e){return inDisc(e,me.discipline);});
     else if(!editAll())S.settings.engineers=S.settings.engineers.filter(function(e){return !!me&&e.name===me.engineer;});
     S.settingsLoaded=true;});
 }
@@ -1823,7 +1866,7 @@ function loadTasks(){
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
 }
 function loadAll(){return Promise.all([loadTasks(),loadSettings(),loadRounds(),loadDirectory(),loadNotifs(),loadTime(),loadComments()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
-function refresh(){if(!sb||!me)return;loadAll().catch(function(){S.conn="off";render();});}
+function refresh(){if(!sb||!me)return;loadBc();loadAll().catch(function(){S.conn="off";render();});}
 function settingsChanged(){loadSettings().then(function(){render();if($("teamDlg").open)renderTeam();}).catch(function(){});}
 function subscribe(){
   unsubscribe();
@@ -1848,6 +1891,8 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_attendance"},function(){loadAtt();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_broadcasts"},function(){loadBc();})
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"tt_broadcast_seen"},function(){bcStatsLater();})
       .subscribe();
   }catch(e){chan=null;}
   pollTimer=setInterval(refresh,90000);
@@ -1977,7 +2022,7 @@ function roundRow(t,r,fl,more){
     mg?rowDeleteBtn("r"+r.id,roundLabel(t,r),function(btn){roundDelete(t,r,btn);}):null)));
 }
 /* ---------- admin, team leader and senior control the rows under a task ---------- */
-function canManageRows(t){return !!me&&(me.role==="admin"||((me.role==="teamleader"||me.role==="senior")&&!!me.discipline&&t.discipline===me.discipline));}
+function canManageRows(t){return !!me&&(me.role==="admin"||(isTL()&&t.discipline===me.discipline));}
 var delArmed=null;
 function rowDeleteBtn(key,what,go){
   var armed=delArmed===key;
@@ -2030,7 +2075,7 @@ function roundDone(r,btn){
 
 /* ---------- send to + notifications ---------- */
 var directory=[],notifs=[];
-function loadDirectory(){return run(sb.rpc("tt_directory")).then(function(d){directory=(d||[]).map(function(u){return {email:String(u.email),name:String(u.full_name||""),role:String(u.role||""),engineer:String(u.engineer||""),discipline:String(u.discipline||"")};});});}
+function loadDirectory(){return run(sb.rpc("tt_directory")).then(function(d){directory=(d||[]).map(function(u){return {email:String(u.email),name:String(u.full_name||""),role:String(u.role||""),engineer:String(u.engineer||""),discipline:String(u.discipline||""),also:String(u.also||"").split(",").filter(Boolean)};});});}
 function personName(email){for(var i=0;i<directory.length;i++)if(directory[i].email===email)return directory[i].name||email;return email;}
 function sendCell(t){
   var note=t.sent_to?h("span",{"class":"sub",text:"Sent "+(t.sent_at?niceStamp(t.sent_at):"")}):null;
@@ -2222,8 +2267,8 @@ function stopPresence(){
   online=[];paintOnline();
 }
 function paintOnline(){$("onlineCount").textContent="Online · "+online.length;if($("onlineDlg").open)renderOnline();}
-var ROLE_ORDER=["admin","manager","teamleader","senior","midsenior","engineer"];
-function rolePlural(r){return {admin:"Admins",manager:"Managers",teamleader:"Team leaders",senior:"Seniors",midsenior:"Mid Seniors",engineer:"Engineers"}[r]||r;}
+var ROLE_ORDER=["admin","topmanagement","projectmanager","manager","sectionhead","teamleader","senior","midsenior","coordinator","engineer"];
+function rolePlural(r){return {admin:"Admins",topmanagement:"Top management",projectmanager:"Project managers",manager:"Managers",sectionhead:"Section heads",teamleader:"Team leaders",senior:"Seniors",midsenior:"Mid Seniors",coordinator:"Coordinators",engineer:"Engineers"}[r]||r;}
 function byRole(list,roleOf){
   return ROLE_ORDER.map(function(r){return {role:r,items:list.filter(function(x){return roleOf(x)===r;})};})
     .concat([{role:"",items:list.filter(function(x){return ROLE_ORDER.indexOf(roleOf(x))<0;})}]).filter(function(g){return g.items.length;});
@@ -2590,15 +2635,25 @@ function renderTeam(){
     teamOp(sb.from("tt_projects").delete().eq("name",p));}},"×")));});
   var el=clear($("engLists"));
   DISC.forEach(function(d){
-    var list=S.settings.engineers.filter(function(e){return e.discipline===d.k;});
+    var list=S.settings.engineers.filter(function(e){return inDisc(e,d.k);}),others=S.settings.engineers.filter(function(e){return !inDisc(e,d.k);});
+    var addSel=null;
+    if(others.length){addSel=h("select",{"class":"also-add","aria-label":"Add an engineer from another discipline to "+d.k});
+      addSel.append(h("option",{value:"",text:"+ Also works here…"}));
+      others.forEach(function(e){addSel.append(h("option",{value:e.name,text:e.name+" ("+discLabel(discsOf(e))+")"}));});
+      addSel.addEventListener("change",function(){var e=null;S.settings.engineers.forEach(function(q){if(q.name===addSel.value)e=q;});if(!e)return;
+        teamOp(sb.from("tt_engineers").update({also:(e.also||[]).concat([d.k])}).eq("name",e.name));});}
     el.append(h("div",{class:"team-disc"},h("span",{class:"code",text:d.k}),
-      h("div",{class:"chips"},list.length?list.map(function(e){return h("span",{class:"chip"+(e.female?" fem":"")},e.name,
+      h("div",{class:"chips"},list.length?list.map(function(e){var sec=e.discipline!==d.k,multi=discsOf(e).length>1;
+        return h("span",{class:"chip"+(e.female?" fem":"")+(multi?" multi":""),title:multi?"Works in "+discLabel(discsOf(e)):null},e.name,
+        multi?h("small",{"class":"chip-also",text:sec?"also":discsOf(e).length>=4?"all":"+"+(discsOf(e).length-1)}):null,
         h("button",{type:"button","class":"sex",title:e.female?"Female: wins Star of the day. Click to set as male":"Male: wins Man of the day. Click to set as female",
           "aria-label":(e.female?"Set "+e.name+" as male":"Set "+e.name+" as female"),onclick:function(){
           teamOp(sb.from("tt_engineers").update({female:!e.female}).eq("name",e.name));}},e.female?"♀":"♂"),
-        h("button",{type:"button","aria-label":"Remove "+e.name,onclick:function(){
-        teamOp(sb.from("tt_engineers").delete().eq("name",e.name));}},"×"));})
-        :h("span",{class:"hint",text:"No engineers yet."}))));
+        h("button",{type:"button","aria-label":multi?"Remove "+e.name+" from "+d.k:"Remove "+e.name,title:multi?"Remove from "+titleCase(d.k)+" only":null,onclick:function(){
+          if(!multi){teamOp(sb.from("tt_engineers").delete().eq("name",e.name));return;}
+          var rest=discsOf(e).filter(function(x){return x!==d.k;});
+          teamOp(sb.from("tt_engineers").update({discipline:rest[0],also:rest.slice(1)}).eq("name",e.name));}},"×"));})
+        :h("span",{class:"hint",text:"No engineers yet."}),addSel)));
   });
 }
 function teamOp(q){
@@ -2627,7 +2682,7 @@ function userMsg(ok,err){$("usersOk").textContent=ok||"";$("usersErr").textConte
 function loadUsers(){return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").order("email")).then(function(d){users=d||[];});}
 function engOptions(sel,current){
   clear(sel);sel.append(h("option",{value:"",text:"Not linked"}));
-  S.settings.engineers.forEach(function(e){sel.append(h("option",{value:e.name,text:e.name+" ("+discCode(e.discipline)+")"}));});
+  S.settings.engineers.forEach(function(e){sel.append(h("option",{value:e.name,text:e.name+" ("+discsOf(e).map(discCode).join("+")+")"}));});
   if(current&&!S.settings.engineers.some(function(e){return e.name===current;}))sel.append(h("option",{value:current,text:current}));
   sel.value=current||"";
 }
@@ -2649,10 +2704,10 @@ function createLogin(email,pw){
 }
 function addUser(ev){
   ev.preventDefault();if(busy||!sb)return;userMsg();
-  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=role==="engineer"?($("uEng").value||null):null,disc=isLeadRole(role)?($("uDisc").value||null):null;
+  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=isWorkerRole(role)?($("uEng").value||null):null,disc=isLeadRole(role)?($("uDisc").value||null):null;
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){userMsg("","Enter a valid email address.");return;}
   if(pw.length<6){userMsg("","The password must be at least 6 characters.");return;}
-  if(role==="engineer"&&!eng){userMsg("","Pick which engineer name this login belongs to. If the name is not in the list, add it under Team & projects first.");return;}
+  if(isWorkerRole(role)&&!eng){userMsg("","Pick which engineer name this login belongs to. If the name is not in the list, add it under Team & projects first.");return;}
   if(isLeadRole(role)&&!disc){userMsg("","Pick the discipline this "+roleName(role)+" works in.");return;}
   busy=true;$("btnUserAdd").disabled=true;var state="";
   createLogin(email,pw)
@@ -2669,7 +2724,7 @@ function userUpdate(u,patch){
   userMsg();
   run(sb.from("tt_users").update(patch).eq("email",u.email).select().single()).then(function(d){
     for(var k in d)u[k]=d[k];
-    userMsg(u.role==="engineer"&&!u.engineer?"Saved. Link an engineer name so "+u.email+" can receive tasks.":isLeadRole(u.role)&&!u.discipline?"Saved. Pick the discipline for "+u.email+".":"Saved "+u.email+".");
+    userMsg(isWorkerRole(u.role)&&!u.engineer?"Saved. Link an engineer name so "+u.email+" can receive tasks.":isLeadRole(u.role)&&!u.discipline?"Saved. Pick the discipline for "+u.email+".":"Saved "+u.email+".");
     renderUsers();loadDirectory().then(render,function(){});
     if(me&&u.email===me.email){me=u;paintAccount();render();}
   }).catch(function(e){userMsg("",writeError(e));renderUsers();});
@@ -2694,14 +2749,14 @@ function renderUsers(){
   engOptions($("uEng"),$("uEng").value);
   var host=clear($("usersList")),tb=h("tbody");
   byRole(users,function(u){return u.role;}).forEach(function(g){
-  tb.append(h("tr",{"class":"grp-row"},h("td",{colspan:"5",text:(rolePlural(g.role)||"Other")+" · "+g.items.length+(g.role==="engineer"?" · take tasks":g.role?" · take no tasks":"")})));
+  tb.append(h("tr",{"class":"grp-row"},h("td",{colspan:"5",text:(rolePlural(g.role)||"Other")+" · "+g.items.length+(isWorkerRole(g.role)?" · take tasks":VIEWERS.indexOf(g.role)>=0?" · follow only":g.role?" · take no tasks":"")})));
   g.items.forEach(function(u){
     var self=!!me&&u.email===me.email;
     var role=h("select",{"aria-label":"Role for "+u.email,disabled:self});
-    ["engineer","teamleader","senior","midsenior","manager","admin"].forEach(function(r){role.append(h("option",{value:r,text:roleName(r)}));});role.value=u.role;
+    ROLE_PICK.forEach(function(r){role.append(h("option",{value:r,text:roleName(r)}));});role.value=u.role;
     role.addEventListener("change",function(){userUpdate(u,{role:role.value});});
     var eng;
-    if(u.role==="engineer"){eng=h("select",{"aria-label":"Engineer name for "+u.email});engOptions(eng,u.engineer||"");
+    if(isWorkerRole(u.role)){eng=h("select",{"aria-label":"Engineer name for "+u.email});engOptions(eng,u.engineer||"");
       eng.addEventListener("change",function(){userUpdate(u,{engineer:eng.value||null});});}
     else if(isLeadRole(u.role)){eng=h("select",{"aria-label":"Discipline of "+u.email});discOptions(eng,u.discipline||"");
       eng.addEventListener("change",function(){userUpdate(u,{discipline:eng.value||null});});}
@@ -2728,7 +2783,7 @@ function discOptions(sel,current){
   DISC.forEach(function(d){sel.append(h("option",{value:d.k,text:d.k}));});sel.value=current||"";
 }
 function syncUserForm(){
-  var r=$("uRole").value;$("uEngWrap").hidden=r!=="engineer";$("uDiscWrap").hidden=!isLeadRole(r);
+  var r=$("uRole").value;$("uEngWrap").hidden=!isWorkerRole(r);$("uDiscWrap").hidden=!isLeadRole(r);
   if(!$("uDisc").options.length)discOptions($("uDisc"),"");
 }
 function openUsers(){
@@ -2760,9 +2815,9 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopBc();stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
-  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
 }
 function enter(session){
@@ -2771,7 +2826,7 @@ function enter(session){
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
     me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();loadAtt();
-    return loadAll().then(subscribe);
+    return loadAll().then(function(){subscribe();startBc();});
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
     if(c==="42P01"||c==="PGRST205"||c==="PGRST202"||/does not exist|could not find the (table|function)/i.test(m))showAuth("blocked","The database is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then reload this page.");
@@ -2902,12 +2957,12 @@ var moreSel={};
 function syncMoreEng(){
   var wrap=$("moreEngWrap"),show=!editing&&canAdd();wrap.hidden=!show;if(!show)return;
   var d=$("f-discipline").value,main=$("f-engineer").value,box=clear($("moreEng"));
-  var names=S.settings.engineers.filter(function(e){return e.discipline===d&&e.name!==main;}).map(function(e){return e.name;});
+  var names=S.settings.engineers.filter(function(e){return inDisc(e,d)&&e.name!==main;}).map(function(e){return e.name;});
   if(!names.length){box.append(h("span",{"class":"hint",text:"No other engineers in this discipline."}));return;}
   names.forEach(function(n){var cb=h("input",{type:"checkbox",value:n});cb.checked=!!moreSel[n];
     cb.addEventListener("change",function(){moreSel[n]=cb.checked;});box.append(h("label",null,cb,n));});
 }
-function moreChosen(){var d=$("f-discipline").value;return S.settings.engineers.filter(function(e){return e.discipline===d&&moreSel[e.name];}).map(function(e){return e.name;});}
+function moreChosen(){var d=$("f-discipline").value;return S.settings.engineers.filter(function(e){return inDisc(e,d)&&moreSel[e.name];}).map(function(e){return e.name;});}
 
 /* ---------- copy tasks to another day ---------- */
 var copyChecked={};
@@ -3044,7 +3099,7 @@ function renderBackupBox(){
 /* ---------- engineers without an open task ---------- */
 function freeEngineers(){
   var td=today(),linked={},any=false,res={free:[],wait:[]};
-  directory.forEach(function(u){if(u.role==="engineer"&&u.engineer){linked[u.engineer]=1;any=true;}});
+  directory.forEach(function(u){if(isWorkerRole(u.role)&&u.engineer){linked[u.engineer]=1;any=true;}});
   S.settings.engineers.forEach(function(e){
     if(any&&!linked[e.name])return;
     var open=S.tasks.filter(function(t){return t.engineer===e.name&&t.date<=td&&t.status!=="Completed";});
@@ -3054,7 +3109,7 @@ function freeEngineers(){
   return res;
 }
 var SOON_H=2;
-function linkedEngineers(){var linked={},any=false;directory.forEach(function(u){if(u.role==="engineer"&&u.engineer){linked[u.engineer]=1;any=true;}});return any?linked:null;}
+function linkedEngineers(){var linked={},any=false;directory.forEach(function(u){if(isWorkerRole(u.role)&&u.engineer){linked[u.engineer]=1;any=true;}});return any?linked:null;}
 function engLeft(name){
   var td=today(),open=S.tasks.filter(function(t){return t.engineer===name&&t.date<=td&&t.status!=="Completed";});
   var active=open.filter(function(t){return t.status!=="Delayed"&&t.status!=="On Hold";});
@@ -3074,7 +3129,7 @@ function cdTxt(x){if(x.left<=0)return "time is up";var s=Math.round(x.left*3600)
 function paintCd(el,x){el.textContent=cdTxt(x);el.className="cd"+(x.left<=0?" over":x.running?"":" pz");}
 function giveTaskTo(e){
   openTask(null);
-  if(!isTL())$("f-discipline").value=e.discipline;
+  if(!isTL()&&!inDisc(e,$("f-discipline").value))$("f-discipline").value=e.discipline;
   syncEngineerOptions(e.name);$("f-engineer").value=e.name;fillTaskList();syncMoreEng();$("f-task").focus();
 }
 /* ---------- Available now: every engineer, what they are on, how much is left, live ---------- */
@@ -3120,13 +3175,13 @@ function renderFree(v){
   box.append(h("div",{"class":"free-h"},h("h2",{text:"Available now"}),h("p",{text:list.length?sum.join(" · ")+(canAdd()?" · click a card to give a task":""):"No engineers with a login yet."})));
   var grid=h("div",{"class":"tm-grid"});
   list.forEach(function(x){
-    var can=canAdd()&&(isAdmin()||x.e.discipline===me.discipline),cls="tmc "+x.kind+(x.soon?" soon":"");
+    var can=canAdd()&&(isAdmin()||inDisc(x.e,me.discipline)),cls="tmc "+x.kind+(x.soon?" soon":"");
     var pill=h("span",{"class":"tmc-pill"},x.kind==="working"?h("i"):null,stateLabel(x));
     var line2=x.kind==="paused"&&x.pause?h("span",{"class":"tmc-why"},(x.pause.reason||"Paused")+" · ",h("span",{"data-live":"pzeng","data-eng":x.e.name,text:durTxt(spanSecs(x.pause))})):
       x.task?h("span",{"class":"tmc-task",text:x.task.task||""}):h("span",{"class":"tmc-task muted",text:"Nothing assigned right now"});
     var left=h("span",{"class":"tmc-left","data-live":"teng","data-eng":x.e.name,text:stateLeftTxt(x)});
     var kids=[h("div",{"class":"tmc-top"},h("b",{text:x.e.name}),pill),line2,left,
-      h("div",{"class":"tmc-foot"},h("span",{text:titleCase(x.e.discipline)}),x.soon?h("span",{"class":"tmc-soon",text:"Finishing soon"}):null)];
+      h("div",{"class":"tmc-foot"},h("span",{text:discLabel(discsOf(x.e))}),x.soon?h("span",{"class":"tmc-soon",text:"Finishing soon"}):null)];
     grid.append(can?h("button",{"class":cls,type:"button",title:"Add a task for "+x.e.name,onclick:function(){giveTaskTo(x.e);}},kids):h("div",{"class":cls},kids));
   });
   box.append(grid);
@@ -3331,7 +3386,7 @@ var ICON_FLAG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 var ICON_EDIT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>';
 var ICON_DEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
 function svgBtn(cls,label,svg,fn,pressed){var b=h("button",{"class":cls,type:"button",title:label,"aria-label":label,onclick:fn});if(pressed!==undefined)b.setAttribute("aria-pressed",String(!!pressed));b.innerHTML=svg;return b;}
-function canReview(){return !!me&&(me.role==="admin"||((me.role==="teamleader"||me.role==="senior")&&!!me.discipline));}
+function canReview(){return !!me&&(me.role==="admin"||isTL());}
 function loadReview(){
   if(!sb||!canReview())return Promise.resolve();
   return Promise.all([run(sb.from("tt_review").select("task_id,reviewed_at,ignored_at,urgent,note").eq("owner_email",me.email)),
@@ -3899,9 +3954,9 @@ function sendComment(ev){
 }
 /* ---------- attendance ---------- */
 var attRows=[],attMine=null,attOpen={},attEdit=null,attMonthV="";
-function canPunch(){return !!me&&["engineer","midsenior","senior","teamleader","admin"].indexOf(me.role)>=0;}
+function canPunch(){return !!me&&(isWorkerRole(me.role)||isLeadRole(me.role)||me.role==="admin");}
 function canAttend(){return !!me&&(canPunch()||editAll());}
-function attManage(disc){return !!me&&(isAdmin()||((me.role==="teamleader"||me.role==="senior")&&disc===me.discipline));}
+function attManage(disc,email){return !!me&&(isAdmin()||(isTL()&&(disc===me.discipline||(!!email&&personDiscs(email).indexOf(me.discipline)>=0))));}
 function reqHours(){var v=num((S.cfg||{}).attend_hours);return v>0?v:7.5;}
 function row2att(o){return {id:String(o.id),email:String(o.email),engineer:String(o.engineer||""),name:String(o.full_name||o.engineer||o.email),discipline:String(o.discipline||""),
   day:String(o.day||"").slice(0,10),in_at:String(o.in_at),out_at:o.out_at?String(o.out_at):"",edited_by:o.edited_by?String(o.edited_by):""};}
@@ -3952,7 +4007,7 @@ function attPerson(email,name,disc,rows){
   return {email:email,name:name,disc:disc,days:list.reverse(),tot:tot,open:open};
 }
 function attDayTable(p){
-  var req=reqHours(),can=attManage(p.disc),tb=h("tbody");
+  var req=reqHours(),can=attManage(p.disc,p.email),tb=h("tbody");
   p.days.forEach(function(x){
     var dd=parseDate(x.day),dn=dd.toLocaleDateString("en-GB",{weekday:"short"});
     if(x.absent){tb.append(h("tr",{"class":"absent"},h("td",{text:dd.getDate()+" "+dd.toLocaleString("en-GB",{month:"short"})}),h("td",{text:dn}),h("td",{"class":"ses",text:"No clock-in"}),
@@ -3985,7 +4040,7 @@ function renderAtt(){
   if(!$("attMonth").value)$("attMonth").value=attMonthV||today().slice(0,7);
   var r=monthRange(),team=clear($("attTeam")),mine=clear($("attMine"));
   $("attSub").textContent="Required "+reqHours()+" h a day · overtime above, shortfall below · "+new Date(r.from+"T00:00:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"});
-  var others=attRows.filter(function(x){return !me||x.email!==me.email;}),seesTeam_=editAll()||((me.role==="teamleader"||me.role==="senior")&&!!me.discipline);
+  var others=attRows.filter(function(x){return !me||x.email!==me.email;}),seesTeam_=editAll()||isTL();
   if(canPunch()){
     var mp=attPerson(me.email,me.full_name||me.email,me.discipline||"",attRows.filter(function(x){return x.email===me.email;}));
     if(!seesTeam_)attTiles(mp);
@@ -3994,9 +4049,10 @@ function renderAtt(){
   if(seesTeam_){
     var people={};others.forEach(function(x){people[x.email]=people[x.email]||{name:x.name,disc:x.discipline,rows:[]};people[x.email].rows.push(x);});
     // everyone who clocks in: engineers, mid seniors, seniors and team leaders, within the viewer's scope
-    directory.forEach(function(u){if(["engineer","midsenior","senior","teamleader","admin"].indexOf(u.role)<0||people[u.email]||(me&&u.email===me.email))return;
+    if(!editAll())Object.keys(people).forEach(function(k){var pp=people[k];if(pp.disc!==me.discipline&&personDiscs(k).indexOf(me.discipline)<0)delete people[k];});
+    directory.forEach(function(u){if(!(isWorkerRole(u.role)||isLeadRole(u.role)||u.role==="admin")||people[u.email]||(me&&u.email===me.email))return;
       var d=u.discipline;if(!d&&u.engineer)S.settings.engineers.forEach(function(q){if(q.name===u.engineer)d=q.discipline;});
-      if(u.role==="engineer"&&!u.engineer)return;if(!editAll()&&d!==me.discipline)return;
+      if(isWorkerRole(u.role)&&!u.engineer)return;if(!editAll()&&personDiscs(u.email).indexOf(me.discipline)<0)return;
       people[u.email]={name:u.name||u.engineer||u.email,disc:d,role:u.role,rows:[]};});
     var roleOf={};directory.forEach(function(u){roleOf[u.email]=u.role;});
     var ps=Object.keys(people).map(function(k){var p=people[k],o=attPerson(k,p.name,p.disc,p.rows);o.role=p.role||roleOf[k]||"";return o;}).sort(function(a,b){return a.name.localeCompare(b.name);});
@@ -4007,7 +4063,7 @@ function renderAtt(){
       var open=!!attOpen[p.email],net=p.tot.ot-p.tot.sf;
       tb.append(h("tr",{"class":"erow"+(open?" open":""),tabindex:"0","aria-expanded":String(open),onclick:function(){attOpen[p.email]=!attOpen[p.email];renderAtt();},
           onkeydown:function(ev){if(ev.key==="Enter"){attOpen[p.email]=!attOpen[p.email];renderAtt();}}},
-        h("td",null,h("span",{"class":"chev",text:open?"▾ ":"▸ "}),h("strong",{text:p.name}),p.role&&p.role!=="engineer"?h("small",{"class":"rv-hint",text:" · "+roleName(p.role)}):null),h("td",{text:titleCase(p.disc||"")}),
+        h("td",null,h("span",{"class":"chev",text:open?"▾ ":"▸ "}),h("strong",{text:p.name}),p.role&&!isWorkerRole(p.role)?h("small",{"class":"rv-hint",text:" · "+roleName(p.role)}):null),h("td",{text:personDiscs(p.email).length>1?discLabel(personDiscs(p.email)):titleCase(p.disc||"")}),
         h("td",{"class":"ses"},p.open?h("span",{"class":"att-in"},h("i"),"In since "+tOnly(p.open.in_at)):h("span",{"class":"att-out",text:"Out"})),
         h("td",{text:String(p.tot.present)}),h("td",{"class":p.tot.absent?"sf":null,text:String(p.tot.absent)}),
         h("td",{text:hm(p.tot.h)}),h("td",{"class":p.tot.ot?"ot":null,text:p.tot.ot?"+"+hm(p.tot.ot):"—"}),h("td",{"class":p.tot.sf?"sf":null,text:p.tot.sf?"-"+hm(p.tot.sf):"—"}),
@@ -4040,6 +4096,121 @@ function delAtt(){
   if($("attDel").textContent!=="Click again to delete"){$("attDel").textContent="Click again to delete";return;}
   run(sb.rpc("tt_att_delete",{p_id:e.s.id})).then(function(){$("attDlg").close();toast("Deleted.");return loadAtt();}).catch(function(er){$("attErr").textContent=writeError(er);}).then(function(){$("attDel").textContent="Delete";});
 }
+/* ---------- roles (v31): follow-only managers, section heads, coordinators ---------- */
+var WORKERS=["engineer","coordinator"],VIEWERS=["projectmanager","topmanagement"];
+var ROLE_PICK=["engineer","coordinator","midsenior","senior","teamleader","sectionhead","manager","projectmanager","topmanagement","admin"];
+LEADS=["sectionhead","teamleader","senior","midsenior"];
+function isWorkerRole(r){return WORKERS.indexOf(r)>=0;}
+function isViewer(){return !!me&&VIEWERS.indexOf(me.role)>=0;}
+function canEditAll(){return !!me&&(me.role==="admin"||me.role==="manager");}
+/* sees every discipline (admin, manager, project managers, top management) */
+function editAll(){return canEditAll()||isViewer();}
+function isEng(){return !!me&&isWorkerRole(me.role);}
+function canEdit(t){return canEditAll()||(isTL()&&t.discipline===me.discipline)||(isEng()&&!!me.engineer&&t.engineer===me.engineer);}
+function roleName(r){return {admin:"Admin",topmanagement:"Top management",projectmanager:"Project manager",manager:"Manager",sectionhead:"Section head",teamleader:"Team leader",
+  senior:"Senior",midsenior:"Mid Senior",coordinator:"Coordinator",engineer:"Engineer"}[r]||r||"";}
+function inDisc(e,d){return !!e&&!!d&&(e.discipline===d||(e.also||[]).indexOf(d)>=0);}
+function discsOf(e){return e?[e.discipline].concat(e.also||[]).filter(Boolean):[];}
+function discLabel(list){list=(list||[]).filter(Boolean);return list.length>=DISC.length?"All disciplines":list.map(titleCase).join(" + ");}
+function personDiscs(email){var u=null;directory.forEach(function(x){if(x.email===email)u=x;});if(!u)return [];
+  if(isLeadRole(u.role))return u.discipline?[u.discipline]:[];return [u.discipline].concat(u.also||[]).filter(Boolean);}
+function myDiscs(){if(!me)return [];if(isLeadRole(me.role))return me.discipline?[me.discipline]:[];
+  if(isWorkerRole(me.role)){var e=null;S.settings.engineers.forEach(function(q){if(q.name===me.engineer)e=q;});return discsOf(e);}return [];}
+
+/* ---------- announcements ---------- */
+var bcs=[],bcSeen={},bcAud={},bcTimer=null,bcKnown=null,bcOpen={};
+function canAnnounce(){return !!me&&(me.role==="admin"||isViewer()||isTL());}
+function bcLive(b){return !b.ended_at&&Date.parse(b.ends_at)>nowMs();}
+function bcMine(b){return !!me&&b.from_email===me.email;}
+function bcForMe(b){if(!me)return false;if(bcMine(b))return true;return b.audience==="ALL"||myDiscs().indexOf(b.audience)>=0;}
+function bcWho(a){return a==="ALL"?"Everyone":titleCase(a);}
+function bcLeft(b){var m=Math.max(0,Math.round((Date.parse(b.ends_at)-nowMs())/60000));
+  if(m<1)return "ends in under a minute";if(m<60)return "up for "+m+" more min";var hh=Math.floor(m/60);
+  if(hh<24)return "up for "+hh+" h "+(m%60?(m%60)+" min ":"")+"more";var dd=Math.floor(hh/24);return "up for "+dd+(dd===1?" more day":" more days")+(hh%24?" "+(hh%24)+" h":"");}
+function loadBc(){
+  if(!sb||!me)return Promise.resolve();
+  var since=new Date(nowMs()-14*86400000).toISOString();
+  return Promise.all([run(sb.from("tt_broadcasts").select("id,from_email,from_name,audience,message,created_at,ends_at,ended_at").gte("ends_at",since).order("created_at",{ascending:false}).range(0,199)),
+                      run(sb.from("tt_broadcast_seen").select("broadcast_id,email,seen_at").eq("email",me.email).range(0,999))]).then(function(r){
+    var fresh=[];bcs=(r[0]||[]).map(function(o){return {id:String(o.id),from_email:String(o.from_email||""),from_name:String(o.from_name||""),audience:String(o.audience||"ALL"),
+      message:String(o.message||""),created_at:String(o.created_at||""),ends_at:String(o.ends_at||""),ended_at:o.ended_at?String(o.ended_at):""};});
+    bcSeen={};(r[1]||[]).forEach(function(x){bcSeen[String(x.broadcast_id)]=String(x.seen_at||"");});
+    var live=bcs.filter(function(b){return bcLive(b)&&bcForMe(b)&&!bcMine(b);});
+    if(bcKnown){live.forEach(function(b){if(!bcKnown[b.id]&&!bcSeen[b.id])fresh.push(b);});}
+    bcKnown={};bcs.forEach(function(b){bcKnown[b.id]=1;});
+    if(fresh.length){beep();fresh.forEach(function(b){osNotify("Announcement from "+(b.from_name||"the office"),b.message,{tag:"bc-"+b.id,always:true,sticky:true});});}
+    return loadBcStats();
+  }).then(function(){renderBc();if($("bcDlg").open)renderBcList();}).catch(function(){});
+}
+function loadBcStats(){
+  var mine=bcs.filter(function(b){return bcLive(b)&&(bcMine(b)||isAdmin());});
+  return Promise.all(mine.map(function(b){return run(sb.rpc("tt_broadcast_audience",{p_id:b.id})).then(function(d){
+    var list=(d||[]).map(function(x){return {email:String(x.email),name:String(x.full_name||x.email),seen:x.seen_at?String(x.seen_at):""};});bcAud[b.id]=list;},function(){});}));
+}
+var bcStatsSoon=null;
+function bcStatsLater(){if(bcStatsSoon)clearTimeout(bcStatsSoon);bcStatsSoon=setTimeout(function(){bcStatsSoon=null;loadBcStats().then(function(){renderBc();if($("bcDlg").open)renderBcList();});},1500);}
+function startBc(){stopBc();bcKnown=null;loadBc();bcTimer=setInterval(function(){renderBc();},30000);}
+function stopBc(){if(bcTimer)clearInterval(bcTimer);bcTimer=null;bcs=[];bcSeen={};bcAud={};bcKnown=null;var b=$("bcBox");if(b){b.hidden=true;clear(b);}}
+function bcSeenTxt(b){var a=bcAud[b.id];if(!a)return "";var n=a.filter(function(x){return x.seen;}).length;return "Seen by "+n+" of "+a.length;}
+function renderBc(){
+  var box=$("bcBox");if(!box)return;var b_=$("btnAnnounce");if(b_)b_.hidden=!canAnnounce();
+  var list=bcs.filter(function(b){return bcLive(b)&&bcForMe(b);});
+  box.hidden=!list.length;clear(box);if(!list.length)return;
+  list.forEach(function(b){
+    var mine=bcMine(b),seen=mine||!!bcSeen[b.id],big=!seen||!!bcOpen[b.id];
+    var head=h("div",{"class":"bc-head"},h("span",{"class":"bc-ic","aria-hidden":"true"}),
+      h("span",{"class":"bc-kick",text:"Announcement · "+bcWho(b.audience)}),
+      h("span",{"class":"bc-from",text:(mine?"You":b.from_name||"Office")+" · "+niceStamp(b.created_at)+" · "+bcLeft(b)}));
+    var acts=h("div",{"class":"bc-acts"});
+    if(mine||isAdmin()){var st=bcSeenTxt(b);if(st)acts.append(h("button",{type:"button","class":"btn small ghost",onclick:function(){openBc(b.id);}},st));
+      acts.append(h("button",{type:"button","class":"btn small",onclick:function(ev){endBc(b,ev.currentTarget);}},"Take down"));}
+    if(!seen)acts.append(h("button",{type:"button","class":"btn small primary",onclick:function(ev){seenBc(b,ev.currentTarget);}},"Got it"));
+    else if(!mine)acts.append(h("button",{type:"button","class":"btn small ghost","aria-expanded":String(big),onclick:function(){bcOpen[b.id]=!bcOpen[b.id];renderBc();}},big?"Less":"Show"));
+    if(big)box.append(h("div",{"class":"bc"+(seen?" seen":" new"),role:"status"},head,h("p",{"class":"bc-msg",text:b.message}),acts));
+    else box.append(h("div",{"class":"bc slim"},h("span",{"class":"bc-ic","aria-hidden":"true"}),
+      h("span",{"class":"bc-line"},h("b",{text:bcWho(b.audience)+": "}),b.message),h("span",{"class":"bc-from",text:(mine?"You":b.from_name)+" · "+bcLeft(b)}),acts));
+  });
+}
+function seenBc(b,btn){if(btn)btn.disabled=true;bcSeen[b.id]=new Date().toISOString();renderBc();
+  run(sb.rpc("tt_broadcast_seen_mark",{p_id:b.id})).catch(function(e){delete bcSeen[b.id];renderBc();toast(writeError(e),true);});}
+function endBc(b,btn){if(btn&&btn.textContent!=="Click again to take it down"){btn.textContent="Click again to take it down";return;}
+  run(sb.rpc("tt_broadcast_end",{p_id:b.id})).then(function(){b.ended_at=new Date().toISOString();toast("Announcement taken down.");renderBc();if($("bcDlg").open)renderBcList();})
+    .catch(function(e){toast(writeError(e),true);});}
+var BC_DUR=[["15","15 minutes"],["30","30 minutes"],["60","1 hour"],["120","2 hours"],["240","4 hours"],["eod","Until the end of today"],["1440","1 day"],["2880","2 days"],["4320","3 days"],["10080","1 week"]];
+function openBc(focusId){
+  if(!canAnnounce()&&!focusId)return;
+  var a=$("bcAud");clear(a);
+  if(me.role==="admin"||isViewer()){a.append(h("option",{value:"ALL",text:"Everyone in the office"}));DISC.forEach(function(d){a.append(h("option",{value:d.k,text:titleCase(d.k)+" only"}));});a.disabled=false;}
+  else{a.append(h("option",{value:me.discipline,text:titleCase(me.discipline)+" only"}));a.disabled=true;}
+  var du=$("bcDur");if(!du.options.length)BC_DUR.forEach(function(x){du.append(h("option",{value:x[0],text:x[1]}));});if(!du.value)du.value="60";
+  $("bcErr").textContent="";$("bcForm").hidden=!canAnnounce();renderBcList(focusId);$("bcDlg").showModal();
+  if(!focusId&&canAnnounce())setTimeout(function(){try{$("bcMsg").focus();}catch(e){}},0);
+}
+function bcMinutes(v){if(v!=="eod")return Number(v)||60;var e=new Date(nowMs());e.setHours(23,59,0,0);return Math.max(5,Math.round((e.getTime()-nowMs())/60000));}
+function sendBc(){
+  if(!sb||busy)return;var msg=$("bcMsg").value.trim();if(!msg){$("bcErr").textContent="Write the message first.";return;}
+  var btn=$("bcSend");busy=true;btn.disabled=true;$("bcErr").textContent="";
+  run(sb.rpc("tt_broadcast_send",{p_audience:$("bcAud").value,p_message:msg,p_minutes:bcMinutes($("bcDur").value)})).then(function(){
+    $("bcMsg").value="";toast("Announcement sent to "+($("bcAud").value==="ALL"?"everyone":titleCase($("bcAud").value))+".");return loadBc();})
+    .catch(function(e){$("bcErr").textContent=writeError(e);}).then(function(){busy=false;btn.disabled=false;});
+}
+function renderBcList(focusId){
+  var host=clear($("bcList")),list=bcs.filter(function(b){return bcLive(b)&&(bcMine(b)||isAdmin());});
+  if(!list.length){host.append(h("p",{"class":"hint",text:"No announcement of yours is up right now."}));return;}
+  host.append(h("h3",{"class":"bc-lh",text:isAdmin()?"Up now":"Your announcements up now"}));
+  list.forEach(function(b){var aud=bcAud[b.id]||[],seen=aud.filter(function(x){return x.seen;}),not=aud.filter(function(x){return !x.seen;});
+    var it=h("div",{"class":"bc-item"+(focusId===b.id?" focus":"")},
+      h("div",{"class":"bc-item-h"},h("strong",{text:bcWho(b.audience)}),h("span",{text:(bcMine(b)?"You":b.from_name)+" · "+bcLeft(b)}),
+        h("button",{type:"button","class":"btn small",onclick:function(ev){endBc(b,ev.currentTarget);}},"Take down")),
+      h("p",{"class":"bc-msg",text:b.message}),
+      h("p",{"class":"bc-seen"},h("b",{text:"Seen by "+seen.length+" of "+aud.length}),seen.length?" · "+seen.map(function(x){return x.name;}).join(", "):""),
+      not.length?h("p",{"class":"bc-not",text:"Not yet: "+not.map(function(x){return x.name;}).join(", ")}):null);
+    host.append(it);});
+}
+(function(){var b=$("btnAnnounce");if(b)b.addEventListener("click",function(){openBc();});
+  var f=$("bcForm");if(f)f.addEventListener("submit",function(ev){ev.preventDefault();sendBc();});
+  var c=$("bcClose");if(c)c.addEventListener("click",function(){$("bcDlg").close();});})();
+
 start();
 })();
 </script>
