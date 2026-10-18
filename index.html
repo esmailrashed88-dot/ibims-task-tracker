@@ -749,6 +749,37 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
 .kpi-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.kpi-bar{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:10px}
+.kpi-bar-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.kpi-search{flex:1 1 220px;max-width:340px;font:inherit;padding:8px 12px 8px 34px;border:1px solid var(--line);border-radius:8px;background:var(--surface) no-repeat 11px center/15px;color:var(--ink);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23889' stroke-width='2.4' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M20 20l-4-4'/></svg>")}
+.kpi-search:focus{outline:2px solid var(--accent);outline-offset:1px}
+.kpi-seg button{padding:5px 11px;font-size:13px}
+.kpi-gap{flex:1 1 auto}
+.kpi-sort{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink)}
+.kpi-discs{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi-dcard{display:grid;gap:3px;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.kpi-dcard:hover{border-color:var(--accent)}.kpi-dcard.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.kpi-dname{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kpi-dav{font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}.kpi-dsub{font-size:12px;color:var(--muted)}
+.kpi-track{position:relative;display:block;height:8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.kpi-track i{display:block;height:100%;background:var(--accent);border-radius:0 4px 4px 0}
+.kpi-track.draft i{background:var(--warn)}
+.kpi-count{margin:0;color:var(--muted);font-size:13px}
+#kpiList{display:grid;gap:14px}.kpi-out{display:grid;gap:12px}
+.kpi-gh{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;margin-top:6px;padding-bottom:4px;border-bottom:2px solid var(--line)}
+.kpi-gh h3{margin:0;font-family:var(--font-display);font-weight:600;font-size:20px;letter-spacing:.06em;text-transform:uppercase}.kpi-gh span{color:var(--muted);font-size:13px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.kpi-card{display:grid;gap:8px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;box-shadow:var(--shadow);border-top:4px solid var(--line)}
+.kpi-card:hover,.kpi-card:focus-visible{border-color:var(--accent);outline:none}
+.kpi-card.st-complete{border-top-color:var(--accent)}.kpi-card.st-sent{border-top-color:var(--ok)}.kpi-card.st-progress{border-top-color:var(--warn)}
+.kpi-ch{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.kpi-cn{display:grid;gap:2px;min-width:0}.kpi-cn strong{font-size:15.5px;overflow-wrap:anywhere}.kpi-cn small{color:var(--muted);font-size:12px}
+.kpi-cs{display:grid;justify-items:end;flex:none}.kpi-cs b{font-size:28px;line-height:1;font-variant-numeric:tabular-nums}.kpi-cs small{color:var(--muted);font-size:11.5px}
+.kpi-pr{display:grid;grid-template-columns:62px minmax(0,1fr) 44px;gap:8px;align-items:center;font-size:12.5px}
+.kpi-prl{color:var(--muted)}.kpi-prv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.kpi-cf{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding-top:4px;border-top:1px dashed var(--line)}
+.kpi-tsec{margin-top:0}
 table.att.kpit th,table.att.kpit td{text-align:left}
 .kpi-st{display:inline-block;min-width:56px;padding:2px 8px;border-radius:6px;font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums}
 .kpi-st.done{background:var(--ok-soft);color:var(--ok)}.kpi-st.draft{background:var(--warn-soft);color:var(--warn)}.kpi-st.none{color:var(--muted)}
@@ -4602,27 +4633,88 @@ function renderKpi(){
         h("td",null,h("b",{"class":"kpi-final",text:f.score===null?"—":Math.round(f.score)+"%"})," ",h("small",{"class":"rv-hint",text:kpiRating(f.score)}))));});
     host.append(h("section",{"class":"att-sec"},h("div",{"class":"att-wrap"},h("table",{"class":"att kpit"},h("thead",null,h("tr",null,["Month","HR","Direct manager","Top / PM","Final"].map(function(c){return h("th",{text:c});}))),tb0))));
     return;}
-  $("kpiMonthWrap").hidden=false;if(!$("kpiMonth").value)$("kpiMonth").value=kpiMonth();
-  var w=kpiW();$("kpiSub").textContent=kpiMonthName(kpiMonth())+" · HR "+w.hr+"% · Direct manager "+w.mgr+"% · Top / PM "+w.top+"% · each item from 1 to 5";
-  var ppl=kpiPeople(),c={n:ppl.length,done:0,sent:0,mine:0};
-  c.avg=0;c.avgN=0;ppl.forEach(function(u){var r=kpiOf(u.email),f=kpiFinal(r);if(f.complete){c.done++;c.avg+=f.score;c.avgN++;}if(r&&r.released_at)c.sent++;
-    KPI_PARTS.forEach(function(p){if(kpiCan(p[0],u.email)&&!(r&&r[p[0]]&&r[p[0]].done))c.mine++;});});
-  st.append(stat("People",String(c.n),"",editAll()?"everyone evaluated":"people you evaluate"),stat("Complete",String(c.done),"","all three parts submitted"),
-    stat("Waiting for you",String(c.mine),"","parts you still have to fill",c.mine>0),stat("Sent",String(c.sent),"","shared with the person"),
-    stat("Average",c.avgN?Math.round(c.avg/c.avgN)+"%":"—","",c.avgN?"of the complete forms":"no complete form yet"));
-  if(!ppl.length){host.append(h("div",{"class":"empty"},h("p",{text:"Nobody to evaluate yet."})));return;}
-  var tb=h("tbody");
-  ppl.forEach(function(u){var r=kpiOf(u.email),f=kpiFinal(r),todo=KPI_PARTS.filter(function(p){return kpiCan(p[0],u.email)&&!(r&&r[p[0]]&&r[p[0]].done);}).length;
-    var status=r&&r.released_at?h("span",{"class":"rq-st approved",text:"Sent"}):f.complete?h("span",{"class":"rq-st done",text:"Complete"}):r?h("span",{"class":"rq-st pending",text:"In progress"}):h("span",{"class":"rq-st cancelled",text:"Not started"});
-    tb.append(h("tr",{"class":"erow",tabindex:"0",onclick:function(){openKpi(u.email,kpiMonth());},onkeydown:function(ev){if(ev.key==="Enter")openKpi(u.email,kpiMonth());}},
-      h("td",null,h("strong",{text:u.name||u.email}),!isWorkerRole(u.role)?h("small",{"class":"rv-hint",text:" · "+roleName(u.role)}):null),
-      h("td",{text:discLabel(personDiscs(u.email))||"—"}),
-      h("td",null,kpiCell(r&&r.hr)),h("td",null,kpiCell(r&&r.mgr)),h("td",null,kpiCell(r&&r.top)),
-      h("td",null,f.score===null?"—":h("b",{"class":"kpi-final",text:Math.round(f.score)+"%"}),f.score!==null&&!f.complete?h("small",{"class":"rv-hint",text:" so far"}):null),
-      h("td",null,status),h("td",null,todo?h("span",{"class":"kpi-todo",text:todo===1?"1 part for you":todo+" parts for you"}):"")));});
-  host.append(h("section",{"class":"att-sec"},h("div",{"class":"att-wrap"},h("table",{"class":"att kpit"},
-    h("thead",null,h("tr",null,["Name","Discipline","HR","Direct manager","Top / PM","Final","Status",""].map(function(c){return h("th",{text:c});}))),tb))));
+  $("kpiMonthWrap").hidden=false;if(!$("kpiMonth").value)$("kpiMonth").value=kpiMonth();renderKpiTeam(host,st);
 }
+var kpiF=(function(){var d={q:"",disc:"",st:"",view:"cards",sort:"disc"};try{var j=JSON.parse(localStorage.getItem("tt-kpi-f")||"null");if(j)for(var k in d)if(typeof j[k]==="string")d[k]=j[k];}catch(e){}d.q="";return d;})();
+function saveKpiF(){try{localStorage.setItem("tt-kpi-f",JSON.stringify(kpiF));}catch(e){}}
+function kpiStatus(r,f){return r&&r.released_at?"sent":f.complete?"complete":r?"progress":"none";}
+var KPI_ST={none:["Not started","cancelled"],progress:["In progress","pending"],complete:["Complete","done"],sent:["Sent","approved"]};
+function kpiTodo(u,r){return KPI_PARTS.filter(function(p){return kpiCan(p[0],u.email)&&!(r&&r[p[0]]&&r[p[0]].done);}).length;}
+function kpiSeg(key,opts){var g=h("div",{"class":"seg kpi-seg",role:"group","aria-label":key});
+  opts.forEach(function(o){g.append(h("button",{type:"button","aria-pressed":String(kpiF[key]===o[0]),onclick:function(){kpiF[key]=o[0];saveKpiF();renderKpi();}},o[1]));});return g;}
+function renderKpiTeam(host,st){
+  var w=kpiW();$("kpiSub").textContent=kpiMonthName(kpiMonth())+" · HR "+w.hr+"% · Direct manager "+w.mgr+"% · Top / PM "+w.top+"% · each item from 1 to 5";
+  var all=kpiPeople().map(function(u){var r=kpiOf(u.email),f=kpiFinal(r);return {u:u,r:r,f:f,st:kpiStatus(r,f),todo:kpiTodo(u,r),discs:personDiscs(u.email),main:(personDiscs(u.email)[0]||"")};});
+  /* summary tiles over everyone this person can see */
+  var c={n:all.length,done:0,sent:0,mine:0,avg:0,avgN:0};
+  all.forEach(function(x){if(x.f.complete){c.done++;c.avg+=x.f.score;c.avgN++;}if(x.st==="sent")c.sent++;c.mine+=x.todo;});
+  st.append(stat("People",String(c.n),"",editAll()?"everyone evaluated":"people you evaluate"),stat("Complete",String(c.done),"",c.n?Math.round(c.done/c.n*100)+"% of the forms":"—"),
+    stat("Waiting for you",String(c.mine),"","parts you still have to fill",c.mine>0),stat("Sent",String(c.sent),"","shared with the person"),
+    stat("Average",c.avgN?Math.round(c.avg/c.avgN)+"%":"—","",c.avgN?kpiRating(c.avg/c.avgN)+" · complete forms":"no complete form yet"));
+  if(!all.length){host.append(h("div",{"class":"empty"},h("p",{text:"Nobody to evaluate yet."})));return;}
+  /* one row of filters */
+  var discs=DISC.filter(function(d){return all.some(function(x){return x.discs.indexOf(d.k)>=0;});});
+  if(kpiF.disc&&!discs.some(function(d){return d.k===kpiF.disc;}))kpiF.disc="";
+  var search=h("input",{type:"search","class":"kpi-search",placeholder:"Search a name…","aria-label":"Search a name",value:kpiF.q});
+  search.addEventListener("input",function(){kpiF.q=search.value;drawKpi();});
+  var sort=h("select",{"class":"kpi-sort","aria-label":"Sort"});[["disc","By discipline"],["score","Final, high to low"],["low","Final, low to high"],["name","By name"]].forEach(function(o){sort.append(h("option",{value:o[0],text:o[1]}));});
+  sort.value=kpiF.sort;sort.addEventListener("change",function(){kpiF.sort=sort.value;saveKpiF();drawKpi();});
+  var bar=h("div",{"class":"kpi-bar"},
+    h("div",{"class":"kpi-bar-row"},search,discs.length>1?kpiSeg("disc",[["","All"]].concat(discs.map(function(d){return [d.k,titleCase(d.k)];}))):null),
+    h("div",{"class":"kpi-bar-row"},kpiSeg("st",[["","All"],["mine","Waiting for me"],["progress","In progress"],["complete","Complete"],["sent","Sent"],["none","Not started"]]),
+      h("span",{"class":"kpi-gap"}),sort,kpiSeg("view",[["cards","Cards"],["table","Table"]])));
+  host.append(bar);
+  /* a strip per discipline */
+  if(discs.length>1){var strip=h("div",{"class":"kpi-discs"});
+    discs.forEach(function(d){var g=all.filter(function(x){return x.main===d.k;}),dn=g.filter(function(x){return x.f.complete;}),av=dn.length?dn.reduce(function(a,x){return a+x.f.score;},0)/dn.length:null;
+      strip.append(h("button",{type:"button","class":"kpi-dcard"+(kpiF.disc===d.k?" on":""),"aria-pressed":String(kpiF.disc===d.k),onclick:function(){kpiF.disc=kpiF.disc===d.k?"":d.k;saveKpiF();renderKpi();}},
+        h("span",{"class":"kpi-dname",text:titleCase(d.k)}),h("b",{"class":"kpi-dav",text:av===null?"—":Math.round(av)+"%"}),
+        h("span",{"class":"kpi-dsub",text:dn.length+" of "+g.length+" complete"}),
+        h("span",{"class":"kpi-track"},h("i",{style:"width:"+(g.length?dn.length/g.length*100:0)+"%"}))));});
+    host.append(strip);}
+  host.append(h("p",{"class":"kpi-count",id:"kpiCount"}));var out=h("div",{"class":"kpi-out"});host.append(out);
+  function drawKpi(){
+    clear(out);var q=kpiF.q.trim().toLowerCase();
+    var list=all.filter(function(x){
+      if(kpiF.disc&&x.discs.indexOf(kpiF.disc)<0)return false;
+      if(kpiF.st==="mine"?!x.todo:(kpiF.st&&x.st!==kpiF.st))return false;
+      if(q&&String(x.u.name||"").toLowerCase().indexOf(q)<0&&x.u.email.indexOf(q)<0&&String(x.u.engineer||"").toLowerCase().indexOf(q)<0)return false;return true;});
+    var by=function(a,b){return (a.u.name||a.u.email).localeCompare(b.u.name||b.u.email);};
+    if(kpiF.sort==="score"||kpiF.sort==="low"){var dir=kpiF.sort==="score"?-1:1;list.sort(function(a,b){var x=a.f.score,y=b.f.score;if(x===null&&y===null)return by(a,b);if(x===null)return 1;if(y===null)return -1;return dir*(x-y)||by(a,b);});}
+    else if(kpiF.sort==="name")list.sort(by);else list.sort(function(a,b){return discIdx(a.main)-discIdx(b.main)||by(a,b);});
+    $("kpiCount").textContent=list.length===all.length?all.length+" people":list.length+" of "+all.length+" people";
+    if(!list.length){out.append(h("div",{"class":"empty"},h("p",{text:"No one matches these filters."})));return;}
+    var groups=kpiF.sort==="disc"?discGroups(list):[{k:"",items:list}];
+    groups.forEach(function(g){
+      if(g.k){var dn=g.items.filter(function(x){return x.f.complete;}),av=dn.length?dn.reduce(function(a,x){return a+x.f.score;},0)/dn.length:null;
+        out.append(h("div",{"class":"kpi-gh"},h("h3",{text:titleCase(g.k)}),h("span",{text:g.items.length+(g.items.length===1?" person":" people")+" · "+dn.length+" complete"+(av===null?"":" · average "+Math.round(av)+"%")})));}
+      if(kpiF.view==="table")out.append(kpiTable(g.items));
+      else{var grid=h("div",{"class":"kpi-grid"});g.items.forEach(function(x){grid.append(kpiCard(x));});out.append(grid);}
+    });
+  }
+  drawKpi();
+}
+function discIdx(k){for(var i=0;i<DISC.length;i++)if(DISC[i].k===k)return i;return 99;}
+function discGroups(list){var m={},order=[];list.forEach(function(x){var k=x.main||"OTHER";if(!m[k]){m[k]=[];order.push(k);}m[k].push(x);});return order.map(function(k){return {k:k,items:m[k]};});}
+function kpiBarRow(label,part,weight){var sc=kpiPartScore(part),done=!!(part&&part.done);
+  return h("div",{"class":"kpi-pr",title:label+" ("+weight+"%): "+(sc===null?"not filled":Math.round(sc)+"%"+(done?"":" (draft)"))+(part&&part.by_name?" · "+part.by_name:"")},
+    h("span",{"class":"kpi-prl",text:label}),h("span",{"class":"kpi-track"+(done?"":" draft")},h("i",{style:"width:"+(sc===null?0:sc)+"%"})),
+    h("span",{"class":"kpi-prv",text:sc===null?"—":Math.round(sc)+"%"+(done?"":"*")}));}
+function kpiCard(x){var w=kpiW(),s=KPI_ST[x.st],open=function(){openKpi(x.u.email,kpiMonth());};
+  return h("div",{"class":"kpi-card st-"+x.st,tabindex:"0",role:"button","aria-label":"Open the KPI of "+(x.u.name||x.u.email),onclick:open,onkeydown:function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();open();}}},
+    h("div",{"class":"kpi-ch"},h("div",{"class":"kpi-cn"},h("strong",{text:x.u.name||x.u.email}),h("small",{text:[roleName(x.u.role),discLabel(x.discs)].filter(Boolean).join(" · ")})),
+      h("div",{"class":"kpi-cs"},h("b",{text:x.f.score===null?"—":Math.round(x.f.score)+"%"}),h("small",{text:x.f.score===null?"no score yet":(x.f.complete?kpiRating(x.f.score):"so far")}))),
+    kpiBarRow("HR",x.r&&x.r.hr,w.hr),kpiBarRow("Manager",x.r&&x.r.mgr,w.mgr),kpiBarRow("Top / PM",x.r&&x.r.top,w.top),
+    h("div",{"class":"kpi-cf"},h("span",{"class":"rq-st "+s[1],text:s[0]}),x.todo?h("span",{"class":"kpi-todo",text:x.todo===1?"1 part for you":x.todo+" parts for you"}):null));}
+function kpiTable(items){var tb=h("tbody");
+  items.forEach(function(x){var s=KPI_ST[x.st],open=function(){openKpi(x.u.email,kpiMonth());};
+    tb.append(h("tr",{"class":"erow",tabindex:"0",onclick:open,onkeydown:function(ev){if(ev.key==="Enter")open();}},
+      h("td",null,h("strong",{text:x.u.name||x.u.email}),!isWorkerRole(x.u.role)?h("small",{"class":"rv-hint",text:" · "+roleName(x.u.role)}):null),
+      h("td",{text:discLabel(x.discs)||"—"}),h("td",null,kpiCell(x.r&&x.r.hr)),h("td",null,kpiCell(x.r&&x.r.mgr)),h("td",null,kpiCell(x.r&&x.r.top)),
+      h("td",null,x.f.score===null?"—":h("b",{"class":"kpi-final",text:Math.round(x.f.score)+"%"}),x.f.score!==null&&!x.f.complete?h("small",{"class":"rv-hint",text:" so far"}):null),
+      h("td",null,h("span",{"class":"rq-st "+s[1],text:s[0]})),h("td",null,x.todo?h("span",{"class":"kpi-todo",text:x.todo===1?"1 part for you":x.todo+" parts for you"}):"")));});
+  return h("div",{"class":"att-sec kpi-tsec"},h("div",{"class":"att-wrap"},h("table",{"class":"att kpit"},
+    h("thead",null,h("tr",null,["Name","Discipline","HR","Direct manager","Top / PM","Final","Status",""].map(function(c){return h("th",{text:c});}))),tb)));}
 function kpiMonthName(m){var d=new Date(+m.slice(0,4),+m.slice(5,7)-1,1);return d.toLocaleDateString("en-GB",{month:"long",year:"numeric"});}
 /* the numbers the tracker already has for that person and month */
 function kpiLoadAuto(email,month){
