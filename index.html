@@ -748,6 +748,10 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
+td.act-lock{white-space:nowrap}.lock-ic{display:inline-block;width:11px;height:11px;margin-right:5px;vertical-align:-1px;background:var(--muted);opacity:.7;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 10V7a6 6 0 0 1 12 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h8V7a4 4 0 0 0-8 0z'/></svg>") center/contain no-repeat;
+  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 10V7a6 6 0 0 1 12 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h8V7a4 4 0 0 0-8 0z'/></svg>") center/contain no-repeat}
+td.cmt-h{color:var(--cmt,var(--ink))}
 dialog.pr-pop{width:min(520px,calc(100vw - 24px));border:0;border-radius:18px;padding:0;overflow:visible;background:transparent;box-shadow:none}
 dialog.pr-pop::backdrop{background:rgba(8,20,32,.78);animation:prFade .3s ease-out}
 .pr-in{position:relative;padding:34px 28px 26px;border-radius:18px;text-align:center;color:#fff;background:linear-gradient(135deg,#0B7F82,#0d5f8c 55%,#13324f);
@@ -1794,7 +1798,7 @@ function buildTable(host,rows){
   if(!rows.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks match these filters."})));return;}
   var flashing=flashId&&Date.now()-flashAt<4000;
   var sorted=rows.slice().sort(taskOrder);
-  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h","r"],["Rem. h","r"],"Status","Comments","Submission Path","Send to",""];
+  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h (timer)","r"],["Comment h","r"],["Rem. h","r"],"Status","Comments","Submission Path","Send to",""];
   var tb=h("tbody");
   sorted.forEach(function(t){
     var ov=overrun(t);
@@ -1808,7 +1812,9 @@ function buildTable(host,rows){
       h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
       h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),timerLine(t)),
       h("td",{class:"r num"},(isEng()&&canEdit(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
-      h("td",{class:"r num"},canManageRows(t)?inlineInput(t,"actual",{class:"cell-in",type:"number",min:"0",step:"0.01",inputmode:"decimal",value:fmt(num(t.actual)),title:"Correct the timed hours","aria-label":"Actual hours for "+(t.task||"task")}):h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
+      h("td",{class:"r num act-lock",title:"Counted by the task timer. "+(canManageRows(t)?"To correct it, use Edit.":"It cannot be typed in.")},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
+      h("td",{class:"r num cmt-h",title:cmtRounds(t).length?"Timer hours on "+cmtRounds(t).length+(cmtRounds(t).length===1?" comment round":" comment rounds"):"No comment rounds"},cmtRounds(t).length?h("span",{"data-live":"cmth","data-tid":t.id,text:fmt(Math.round(liveCmt(t)*100)/100)}):"—",
+        cmtRounds(t).length?h("span",{class:"sub",text:cmtRounds(t).length+(cmtRounds(t).length===1?" round":" rounds")+" · est "+fmt(cmtRounds(t).reduce(function(a,r){return a+num(r.est);},0))}):null),
       h("td",{class:"r num"},h("span",{"data-live":"rem","data-tid":t.id,text:fmt(liveRem(t))}),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
       h("td",null,statusCell(t)),
       h("td",{"class":"cmt-td"},commentCell(t)),
@@ -2263,7 +2269,7 @@ function roundRow(t,r,fl,more){
       dateEl.addEventListener("change",function(){commitRoundDate(r,dateEl);});}
     else dateEl=h("strong",{text:r.work_date?niceDate(r.work_date):"—"});
   }
-  return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"15"},h("div",{"class":"round-line"+(nd?" nd":"")},
+  return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"16"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
     h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
@@ -2476,7 +2482,7 @@ function pauseRow(t,fl){
   var reasonEl=editing
     ?inlineInput(t,"reason",{"class":"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:hold?"Write why this task is on hold, then press Enter":"Write why this task is delayed, then press Enter","aria-label":(hold?"Reason for hold for ":"Reason for delay for ")+(t.task||"task")})
     :h("span",{"class":"reason-text",text:t.reason||"No reason written yet."});
-  return h("tr",{"class":"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"15"},h("div",{"class":"reason-line"+(hold?" hold":"")},
+  return h("tr",{"class":"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"16"},h("div",{"class":"reason-line"+(hold?" hold":"")},
     h("span",{"class":"label",text:hold?"Reason for hold":"Reason for delay"}),
     reasonEl,
     (ed&&!editing)?h("button",{"class":"btn small",type:"button",onclick:function(){editReason[t.id]=true;focusReq={tid:t.id,field:"reason"};render();}},"Edit reason"):null,
@@ -3516,6 +3522,9 @@ function runningOf(t){var r=null;timeOf(t).forEach(function(w){if(w.kind==="work
 function openPauseOf(t){var r=null;timeOf(t).forEach(function(w){if(w.kind==="pause"&&!w.ended_at)r=w;});return r;}
 function spanSecs(w){var a=Date.parse(w.started_at),b=w.ended_at?Date.parse(w.ended_at):nowMs();return Math.max(0,(b-a)/1000);}
 function liveMain(t){var w=runningOf(t);return num(t.actual)+(w&&!w.round_id?spanSecs(w)/3600:0);}
+/* hours spent on review comments: the comment rows, with the running timer if it is on one */
+function cmtRounds(t){return roundsOf(t).filter(function(r){return r.kind==="comment";});}
+function liveCmt(t){var rs=cmtRounds(t),w=runningOf(t),a=0;rs.forEach(function(r){a+=num(r.actual)+(w&&w.round_id===r.id?spanSecs(w)/3600:0);});return a;}
 function liveRound(r){var t={id:r.task_id},w=runningOf(t);return num(r.actual)+(w&&w.round_id===r.id?spanSecs(w)/3600:0);}
 function liveAct(t){var w=runningOf(t);return actT(t)+(w?spanSecs(w)/3600:0);}
 function liveRem(t){return t.status==="Completed"?0:Math.max(0,estT(t)-liveAct(t));}
@@ -3626,6 +3635,7 @@ function tick(){
     if(!t)return;
     if(k==="main")el.textContent=fmt(Math.round(liveMain(t)*100)/100);
     else if(k==="tot")el.textContent="total "+fmt(Math.round(liveAct(t)*100)/100);
+    else if(k==="cmth")el.textContent=fmt(Math.round(liveCmt(t)*100)/100);
     else if(k==="rem")el.textContent=fmt(Math.round(liveRem(t)*100)/100);
     else if(k==="clock")el.textContent=clockTxt(liveAct(t));
     else if(k==="pz"){var p=openPauseOf(t);if(p)el.textContent=durTxt(spanSecs(p));}
