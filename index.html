@@ -748,6 +748,35 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
+dialog.pr-pop{width:min(520px,calc(100vw - 24px));border:0;border-radius:18px;padding:0;overflow:visible;background:transparent;box-shadow:none}
+dialog.pr-pop::backdrop{background:rgba(8,20,32,.78);animation:prFade .3s ease-out}
+.pr-in{position:relative;padding:34px 28px 26px;border-radius:18px;text-align:center;color:#fff;background:linear-gradient(135deg,#0B7F82,#0d5f8c 55%,#13324f);
+  box-shadow:0 0 0 4px rgba(255,255,255,.12),0 30px 90px rgba(0,0,0,.55);animation:prPop .55s cubic-bezier(.2,1.4,.4,1) both,prShake 4s ease-in-out 1.2s infinite}
+.pr-pop.out .pr-in{background:linear-gradient(135deg,#d9590f,#b8321f 55%,#5a1a2b)}
+.pr-pop.out.last .pr-in{background:linear-gradient(135deg,#c81e3a,#8f1430 60%,#3d0c1d)}
+.pr-in::before{content:"";position:absolute;inset:-4px;border-radius:21px;padding:4px;background:linear-gradient(90deg,#ffd166,#fff,#ffd166);background-size:200% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:prGlow 2s linear infinite;pointer-events:none}
+.pr-ic{position:relative;width:96px;height:96px;margin:0 auto 14px}
+.pr-ring{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(255,255,255,.75);animation:prRing 1.8s ease-out infinite}
+.pr-ring.r2{animation-delay:.9s}
+.pr-clock{position:absolute;inset:14px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 5px rgba(0,0,0,.12);animation:prBounce 1.8s ease-in-out infinite}
+.pr-clock i{position:absolute;left:50%;bottom:50%;width:4px;margin-left:-2px;border-radius:2px;background:#13324f;transform-origin:50% 100%}
+.pr-h{height:20px;transform:rotate(240deg)}.pr-m{height:27px;animation:prSpin 3s linear infinite}
+.pr-in h3{margin:0 0 8px;font-family:var(--font-display);font-weight:600;font-size:32px;letter-spacing:.05em;text-transform:uppercase;line-height:1.1}
+.pr-in p{margin:0 auto 20px;max-width:380px;font-size:17px;line-height:1.45;color:rgba(255,255,255,.92)}
+.pr-acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btn.pr-go{background:#fff;color:#13324f;border-color:#fff;font-size:18px;font-weight:700;padding:12px 30px;animation:prPulse 1.4s ease-in-out infinite}
+.btn.pr-later{color:#fff;border-color:rgba(255,255,255,.55);background:transparent}
+.btn.pr-later:hover{background:rgba(255,255,255,.12)}
+@keyframes prPop{0%{transform:scale(.6) translateY(30px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes prShake{0%,86%,100%{transform:none}88%{transform:rotate(-2.5deg)}90%{transform:rotate(2.5deg)}92%{transform:rotate(-2deg)}94%{transform:rotate(2deg)}96%{transform:rotate(-1deg)}}
+@keyframes prRing{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.5);opacity:0}}
+@keyframes prBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes prSpin{to{transform:rotate(360deg)}}
+@keyframes prPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
+@keyframes prGlow{to{background-position:-200% 0}}
+@keyframes prFade{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.pr-in,.pr-ring,.pr-clock,.pr-m,.btn.pr-go,.pr-in::before{animation:none!important}}
 .fine .fsearch{flex:2 1 240px}
 .fine .fsearch input{padding-left:32px;background:var(--surface) no-repeat 10px center/15px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23889' stroke-width='2.4' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M20 20l-4-4'/></svg>")}
 mark.hl{background:color-mix(in srgb,var(--gold-mark) 40%,transparent);color:inherit;border-radius:3px;padding:0 1px}
@@ -1271,6 +1300,8 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
         <fieldset class="rm-days" id="rmDays"><legend>Working days</legend></fieldset>
       </div>
       <label class="copy-chk">Required office hours per day <input type="number" id="attHours" class="inl-num" min="1" max="16" step="0.25" aria-label="Required office hours per day"></label>
+      <label class="copy-chk"><input type="checkbox" id="prOn"> Remind to clock in at <input type="time" id="prIn" class="inl-time" aria-label="Clock-in reminder time"></label>
+      <label class="copy-chk">Remind to clock out at <input type="text" id="prOut" class="inl-time" style="width:170px" placeholder="17:00, 17:30, 18:00" aria-label="Clock-out reminder times"></label>
       <label class="copy-chk">Permission allowed per person a month <input type="number" id="permHours" class="inl-num" min="0" max="40" step="0.5" aria-label="Permission hours a month"> h</label>
       <label class="copy-chk"><input type="checkbox" id="motdOn"> Show the daily award to everyone, titled <input type="text" id="motdTitle" class="inl-time" maxlength="40" aria-label="Award title" style="width:170px"></label>
       <label class="copy-chk">When a female engineer wins, titled <input type="text" id="motdTitleF" class="inl-time" maxlength="40" aria-label="Award title for a female engineer" style="width:170px"></label>
@@ -1442,6 +1473,15 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="err" id="kcErr" role="alert"></p>
   </div>
   <div class="dlg-f"><button class="btn" id="kcCancel" type="button">Cancel</button><button class="btn primary" id="kcSave" type="button">Save</button></div>
+</dialog>
+
+<dialog id="prPop" class="pr-pop" aria-labelledby="prKick">
+  <div class="pr-in">
+    <div class="pr-ic" aria-hidden="true"><span class="pr-ring"></span><span class="pr-ring r2"></span><span class="pr-clock"><i class="pr-h"></i><i class="pr-m"></i></span></div>
+    <h3 id="prKick">Clock in</h3>
+    <p id="prMsg"></p>
+    <div class="pr-acts"><button class="btn pr-go" id="prGo" type="button">Clock in now</button><button class="btn ghost pr-later" id="prLater" type="button">Later</button></div>
+  </div>
 </dialog>
 
 <dialog id="attDlg" aria-labelledby="attTitle">
@@ -3031,7 +3071,7 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopPR();attReady=false;stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
   ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
@@ -3042,7 +3082,7 @@ function enter(session){
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
     me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();loadAtt();
-    return loadAll().then(function(){subscribe();startBc();if(S.view==="kpi")loadKpi();});
+    return loadAll().then(function(){subscribe();startBc();startPR();if(S.view==="kpi")loadKpi();});
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
     if(c==="42P01"||c==="PGRST205"||c==="PGRST202"||/does not exist|could not find the (table|function)/i.test(m))showAuth("blocked","The database is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then reload this page.");
@@ -3248,7 +3288,7 @@ function renderRemind(){
   var wd=(c.workdays||"0,1,2,3,4").split(","),box=$("rmDays");
   Array.prototype.slice.call(box.querySelectorAll("label")).forEach(function(l){l.remove();});
   DAYS.forEach(function(d,i){var cb=h("input",{type:"checkbox",value:String(i)});cb.checked=wd.indexOf(String(i))>=0;box.append(h("label",null,cb,d));});
-  $("attHours").value=c.attend_hours||"7.5";$("permHours").value=c.perm_hours||"4";
+  $("attHours").value=c.attend_hours||"7.5";$("prOn").checked=(c.punch_remind_on||"on")==="on";$("prIn").value=c.punch_in_at||"08:00";$("prOut").value=c.punch_out_at||"17:00, 17:30, 18:00";$("permHours").value=c.perm_hours||"4";
   $("motdOn").checked=(c.motd_on||"on")==="on";$("motdTitle").value=c.motd_title||"Man of the day";$("motdTitleF").value=c.motd_title_f||"Star of the day";
   $("rmMsg").textContent="";
 }
@@ -3260,7 +3300,7 @@ function saveRemind(){
   if(!days.length){$("rmMsg").textContent="Pick at least one working day.";return;}
   var v={remind_hours_on:$("rmHoursOn").checked?"on":"off",remind_hours_at:at.slice(0,5),remind_ack_on:$("rmAckOn").checked?"on":"off",
          remind_ack_hours:String(hrs),timezone:$("rmTz").value,workdays:days.join(","),
-         attend_hours:String(num($("attHours").value)>0?num($("attHours").value):7.5),perm_hours:String(num($("permHours").value)>=0&&$("permHours").value!==""?num($("permHours").value):4),
+         attend_hours:String(num($("attHours").value)>0?num($("attHours").value):7.5),punch_remind_on:$("prOn").checked?"on":"off",punch_in_at:$("prIn").value||"08:00",punch_out_at:prTimes($("prOut").value).join(", ")||"17:00, 17:30, 18:00",perm_hours:String(num($("permHours").value)>=0&&$("permHours").value!==""?num($("permHours").value):4),
          motd_on:$("motdOn").checked?"on":"off",motd_title:$("motdTitle").value.trim()||"Man of the day",motd_title_f:$("motdTitleF").value.trim()||"Star of the day"};
   var rows=Object.keys(v).map(function(k){return {key:k,value:v[k]};});$("btnRmSave").disabled=true;$("rmMsg").textContent="";
   run(sb.from("tt_config").upsert(rows)).then(function(){S.cfg=S.cfg||{};for(var k in v)S.cfg[k]=v[k];$("rmMsg").textContent="Settings saved.";loadMotd();render();})
@@ -4184,7 +4224,7 @@ function loadAtt(){
     .then(function(d){attRows=(d||[]).map(row2att).filter(function(x){return x.day<=r.to;});});
   var q2=canPunch()?run(sb.from("tt_attendance").select("id,email,engineer,full_name,discipline,day,in_at,out_at,edited_by").eq("email",me.email).is("out_at",null).order("in_at",{ascending:false}).range(0,9))
     .then(function(d){attMine=null;(d||[]).map(row2att).forEach(function(x){if(!attMine&&x.day===today())attMine=x;});}):Promise.resolve();
-  return Promise.all([q1,q2,loadReq()]).then(function(){paintPunch();if(S.view==="attendance")renderAtt();}).catch(function(){});
+  return Promise.all([q1,q2,loadReq()]).then(function(){attReady=true;paintPunch();if(S.view==="attendance")renderAtt();}).catch(function(){});
 }
 function sesHours(x){var a=Date.parse(x.in_at),b=x.out_at?Date.parse(x.out_at):(x.day===today()?nowMs():null);return b===null?0:Math.max(0,(b-a)/3600000);}
 function hm(hrs){var m=Math.round(hrs*60),s=m<0?"-":"";m=Math.abs(m);return s+Math.floor(m/60)+":"+(m%60<10?"0":"")+(m%60);}
@@ -4992,6 +5032,60 @@ function taskOrder(a,b){
   fs.addEventListener("input",function(){if(tm)clearTimeout(tm);tm=setTimeout(function(){S.f.q=fs.value;render();},180);});
   fs.addEventListener("keydown",function(ev){if(ev.key==="Escape"){fs.value="";S.f.q="";render();}});
   so.addEventListener("change",function(){taskSort=so.value;try{localStorage.setItem("stt.sort",taskSort);}catch(e){}render();});})();
+
+/* ---------- clock-in / clock-out reminders (8:00 in; 17:00, 17:30, 18:00 out) ---------- */
+var attReady=false,prTimer=null,prFlash=null,prRing=null,prKind="";
+function prTimes(v){return String(v||"").split(/[,\s]+/).map(function(x){var m=/^(\d{1,2}):(\d{2})$/.exec(x.trim());if(!m)return "";var hh=+m[1],mm=+m[2];
+  return hh<24&&mm<60?(hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm:"";}).filter(Boolean).sort().slice(0,8);}
+function prCfg(){var c=S.cfg||{};return {on:(c.punch_remind_on||"on")==="on",inAt:prTimes(c.punch_in_at||"08:00")[0]||"08:00",out:prTimes(c.punch_out_at||"17:00, 17:30, 18:00")};}
+/* the office clock: time and weekday in the tracker's time zone */
+function officeNow(){var tz=(S.cfg||{}).timezone||"Africa/Cairo",d=new Date(nowMs());
+  try{var p=new Intl.DateTimeFormat("en-GB",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false,weekday:"short"}).formatToParts(d),o={};
+    p.forEach(function(x){o[x.type]=x.value;});var wd={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[o.weekday];
+    return {day:o.year+"-"+o.month+"-"+o.day,hm:(o.hour==="24"?"00":o.hour)+":"+o.minute,wd:wd};}catch(e){return {day:today(),hm:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),wd:d.getDay()};}}
+function prState(){try{return JSON.parse(localStorage.getItem("tt-pr")||"{}")||{};}catch(e){return {};}}
+function prSave(st){try{localStorage.setItem("tt-pr",JSON.stringify(st));}catch(e){}}
+function startPR(){stopPR();prTimer=setInterval(prCheck,20000);setTimeout(prCheck,2500);}
+function stopPR(){if(prTimer)clearInterval(prTimer);prTimer=null;prStopFx();try{if($("prPop").open)$("prPop").close();}catch(e){}}
+function prCheck(){
+  if(!me||!canPunch()||!sb||!attReady)return;var c=prCfg();if(!c.on)return;
+  var n=officeNow(),wd=((S.cfg||{}).workdays||"0,1,2,3,4").split(",");if(wd.indexOf(String(n.wd))<0)return;
+  if(typeof leaveOn==="function"&&leaveOn(approvedReqs(me.email),n.day))return;
+  var st=prState();if(st.day!==n.day)st={day:n.day,done:{},snooze:0};
+  if($("prPop").open)return;
+  var lastOut=c.out.length?c.out[c.out.length-1]:"23:59";
+  /* morning: not clocked in yet */
+  if(!attMine&&n.hm>=c.inAt&&n.hm<lastOut&&!st.done["in"]&&nowMs()>=(st.snooze||0)){prShow("in",st);return;}
+  /* evening: still clocked in at each reminder time */
+  if(attMine){var due=c.out.filter(function(t){return n.hm>=t&&!st.done["out"+t];});
+    if(due.length&&nowMs()>=(st.snooze||0)){due.forEach(function(t){st.done["out"+t]=1;});prShow("out",st,due[due.length-1],c.out.indexOf(due[due.length-1])===c.out.length-1);}}
+}
+function prShow(kind,st,at,last){
+  prKind=kind;prSave(st);
+  var n=officeNow(),name=(me.full_name||"").split(" ")[0]||"there";
+  $("prPop").className="pr-pop "+kind+(last?" last":"");
+  $("prKick").textContent=kind==="in"?"Good morning, "+name:"Don't forget to clock out";
+  $("prMsg").textContent=kind==="in"?"You have not clocked in yet today. Clock in now so your day counts.":
+    (last?"It is "+n.hm+" and you are still clocked in. Clock out before you leave, or your day stays open.":"It is "+n.hm+". If you are leaving, clock out first.");
+  $("prGo").textContent=kind==="in"?"Clock in now":"Clock out now";
+  $("prLater").textContent=kind==="in"?"Remind me in 10 minutes":"I am still working";
+  try{$("prPop").showModal();}catch(e){}
+  beep();prStopFx();var on=false;
+  prFlash=setInterval(function(){on=!on;document.title=on?(kind==="in"?"⏰ CLOCK IN":"⏰ CLOCK OUT"):baseTitle;},900);
+  prRing=setInterval(function(){if($("prPop").open)beep();},20000);
+  osNotify(kind==="in"?"Clock in":"Clock out",$("prMsg").textContent,{tag:"pr-"+kind,always:true,sticky:true});
+}
+function prStopFx(){if(prFlash)clearInterval(prFlash);if(prRing)clearInterval(prRing);prFlash=prRing=null;if(me)document.title=baseTitle;}
+function prClose(how){
+  var st=prState(),n=officeNow();if(st.day!==n.day)st={day:n.day,done:{},snooze:0};
+  if(how==="later"&&prKind==="in")st.snooze=nowMs()+10*60000;
+  if(how==="go"||prKind==="out")st.snooze=0;
+  if(how==="go"&&prKind==="in")st.done["in"]=1;
+  prSave(st);prStopFx();$("prPop").close();
+  if(how==="go"&&((prKind==="in"&&!attMine)||(prKind==="out"&&attMine)))punch();
+}
+(function(){var g=$("prGo");if(!g)return;g.addEventListener("click",function(){prClose("go");});$("prLater").addEventListener("click",function(){prClose("later");});
+  $("prPop").addEventListener("cancel",function(ev){ev.preventDefault();});})();
 
 start();
 })();
