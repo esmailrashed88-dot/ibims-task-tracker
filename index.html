@@ -2273,7 +2273,9 @@ function roundRow(t,r,fl,more){
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
     h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
-    h("label",{title:"Counted by the task timer"},"Actual h",canA?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num","data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})),
+    h("label",{title:"Counted by the task timer"},"Actual h",(canA&&rdFix[r.id])?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num"},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})),
+      (canA&&!rdFix[r.id])?h("button",{"class":"btn small quiet",type:"button",title:"Correct the timed hours",onclick:function(){rdFix[r.id]=1;render();}},"correct"):null),
+    rdTimer(t,r,done),
     done?h("span",{"class":"rd-pill rd-done",text:(nd?"Finished":"Comment done")+(r.done_at?" · "+niceStamp(r.done_at):"")})
         :h("span",{"class":"rd-pill rd-open",text:nd?"In progress":"Comment open"}),
     (!done&&ed)?h("button",{"class":"btn small primary",type:"button",onclick:function(ev){roundDone(r,ev.currentTarget);}},nd?"Mark finished":"Mark comment done"):null,
@@ -3525,6 +3527,14 @@ function liveMain(t){var w=runningOf(t);return num(t.actual)+(w&&!w.round_id?spa
 /* hours spent on review comments: the comment rows, with the running timer if it is on one */
 function cmtRounds(t){return roundsOf(t).filter(function(r){return r.kind==="comment";});}
 function liveCmt(t){var rs=cmtRounds(t),w=runningOf(t),a=0;rs.forEach(function(r){a+=num(r.actual)+(w&&w.round_id===r.id?spanSecs(w)/3600:0);});return a;}
+var rdFix={};
+/* the timer state on a comment or next-day row */
+function rdTimer(t,r,done){
+  if(done||!t.ack)return null;var w=runningOf(t);
+  if(w&&w.round_id===r.id)return h("span",{"class":"tm-state run rd-tm"},h("i"),"Timer on this "+(r.kind==="nextday"?"row":"comment")+" ",h("span",{"class":"tm-clock","data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})," h");
+  if(!w&&canRunTimer(t)&&r.status!=="Done"&&t.status!=="Delayed"&&t.status!=="On Hold"&&t.status!=="Completed")
+    return h("button",{"class":"btn small primary",type:"button",onclick:function(ev){timerAct(t,"start","",ev.currentTarget);}},r.kind==="nextday"?"Start timer":"Start comment timer");
+  return null;}
 function liveRound(r){var t={id:r.task_id},w=runningOf(t);return num(r.actual)+(w&&w.round_id===r.id?spanSecs(w)/3600:0);}
 function liveAct(t){var w=runningOf(t);return actT(t)+(w?spanSecs(w)/3600:0);}
 function liveRem(t){return t.status==="Completed"?0:Math.max(0,estT(t)-liveAct(t));}
@@ -3546,7 +3556,7 @@ function timerLine(t){
   if(!rows.length&&(done||!ctl))return null;
   var now=h("div",{"class":"tm-now"});
   if(done)now.append(h("span",{"class":"tm-state idle",text:"Worked "+fmt(Math.round(liveAct(t)*100)/100)+" h"}));
-  else if(w){now.append(h("span",{"class":"tm-state run"},h("i"),"Working ",h("span",{"class":"tm-clock","data-live":"clock","data-tid":t.id,text:clockTxt(liveAct(t))})));
+  else if(w){now.append(h("span",{"class":"tm-state run"},h("i"),w.round_id?(function(){var rr=roundsOf(t).filter(function(x){return x.id===w.round_id;})[0];return rr&&rr.kind==="comment"?"On comment "+rr.round+" · ":"Working ";})():"Working ",h("span",{"class":"tm-clock","data-live":"clock","data-tid":t.id,text:clockTxt(liveAct(t))})));
     if(ctl)now.append(h("button",{"class":"btn small",type:"button",onclick:function(){openPause(t);}},"Pause"));}
   else if(p){now.append(h("span",{"class":"tm-state pz"},"Paused · "+p.reason+" · ",h("span",{"class":"tm-clock","data-live":"pz","data-tid":t.id,text:durTxt(spanSecs(p))})));
     if(ctl&&t.status!=="Delayed"&&t.status!=="On Hold")now.append(h("button",{"class":"btn small primary",type:"button",onclick:function(ev){timerAct(t,"start","",ev.currentTarget);}},t.status==="Next Day"?"Start today":"Resume"));}
