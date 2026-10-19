@@ -2251,6 +2251,10 @@ function commitRound(r,field,inp){
   if(rebuilding||!sb||inp.disabled)return;
   var v=num(inp.value);
   if(v===num(r[field])){inp.value=num(r[field])?fmt(r[field]):"";return;}
+  if(isEng()&&field==="est"&&v>0){
+    var ok=false;try{ok=window.confirm("Set "+fmt(v)+" h as the estimate for this comment?\n\nYou can set it only once. After that only your lead can change it.");}catch(e){ok=true;}
+    if(!ok){inp.value="";return;}}
+  if(isEng()&&field!=="est")return;
   var patch={};patch[field]=v;inp.disabled=true;
   run(sb.from("tt_rounds").update(patch).eq("id",r.id).select().single()).then(function(d){
     upsertRound(d);toast((field==="est"?"Estimated hours saved":"Actual hours saved")+(isEng()?" and locked":""));render();
@@ -2272,7 +2276,7 @@ function roundRow(t,r,fl,more){
   return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"16"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
-    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:"0"}):h("strong",{"class":"num",text:fmt(num(r.est))})),
+    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:isEng()?"set once":"0",title:isEng()?"You can set it only once":null}):h("strong",{"class":"num",title:"Locked"},h("span",{"class":"lock-ic","aria-hidden":"true"}),fmt(num(r.est)))),
     h("label",{title:"Counted by the task timer"},"Actual h",(canA&&rdFix[r.id])?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num"},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})),
       (canA&&!rdFix[r.id])?h("button",{"class":"btn small quiet",type:"button",title:"Correct the timed hours",onclick:function(){rdFix[r.id]=1;render();}},"correct"):null),
     rdTimer(t,r,done),
