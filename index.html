@@ -754,6 +754,11 @@ select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);back
 .dv-body{display:grid;gap:14px}
 .dv-body,.dv-out{grid-template-columns:minmax(0,1fr)}.dv-sec{min-width:0}
 .dv-back{margin-left:6px;padding:2px 8px;font-size:12px}
+.dv-src{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:-4px 0 14px;padding:8px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:9px;background:var(--surface);font-size:13px}
+.dv-src[hidden]{display:none}.dv-src .dot{width:9px;height:9px;border-radius:50%;background:var(--ok,var(--accent))}.dv-src.err{border-left-color:var(--bad)}.dv-src.err .dot{background:var(--bad)}
+.dv-src .grow{flex:1 1 240px;color:var(--muted)}.dv-src .grow b{color:var(--ink)}
+.dv-src.busy .dot{animation:prBounce 1s ease-in-out infinite}
+.dv-pc .dv-live{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
 .dv-projs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}.dv-projs[hidden]{display:none}
 .dv-pc{display:grid;gap:3px;min-width:170px;text-align:left;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
 .dv-pc:hover{border-color:var(--accent)}.dv-pc[aria-pressed="true"]{border-color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft,color-mix(in srgb,var(--accent) 10%,var(--surface)))}
@@ -1227,8 +1232,9 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div id="viewDeliv" class="view" hidden>
     <div class="mhead"><div><h2>TIDP</h2><p id="dlvSub"></p></div>
       <div class="kpi-tools"><label class="field att-month" id="dlvProjWrap" hidden><span>Project</span><select id="dlvProj"></select></label>
-        <button class="btn danger" id="dlvRemove" type="button" hidden>Remove list</button><button class="btn primary" id="dlvUpload" type="button" hidden>Upload Excel</button><input type="file" id="dlvFile" accept=".xlsx,.xlsm" hidden></div></div>
+        <button class="btn danger" id="dlvRemove" type="button" hidden>Remove list</button><button class="btn" id="dlvLink" type="button" hidden>Link online sheet</button><button class="btn primary" id="dlvUpload" type="button" hidden>Upload Excel</button><input type="file" id="dlvFile" accept=".xlsx,.xlsm" hidden></div></div>
     <nav class="dv-projs" id="dlvProjBar" aria-label="Projects" hidden></nav>
+    <section class="dv-src" id="dlvSrc" aria-live="polite" hidden></section>
     <section class="stats" id="dlvStats" aria-label="Drawing summary"></section>
     <p class="err" id="dlvErr" role="alert" hidden></p>
     <div id="dlvBody" class="dv-body"></div>
@@ -1579,6 +1585,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="team-b">
     <p class="hint" id="diInfo"></p>
     <div class="copy-dates"><label class="field"><span>Project</span><select id="diProj"></select></label><label class="field" id="diNewWrap" hidden><span>New project name</span><input id="diNew" type="text" maxlength="60" placeholder="e.g. ALKHOBAR"></label><label class="field"><span>Discipline</span><select id="diDisc"></select></label></div>
+    <label class="dv-one"><input type="checkbox" id="diGone" checked> This is a pending list: a drawing removed from the sheet counts as Submitted (and goes back to Revise if it returns)</label>
     <div id="diPrev"></div>
     <p class="hint">Drawings already uploaded keep their status and tasks; their title and target date are updated. Drawings that are no longer in the sheet are kept but marked.</p>
     <p class="err" id="diErr" role="alert"></p>
@@ -1595,6 +1602,21 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="err" id="ddErr" role="alert"></p>
   </div>
   <div class="dlg-f"><button class="btn" id="ddCancel" type="button">Cancel</button><button class="btn danger" id="ddGo" type="button">Remove</button></div>
+</dialog>
+
+<dialog id="dlvLinkDlg" class="kpi-dlg" aria-labelledby="dlTitle">
+  <div class="dlg-h"><h3 id="dlTitle">Link the online sheet</h3></div>
+  <div class="team-b">
+    <p class="hint">Paste the share link of the Excel file on OneDrive (Share → Copy link, “Anyone with the link can view”) or a Google Sheet shared as “Anyone with the link”. The app reads it on its own every few minutes while someone who manages TIDP has the tracker open.</p>
+    <label class="field"><span>Share link</span><input id="dlUrl" type="url" placeholder="https://1drv.ms/x/c/…" autocomplete="off"></label>
+    <div class="copy-dates"><label class="field"><span>Project</span><select id="dlProj"></select></label><label class="field" id="dlNewWrap" hidden><span>New project name</span><input id="dlNew" type="text" maxlength="60"></label>
+      <label class="field"><span>Discipline</span><select id="dlDisc"></select></label>
+      <label class="field"><span>Check every</span><select id="dlEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label></div>
+    <p class="hint">The sheet is treated as a pending list: drawings that leave it become <b>Submitted</b>, new rows are added, changed dates are updated, and a drawing that comes back becomes <b>Revise</b>. A “Status” column (Submitted / Approved / Revise / No need), if the sheet has one, is applied too.</p>
+    <p class="hint" id="dlTest"></p>
+    <p class="err" id="dlErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="dlCancel" type="button">Cancel</button><button class="btn" id="dlCheck" type="button">Check link</button><button class="btn primary" id="dlGo" type="button">Link and read now</button></div>
 </dialog>
 
 <dialog id="attDlg" aria-labelledby="attTitle">
@@ -2265,6 +2287,7 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_broadcasts"},function(){loadBc();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_deliverables"},function(){dlvLater();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_deliv_tasks"},function(){dlvLater();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_tidp_sources"},function(){dlvLater();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_user_perms"},function(){loadConfig().then(function(){render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_config"},function(p){if(p["new"]&&p["new"].key==="perms")loadConfig().then(function(){render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_kpi"},function(){if(S.view==="kpi"||$("kpiDlg").open)loadKpi();})
@@ -3201,9 +3224,9 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};dlvSrc=[];stopTidpSync();stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
-  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg","dlvLinkDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
 }
 function enter(session){
@@ -5410,9 +5433,12 @@ function row2dlv(o){return {id:String(o.id),project:String(o.project||""),discip
 function loadDeliv(){
   if(!sb||!me||!canDeliv())return Promise.resolve();
   function page(tbl,cols,from,acc){return run(sb.from(tbl).select(cols).range(from,from+999)).then(function(d){d=d||[];acc=acc.concat(d);return d.length===1000?page(tbl,cols,from+1000,acc):acc;});}
-  return Promise.all([page("tt_deliverables","*",0,[]),page("tt_deliv_tasks","deliverable_id,task_id",0,[])]).then(function(r){
+  return Promise.all([page("tt_deliverables","*",0,[]),page("tt_deliv_tasks","deliverable_id,task_id",0,[]),
+    sb.from("tt_tidp_sources").select("*").then(function(x){return x&&!x.error&&x.data?x.data:[];},function(){return [];})]).then(function(r){
+    dlvSrc=(r[2]||[]).map(function(o){return {project:String(o.project),discipline:String(o.discipline||""),url:String(o.url||""),every:num(o.every_min)||15,
+      synced_at:o.synced_at||"",checked_at:o.checked_at||"",last_hash:String(o.last_hash||""),last_result:o.last_result||null,last_error:String(o.last_error||"")};});
     dlv=r[0].map(row2dlv);dlvLinks=r[1].map(function(x){return {d:String(x.deliverable_id),t:String(x.task_id)};});dlvLoaded=true;
-    paintDlvBadge();if(S.view==="deliv")renderDeliv();renderDlvNote();},function(){});
+    paintDlvBadge();if(S.view==="deliv")renderDeliv();renderDlvNote();startTidpSync();},function(){});
 }
 var dlvSoon=null;function dlvLater(){if(dlvSoon)clearTimeout(dlvSoon);dlvSoon=setTimeout(function(){dlvSoon=null;loadDeliv();},1200);}
 function dlvTasks(d){var ids={};dlvLinks.forEach(function(l){if(l.d===d.id)ids[l.t]=1;});return S.tasks.filter(function(t){return ids[t.id];});}
@@ -5450,12 +5476,13 @@ function renderDeliv(){
   var projs=dlvProjects();if(dlvF.proj&&projs.indexOf(dlvF.proj)<0)dlvF.proj="";var proj=dlvF.proj||projs[0]||"";
   var ps=clear($("dlvProj"));projs.forEach(function(p){ps.append(h("option",{value:p,text:p}));});ps.value=proj;$("dlvProjWrap").hidden=true;
   $("dlvUpload").textContent=projs.length?"Upload Excel for "+proj:"Upload Excel";
-  $("dlvRemove").hidden=!canDelivManage()||!projs.length;$("dlvRemove").textContent="Remove "+proj+" list";
+  $("dlvRemove").hidden=!canDelivManage()||!projs.length;$("dlvLink").hidden=!canDelivManage();
+  var src=srcOf(proj);$("dlvLink").textContent=src?"Change link":"Link online sheet";renderDlvSrc(src);$("dlvRemove").textContent="Remove "+proj+" list";
   var bar=clear($("dlvProjBar"));bar.hidden=!dlvLoaded||(!projs.length&&!canDelivManage());
   projs.forEach(function(p){var ds=dlv.filter(function(d){return d.project===p&&d.in_sheet;}),cc=dlvCounts(ds),dn=ds.filter(function(d){return dlvState(d).done;}).length,pc=ds.length?Math.round(dn/ds.length*100):0;
     var al=h("span",{"class":"dv-pa"});if(cc.late)al.append(h("span",{"class":"l",text:cc.late+" late"}));if(cc.late&&cc.soon)al.append(" · ");if(cc.soon)al.append(h("span",{"class":"s",text:cc.soon+" due soon"}));if(!cc.late&&!cc.soon)al.append(h("span",{"class":"dv-pm",text:"nothing due soon"}));
     bar.append(h("button",{type:"button","class":"dv-pc","aria-pressed":String(p===proj),title:"Show the drawings of "+p,onclick:function(){if(dlvF.proj===p)return;dlvGoProj(p,"");renderDeliv();}},
-      h("b",{text:p}),h("span",{"class":"dv-pm",text:ds.length+" drawings · "+pc+"% done"}),h("span",{"class":"dv-pbar"},h("i",{style:"width:"+pc+"%"})),al));});
+      h("b",{text:p}),srcOf(p)?h("span",{"class":"dv-live",text:"● linked to online sheet"}):null,h("span",{"class":"dv-pm",text:ds.length+" drawings · "+pc+"% done"}),h("span",{"class":"dv-pbar"},h("i",{style:"width:"+pc+"%"})),al));});
   if(canDelivManage())bar.append(h("button",{type:"button","class":"dv-pc add",title:"Upload the drawing list of another project",onclick:function(){dlvNewProj=true;dlvPickFile();}},"+ Add project list"));
   if(!dlvLoaded){host.append(h("div",{"class":"empty"},h("p",{text:"Loading…"})));return;}
   if(!dlv.length){host.append(h("div",{"class":"empty"},h("p",{text:canDelivManage()?"No TIDP yet. Click Upload Excel and pick the sheet with the drawing list.":"No TIDP has been uploaded yet."})));
@@ -5550,6 +5577,76 @@ function renderDeliv(){
   }
   drawList();
 }
+/* ---------- TIDP linked to an online sheet ---------- */
+var dlvSrc=[],tidpTimer=null,tidpBusy={};
+function srcOf(p){return dlvSrc.filter(function(x){return x.project===p;})[0]||null;}
+function dlvResTxt(r){r=r||{};var b=[(r.added||0)+" new",(r.updated||0)+" updated"];if(r.submitted)b.push(r.submitted+" submitted");if(r.back)b.push(r.back+" back for revision");if(r.missing)b.push(r.missing+" no longer in the sheet");return b.join(", ");}
+/* a share link → a link the browser can download the workbook from */
+function tidpDownloadUrl(u){u=String(u||"").trim();var m;
+  if((m=/^https:\/\/1drv\.ms\/[a-z]\/c\/([0-9a-f]+)\/([A-Za-z0-9_-]+)/i.exec(u)))return "https://my.microsoftpersonalcontent.com/personal/"+m[1].toLowerCase()+"/_layouts/15/download.aspx?share="+m[2];
+  if((m=/^https:\/\/onedrive\.live\.com\/.*[?&]cid=([0-9a-f]+).*[?&]resid=([^&]+)/i.exec(u)))return u.replace("/edit","/download").replace("/view.aspx","/download");
+  if((m=/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)/.exec(u)))return "https://docs.google.com/spreadsheets/d/"+m[1]+"/export?format=xlsx";
+  if(/^https:\/\/[^/]+\.sharepoint\.com\//i.test(u))return u+(u.indexOf("?")<0?"?":"&")+"download=1";
+  return u;}
+function tidpFetch(url){var d=tidpDownloadUrl(url);
+  return fetch(d,{cache:"no-store"}).then(function(r){if(!r.ok)throw {plain:true,message:r.status===401||r.status===403?"The sheet is not shared with “Anyone with the link”.":"The online sheet could not be read ("+r.status+")."};
+    var ct=r.headers.get("content-type")||"";if(/html/i.test(ct))throw {plain:true,message:"The link opens a web page, not the Excel file. Use Share → Copy link on the file."};return r.arrayBuffer();},
+    function(){throw {plain:true,message:"The online sheet could not be reached. Check the link and that it is shared with “Anyone with the link”."};}).then(dlvParse);}
+function tidpHash(rows){var s=JSON.stringify(rows),h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)+"."+rows.length;}
+function tidpSyncOne(src,force){
+  if(tidpBusy[src.project]||!canDelivManage()||!inScope(src.discipline))return Promise.resolve(null);
+  tidpBusy[src.project]=true;if(S.view==="deliv")renderDlvSrc(srcOf(dlvF.proj||dlvProjects()[0]||""));
+  var out=null;
+  return run(sb.rpc("tt_tidp_claim",{p_project:src.project,p_force:!!force})).then(function(ok){if(!ok)return null;
+    return tidpFetch(src.url).then(function(p){var hsh=tidpHash(p.rows);
+      if(!force&&hsh===src.last_hash)return run(sb.rpc("tt_tidp_done",{p_project:src.project,p_hash:hsh,p_result:null,p_error:""})).then(function(){return {same:true};});
+      return run(sb.rpc("tt_deliv_import",{p_project:src.project,p_discipline:src.discipline,p_rows:p.rows,p_gone:"submitted",p_notify:true})).then(function(res){out=res||{};
+        return run(sb.rpc("tt_tidp_done",{p_project:src.project,p_hash:hsh,p_result:out,p_error:""}));}).then(function(){return out;});},
+    function(e){var msg=(e&&e.plain)?e.message:"The online sheet could not be read as an Excel workbook.";
+      return run(sb.rpc("tt_tidp_done",{p_project:src.project,p_hash:"",p_result:null,p_error:msg})).then(function(){throw e;},function(){throw e;});});})
+  .then(function(r){delete tidpBusy[src.project];if(r&&!r.same)loadTasks().then(function(){render();},function(){});dlvLater();return r;},
+    function(e){delete tidpBusy[src.project];dlvLater();throw e;});
+}
+function tidpTick(){if(!sb||!me||!canDelivManage())return;var now=Date.now();
+  dlvSrc.forEach(function(src){if(!inScope(src.discipline))return;var last=src.checked_at?new Date(src.checked_at).getTime():0;
+    if(!last||now-last>=src.every*60000)tidpSyncOne(src,false).catch(function(){});});}
+function startTidpSync(){if(tidpTimer||!canDelivManage()||!dlvSrc.length)return;tidpTimer=setInterval(tidpTick,60000);setTimeout(tidpTick,3000);}
+function stopTidpSync(){if(tidpTimer){clearInterval(tidpTimer);tidpTimer=null;}tidpBusy={};}
+function agoTxt(iso){if(!iso)return "never";var m=Math.round((Date.now()-new Date(iso).getTime())/60000);if(m<1)return "just now";if(m<60)return m+" min ago";var hh=Math.round(m/60);return hh<24?hh+" h ago":niceStamp(iso);}
+function renderDlvSrc(src){var box=$("dlvSrc");if(!box)return;clear(box);box.hidden=!src;if(!src)return;
+  var busy=!!tidpBusy[src.project],r=src.last_result;box.className="dv-src"+(src.last_error?" err":"")+(busy?" busy":"");
+  var txt=h("span",{"class":"grow"},h("b",{text:"Online sheet "}),busy?"reading now…":"checked "+agoTxt(src.checked_at)+" · every "+src.every+" min"+
+    (src.synced_at?" · last change read "+agoTxt(src.synced_at)+(r?" ("+dlvResTxt(r)+")":""):""));
+  if(src.last_error)txt.append(h("br"),h("span",{"class":"err",text:src.last_error}));
+  box.append(h("span",{"class":"dot","aria-hidden":"true"}),txt,h("a",{href:src.url,target:"_blank",rel:"noopener","class":"btn small quiet"},"Open sheet"));
+  if(canDelivManage()&&inScope(src.discipline)){
+    box.append(h("button",{"class":"btn small",type:"button",disabled:busy?"":null,onclick:function(){tidpSyncOne(src,true).then(function(res){toast(res?src.project+": "+dlvResTxt(res)+".":"Someone else is reading it right now.");},function(e){toast((e&&e.plain)?e.message:writeError(e),true);});}},"Read now"),
+      h("button",{"class":"btn small quiet",type:"button",onclick:function(){if(!confirm("Unlink the online sheet of "+src.project+"? The drawings stay; they just stop updating on their own."))return;
+        run(sb.rpc("tt_tidp_source_remove",{p_project:src.project})).then(function(){toast("Online sheet unlinked.");return loadDeliv();}).catch(function(e){toast(writeError(e),true);});}},"Unlink"));}
+}
+function openDlvLink(){
+  var proj=dlvF.proj||dlvProjects()[0]||"",src=srcOf(proj),ps=clear($("dlProj")),ds=clear($("dlDisc"));
+  var projs=S.settings.projects.slice();dlvProjects().forEach(function(p){if(projs.indexOf(p)<0)projs.push(p);});
+  projs.forEach(function(p){ps.append(h("option",{value:p,text:p}));});ps.append(h("option",{value:"__new",text:"+ New project…"}));ps.value=proj||projs[0]||"__new";
+  var mine=can("view_all")?DISC.map(function(d){return d.k;}):myDiscs();mine.forEach(function(d){ds.append(h("option",{value:d,text:titleCase(d)}));});
+  var disc=src?src.discipline:(dlv.filter(function(d){return d.project===proj;})[0]||{}).discipline;ds.value=mine.indexOf(disc)>=0?disc:(mine.indexOf("STRUCTURE")>=0?"STRUCTURE":mine[0]||"");
+  $("dlUrl").value=src?src.url:"";$("dlEvery").value=String(src?src.every:15);if(!$("dlEvery").value)$("dlEvery").value="15";
+  $("dlNew").value="";$("dlNewWrap").hidden=ps.value!=="__new";$("dlTest").textContent="";$("dlErr").textContent="";$("dlGo").disabled=false;$("dlvLinkDlg").showModal();}
+function dlLinkProj(){return $("dlProj").value==="__new"?$("dlNew").value.trim().toUpperCase().replace(/\s+/g," "):$("dlProj").value;}
+function dlCheck(){var u=$("dlUrl").value.trim();$("dlErr").textContent="";$("dlTest").textContent="Reading the sheet…";
+  if(!/^https:\/\//i.test(u)){$("dlTest").textContent="";$("dlErr").textContent="Paste the https share link first.";return Promise.reject();}
+  return tidpFetch(u).then(function(p){var dated=p.rows.filter(function(x){return x.target_date;}).map(function(x){return x.target_date;}).sort(),st=p.rows.filter(function(x){return x.status;}).length;
+    $("dlTest").textContent="✓ "+p.rows.length+" drawings found in “"+p.sheet+"”"+(dated.length?" · targets "+niceDate(dated[0])+" to "+niceDate(dated[dated.length-1]):"")+(st?" · "+st+" with a status":"")+".";return p;},
+    function(e){$("dlTest").textContent="";$("dlErr").textContent=(e&&e.plain)?e.message:"The online sheet could not be read as an Excel workbook.";throw e;});}
+function dlGo(){var pj=dlLinkProj(),b=$("dlGo");if(!pj){$("dlErr").textContent="Write the project name.";return;}b.disabled=true;
+  dlCheck().then(function(){return run(sb.rpc("tt_tidp_source_set",{p_project:pj,p_discipline:$("dlDisc").value,p_url:$("dlUrl").value.trim(),p_every:+$("dlEvery").value||15}));})
+    .then(function(){dlvGoProj(pj,"");return loadDeliv();}).then(function(){var src=srcOf(pj);$("dlvLinkDlg").close();
+      if(!src)return;toast("Linked. Reading "+pj+" now…");return tidpSyncOne(src,true).then(function(res){toast(pj+" read from the online sheet: "+dlvResTxt(res)+".");});})
+    .catch(function(e){if(e){var m=(e&&e.plain)?e.message:writeError(e);if(/tt_tidp_source_set|does not exist|schema cache/i.test(String(e&&e.message)))m="Run the new database setup (version 31) in Supabase first.";
+      if($("dlvLinkDlg").open)$("dlErr").textContent=m;else toast(m,true);}b.disabled=false;});}
+(function(){if(!$("dlvLink"))return;$("dlvLink").addEventListener("click",openDlvLink);$("dlCancel").addEventListener("click",function(){$("dlvLinkDlg").close();});
+  $("dlCheck").addEventListener("click",function(){dlCheck().catch(function(){});});$("dlGo").addEventListener("click",dlGo);
+  $("dlProj").addEventListener("change",function(){$("dlNewWrap").hidden=this.value!=="__new";});})();
 /* take drawings back from the engineer: tasks with other drawings shrink, an emptied task is deleted if nobody started it */
 function dlvTakeBack(ids){
   var set={};ids.forEach(function(id){set[id]=1;});var docs=dlv.filter(function(d){return set[d.id];}).map(function(d){return d.doc_no;});
@@ -5587,25 +5684,31 @@ function toYmd(v){if(!v)return "";if(v instanceof Date){return v.getUTCFullYear(
   var t=Date.parse(s);return isNaN(t)?"":toYmd(new Date(t));}
 function dlvReadFile(file){
   if(!file)return;$("dlvErr").textContent="";
-  loadLib(LIB_EXCEL).then(function(){return file.arrayBuffer();}).then(function(buf){var wb=new ExcelJS.Workbook();return wb.xlsx.load(buf);}).then(function(wb){
+  file.arrayBuffer().then(dlvParse).then(function(p){dlvImport={rows:p.rows,file:file.name,sheet:p.sheet};openDlvImport();})
+    .catch(function(e){toast((e&&e.plain)?e.message:"This file could not be read as an Excel workbook.",true);});
+}
+function dlvStatusOf(v){var t=String(v||"").trim().toLowerCase();if(!t)return "";if(/no\s*need|cancel/.test(t))return "No need";if(/approv|^a$|code\s*a/.test(t))return "Approved";
+  if(/revis|reject|resubmit|^c$|code\s*c/.test(t))return "Revise";if(/submit|issued|sent/.test(t))return "Submitted";return "";}
+function dlvParse(buf){
+  return loadLib(LIB_EXCEL).then(function(){var wb=new ExcelJS.Workbook();return wb.xlsx.load(buf);}).then(function(wb){
     var best=null;
     wb.eachSheet(function(ws){if(best)return;
       ws.eachRow({includeEmpty:false},function(row,rn){if(best&&best.ws===ws)return;var vals=row.values,map={};
         for(var c=1;c<vals.length;c++){var t=String(cellVal(vals[c])||"").trim().toLowerCase();if(!t)continue;
           if(/document\s*(number|no)|doc\.?\s*no|drawing\s*(number|no)|^dwg/.test(t))map.doc_no=c;else if(/title|description/.test(t))map.title=c;
           else if(/^system/.test(t))map.system=c;else if(/^element/.test(t))map.element=c;else if(/^type/.test(t))map.dtype=c;
-          else if(/target|due|deadline/.test(t))map.target_date=c;else if(/remark|note|comment|status/.test(t))map.remark=c;}
+          else if(/target|due|deadline/.test(t))map.target_date=c;else if(/^status/.test(t))map.status=c;else if(/remark|note|comment/.test(t))map.remark=c;}
         if(map.doc_no&&map.target_date)best={ws:ws,row:rn,map:map};});});
     if(!best)throw {plain:true,message:"Could not find the drawing list. The sheet needs a header row with “Document Number” and “Target Date”."};
-    var m=best.map,rows=[],maxCol=0;Object.keys(m).forEach(function(k){if(m[k]>maxCol)maxCol=m[k];});
-    if(!m.remark)m.remark=maxCol+1;
+    var m=best.map,rows=[],maxCol=0;Object.keys(m).forEach(function(k){if(k!=="status"&&m[k]>maxCol)maxCol=m[k];});
+    if(!m.remark&&m.status!==maxCol+1)m.remark=maxCol+1;
     best.ws.eachRow({includeEmpty:false},function(row,rn){if(rn<=best.row)return;var v=row.values;function g(k){return m[k]?cellVal(v[m[k]]):"";}
       var dn=String(g("doc_no")||"").trim();if(!dn||/document\s*number/i.test(dn))return;
       rows.push({doc_no:dn,title:String(g("title")||"").trim(),system:String(g("system")||"").trim(),element:String(g("element")||"").trim(),dtype:String(g("dtype")||"").trim(),
-        target_date:toYmd(g("target_date")),remark:String(g("remark")||"").trim()});});
+        target_date:toYmd(g("target_date")),remark:String(g("remark")||"").trim(),status:dlvStatusOf(g("status"))});});
     if(!rows.length)throw {plain:true,message:"The drawing list in this sheet is empty."};
-    dlvImport={rows:rows,file:file.name,sheet:best.ws.name};openDlvImport();
-  }).catch(function(e){toast((e&&e.plain)?e.message:"This file could not be read as an Excel workbook.",true);});
+    return {rows:rows,sheet:best.ws.name};
+  });
 }
 function openDlvImport(){
   var r=dlvImport.rows,ps=clear($("diProj")),ds=clear($("diDisc"));
@@ -5630,9 +5733,9 @@ function doDlvImport(){
   var pj=$("diProj").value==="__new"?$("diNew").value.trim().toUpperCase().replace(/\s+/g," "):$("diProj").value;
   if(!pj){$("diErr").textContent="Write the project name.";b.disabled=false;$("diNew").focus();return;}
   if($("diProj").value==="__new"&&dlvProjects().indexOf(pj)>=0&&!confirm(pj+" already has a drawing list. Update it with this sheet?")){b.disabled=false;return;}
-  run(sb.rpc("tt_deliv_import",{p_project:pj,p_discipline:$("diDisc").value,p_rows:dlvImport.rows})).then(function(res){
+  run(sb.rpc("tt_deliv_import",{p_project:pj,p_discipline:$("diDisc").value,p_rows:dlvImport.rows,p_gone:$("diGone").checked?"submitted":"mark",p_notify:false})).then(function(res){
     res=res||{};$("dlvImpDlg").close();dlvGoProj(pj,"");
-    toast(pj+" uploaded: "+(res.added||0)+" new, "+(res.updated||0)+" updated"+(res.missing?", "+res.missing+" no longer in the sheet":"")+".");return loadDeliv();})
+    toast(pj+" uploaded: "+dlvResTxt(res)+".");return loadDeliv();})
     .catch(function(e){$("diErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");}).then(function(){b.disabled=false;});
 }
 (function(){var t=$("tabDeliv");if(!t)return;t.addEventListener("click",function(){setView("deliv");loadDeliv();});
