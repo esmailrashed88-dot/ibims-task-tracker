@@ -1121,7 +1121,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <header class="band" id="appBand" hidden>
   <div class="band-in">
     <div class="brand"><div class="logo sm" role="img" aria-label="IBIMS, Integrated BIM Services"></div><span>Team Task Tracker</span></div>
-    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance <b class="badge" id="attCount" hidden>0</b></button><button type="button" id="tabDeliv" aria-pressed="false" hidden>Drawings <b class="badge" id="dlvCount" hidden>0</b></button><button type="button" id="tabKpi" aria-pressed="false" hidden>KPI</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
+    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance <b class="badge" id="attCount" hidden>0</b></button><button type="button" id="tabDeliv" aria-pressed="false" hidden>TIDP <b class="badge" id="dlvCount" hidden>0</b></button><button type="button" id="tabKpi" aria-pressed="false" hidden>KPI</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
     <div class="band-tools">
       <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
       <button class="btn punch" id="btnPunch" type="button" hidden></button>
@@ -1224,9 +1224,9 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   </div>
 
   <div id="viewDeliv" class="view" hidden>
-    <div class="mhead"><div><h2>Drawing targets</h2><p id="dlvSub"></p></div>
+    <div class="mhead"><div><h2>TIDP</h2><p id="dlvSub"></p></div>
       <div class="kpi-tools"><label class="field att-month" id="dlvProjWrap" hidden><span>Project</span><select id="dlvProj"></select></label>
-        <button class="btn primary" id="dlvUpload" type="button" hidden>Upload Excel</button><input type="file" id="dlvFile" accept=".xlsx,.xlsm" hidden></div></div>
+        <button class="btn danger" id="dlvRemove" type="button" hidden>Remove list</button><button class="btn primary" id="dlvUpload" type="button" hidden>Upload Excel</button><input type="file" id="dlvFile" accept=".xlsx,.xlsm" hidden></div></div>
     <nav class="dv-projs" id="dlvProjBar" aria-label="Projects" hidden></nav>
     <section class="stats" id="dlvStats" aria-label="Drawing summary"></section>
     <p class="err" id="dlvErr" role="alert" hidden></p>
@@ -1574,7 +1574,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 </dialog>
 
 <dialog id="dlvImpDlg" class="kpi-dlg" aria-labelledby="diTitle">
-  <div class="dlg-h"><h3 id="diTitle">Upload target dates</h3></div>
+  <div class="dlg-h"><h3 id="diTitle">Upload TIDP</h3></div>
   <div class="team-b">
     <p class="hint" id="diInfo"></p>
     <div class="copy-dates"><label class="field"><span>Project</span><select id="diProj"></select></label><label class="field" id="diNewWrap" hidden><span>New project name</span><input id="diNew" type="text" maxlength="60" placeholder="e.g. ALKHOBAR"></label><label class="field"><span>Discipline</span><select id="diDisc"></select></label></div>
@@ -1583,6 +1583,17 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="err" id="diErr" role="alert"></p>
   </div>
   <div class="dlg-f"><button class="btn" id="diCancel" type="button">Cancel</button><button class="btn primary" id="diGo" type="button">Upload</button></div>
+</dialog>
+
+<dialog id="dlvDelDlg" aria-labelledby="ddTitle">
+  <div class="dlg-h"><h3 id="ddTitle">Remove TIDP list</h3></div>
+  <div class="team-b">
+    <p id="ddInfo"></p>
+    <label class="dv-one"><input type="checkbox" id="ddTasks" checked> Also delete the tasks given from this list that nobody has started yet</label>
+    <p class="hint">Tasks already started or done are kept; only their link to the drawing is removed. This cannot be undone, but you can upload the sheet again.</p>
+    <p class="err" id="ddErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="ddCancel" type="button">Cancel</button><button class="btn danger" id="ddGo" type="button">Remove</button></div>
 </dialog>
 
 <dialog id="attDlg" aria-labelledby="attTitle">
@@ -3191,7 +3202,7 @@ function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appM
 function leave(){
   stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
-  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
 }
 function enter(session){
@@ -5235,8 +5246,8 @@ var PERMS=[
     ["att_correct","Correct attendance","Fix or add clock-in records"],
     ["approve_requests","Approve leave and permission","For people below them (anyone with See every discipline)"],
     ["clock_in","Clock in and out","Has the Clock in button; can ask for leave and permission"]]],
-  ["Drawings",[["deliv_view","Drawing targets","See the Drawings tab with target dates and get the due-soon alerts"],
-    ["deliv_manage","Upload and give drawings","Upload the Excel, set a drawing's status and give drawings to engineers"]]],
+  ["TIDP",[["deliv_view","TIDP","See the TIDP tab with drawing target dates and get the due-soon alerts"],
+    ["deliv_manage","Manage TIDP","Upload or remove a TIDP list, set a drawing's status and give drawings to engineers"]]],
   ["KPI",[["kpi_hr","KPI · HR part","Fill the HR part of the monthly KPI"],
     ["kpi_mgr","KPI · Direct manager part","For people below them in their discipline"],
     ["kpi_top","KPI · Top / PM part","Fill the top management part"],
@@ -5245,7 +5256,7 @@ var PERM_ROLES=["manager","projectmanager","topmanagement","sectionhead","teamle
 var LEADS4=["sectionhead","teamleader","senior","midsenior"];
 var PERM_SHORT={tab_dash:"Team dash.",see_free:"Available now",see_online:"Online list",export_data:"Export",view_all:"All disc.",mgmt_dash:"Mgmt dash.",add_tasks:"Give tasks",
   edit_tasks:"Edit tasks",manage_rows:"Correct hours",review_page:"My review",ping:"Alert",announce:"Announce",att_view_team:"Team attend.",att_correct:"Fix attend.",
-  approve_requests:"Approve leave",clock_in:"Clock in",deliv_view:"Drawings",deliv_manage:"Give drawings",kpi_hr:"KPI HR",kpi_mgr:"KPI mgr",kpi_top:"KPI top",kpi_send:"KPI send"};
+  approve_requests:"Approve leave",clock_in:"Clock in",deliv_view:"TIDP",deliv_manage:"Manage TIDP",kpi_hr:"KPI HR",kpi_mgr:"KPI mgr",kpi_top:"KPI top",kpi_send:"KPI send"};
 var ALLROLES=["manager","projectmanager","topmanagement"].concat(["sectionhead","teamleader","senior","midsenior"],["coordinator","engineer"]);
 var PERM_DEF={tab_dash:ALLROLES,see_free:["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior"],
   see_online:["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior"],export_data:ALLROLES,view_all:["manager","projectmanager","topmanagement"],mgmt_dash:["manager","projectmanager","topmanagement"],add_tasks:LEADS4,
@@ -5425,7 +5436,7 @@ function paintDlvBadge(){var b=$("dlvCount");if(!b)return;var c=dlvCounts(dlv),n
 function renderDlvNote(){
   var box=$("dlvNote");if(!box)return;var c=dlvCounts(dlv),show=canDeliv()&&dlvLoaded&&(c.late+c.soon)>0&&S.view!=="deliv";
   box.hidden=!show;clear(box);if(!show)return;
-  var t=h("span",{"class":"dn-t"},h("b",{text:"Drawing targets: "}));box.append(h("span",{"class":"dn-ic","aria-hidden":"true"}),t);
+  var t=h("span",{"class":"dn-t"},h("b",{text:"TIDP: "}));box.append(h("span",{"class":"dn-ic","aria-hidden":"true"}),t);
   dlvProjects().forEach(function(p){var cc=dlvCounts(dlv.filter(function(d){return d.project===p;}));if(!cc.late&&!cc.soon)return;
     box.append(h("span",{"class":"dn-p"},h("b",{text:p+":"}),
       [cc.late?cc.late+" late":"",cc.soon?cc.soon+" due within "+warnDays()+" days":""].filter(Boolean).join(" · "),
@@ -5438,6 +5449,7 @@ function renderDeliv(){
   var projs=dlvProjects();if(dlvF.proj&&projs.indexOf(dlvF.proj)<0)dlvF.proj="";var proj=dlvF.proj||projs[0]||"";
   var ps=clear($("dlvProj"));projs.forEach(function(p){ps.append(h("option",{value:p,text:p}));});ps.value=proj;$("dlvProjWrap").hidden=true;
   $("dlvUpload").textContent=projs.length?"Upload Excel for "+proj:"Upload Excel";
+  $("dlvRemove").hidden=!canDelivManage()||!projs.length;$("dlvRemove").textContent="Remove "+proj+" list";
   var bar=clear($("dlvProjBar"));bar.hidden=!dlvLoaded||(!projs.length&&!canDelivManage());
   projs.forEach(function(p){var ds=dlv.filter(function(d){return d.project===p&&d.in_sheet;}),cc=dlvCounts(ds),dn=ds.filter(function(d){return dlvState(d).done;}).length,pc=ds.length?Math.round(dn/ds.length*100):0;
     var al=h("span",{"class":"dv-pa"});if(cc.late)al.append(h("span",{"class":"l",text:cc.late+" late"}));if(cc.late&&cc.soon)al.append(" · ");if(cc.soon)al.append(h("span",{"class":"s",text:cc.soon+" due soon"}));if(!cc.late&&!cc.soon)al.append(h("span",{"class":"dv-pm",text:"nothing due soon"}));
@@ -5445,7 +5457,7 @@ function renderDeliv(){
       h("b",{text:p}),h("span",{"class":"dv-pm",text:ds.length+" drawings · "+pc+"% done"}),h("span",{"class":"dv-pbar"},h("i",{style:"width:"+pc+"%"})),al));});
   if(canDelivManage())bar.append(h("button",{type:"button","class":"dv-pc add",title:"Upload the drawing list of another project",onclick:function(){dlvNewProj=true;dlvPickFile();}},"+ Add project list"));
   if(!dlvLoaded){host.append(h("div",{"class":"empty"},h("p",{text:"Loading…"})));return;}
-  if(!dlv.length){host.append(h("div",{"class":"empty"},h("p",{text:canDelivManage()?"No target dates yet. Click Upload Excel and pick the sheet with the drawing list.":"No target dates have been uploaded yet."})));
+  if(!dlv.length){host.append(h("div",{"class":"empty"},h("p",{text:canDelivManage()?"No TIDP yet. Click Upload Excel and pick the sheet with the drawing list.":"No TIDP has been uploaded yet."})));
     $("dlvSub").textContent="";return;}
   var all=dlvScope(),last="";all.forEach(function(d){if(d.imported_at>last)last=d.imported_at;});
   var discs=[];all.forEach(function(d){if(discs.indexOf(d.discipline)<0)discs.push(d.discipline);});
@@ -5536,6 +5548,17 @@ function renderDeliv(){
 }
 /* ---------- reading the Excel sheet ---------- */
 var dlvImport=null,dlvNewProj=false;
+function openDlvDel(){var proj=dlvF.proj||dlvProjects()[0]||"";if(!proj)return;
+  var ds=dlv.filter(function(d){return d.project===proj&&inScope(d.discipline);}),ids={};ds.forEach(function(d){ids[d.id]=1;});
+  var tk={};dlvLinks.forEach(function(l){if(ids[l.d])tk[l.t]=1;});var nt=Object.keys(tk).length;
+  $("ddTitle").textContent="Remove the "+proj+" TIDP list";
+  $("ddInfo").textContent=ds.length+(ds.length===1?" drawing":" drawings")+" of "+proj+" will be removed from TIDP"+(nt?"; "+nt+(nt===1?" task was":" tasks were")+" given from it.":".");
+  $("ddTasks").checked=true;$("ddTasks").parentNode.hidden=!nt;$("ddErr").textContent="";$("ddGo").disabled=false;$("dlvDelDlg").dataset.proj=proj;$("dlvDelDlg").showModal();}
+function doDlvDel(){var proj=$("dlvDelDlg").dataset.proj,b=$("ddGo");b.disabled=true;$("ddErr").textContent="";
+  run(sb.rpc("tt_deliv_remove_project",{p_project:proj,p_tasks:$("ddTasks").checked})).then(function(res){res=res||{};
+    $("dlvDelDlg").close();dlvGoProj("","");toast(proj+" TIDP removed: "+(res.drawings||0)+" drawings"+(res.tasks?", "+res.tasks+" unstarted tasks deleted":"")+".");
+    return Promise.all([loadTasks(),loadDeliv()]);})
+    .catch(function(e){$("ddErr").textContent=/tt_deliv_remove_project|function .* does not exist|schema cache/i.test(String(e&&e.message))?"Run the new database setup (version 29) in Supabase first.":writeError(e).replace(/^Could not save:\s*/,"");b.disabled=false;});}
 function dlvGoProj(p,st){dlvF.proj=p;dlvSel={};dlvF.q="";dlvF.sys="";dlvF.el="";dlvF.type="";dlvF.date="";dlvF.st=st||"";saveDlvF();}
 function dlvPickFile(){var f=$("dlvFile");f.value="";f.click();}
 function cellVal(v){if(v==null)return "";if(v instanceof Date)return v;if(typeof v==="object"){if(v.result!==undefined)return cellVal(v.result);if(v.text!==undefined)return String(v.text);if(v.richText)return v.richText.map(function(x){return x.text;}).join("");}return v;}
@@ -5598,7 +5621,8 @@ function doDlvImport(){
   $("dlvUpload").addEventListener("click",function(){dlvNewProj=false;dlvPickFile();});
   $("diProj").addEventListener("change",function(){$("diNewWrap").hidden=this.value!=="__new";if(this.value==="__new")$("diNew").focus();});$("dlvFile").addEventListener("change",function(){var f=this.files&&this.files[0];if(f)dlvReadFile(f);});
   $("dlvProj").addEventListener("change",function(){dlvF.proj=this.value;dlvSel={};saveDlvF();renderDeliv();});
-  $("diGo").addEventListener("click",doDlvImport);$("diCancel").addEventListener("click",function(){$("dlvImpDlg").close();});})();
+  $("diGo").addEventListener("click",doDlvImport);
+  $("dlvRemove").addEventListener("click",openDlvDel);$("ddGo").addEventListener("click",doDlvDel);$("ddCancel").addEventListener("click",function(){$("dlvDelDlg").close();});$("diCancel").addEventListener("click",function(){$("dlvImpDlg").close();});})();
 /* the due date on the task itself */
 function dueNote(t){if(!t.due_date)return null;var n=Math.round((parseDate(t.due_date)-parseDate(today()))/86400000),k=t.status==="Completed"?"done":n<0?"late":n<=warnDays()?"soon":"";
   return h("span",{"class":"dv-due "+k,title:t.doc_ref?"Drawing "+t.doc_ref:null,text:"Target "+niceDate(t.due_date)+(t.status==="Completed"?"":" · "+dueTxt(n))+(t.doc_ref?" · "+(t.doc_ref.length>40?t.doc_ref.slice(0,40)+"…":t.doc_ref):"")});}
