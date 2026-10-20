@@ -748,6 +748,32 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
+#tabDeliv .badge.late{background:var(--bad)}
+.dlv-note{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:0 0 14px;padding:10px 14px;border:1px solid var(--warn);border-left:5px solid var(--bad);border-radius:10px;background:var(--warn-soft);color:var(--ink)}
+.dlv-note .dn-t{flex:1 1 260px}.dlv-note .dn-ic{width:18px;height:18px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 4px color-mix(in srgb,var(--bad) 25%,transparent);animation:prBounce 1.6s ease-in-out infinite}
+.dv-body{display:grid;gap:14px}
+.dv-sec h3{margin:0}
+.dv-tl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.dv-tlc{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.dv-tlc:hover{border-color:var(--accent)}.dv-tlc.soon{border-top-color:var(--warn)}.dv-tlc.late{border-top-color:var(--bad);background:color-mix(in srgb,var(--bad-soft) 50%,var(--surface))}
+.dv-tld{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.dv-tlc b{font-size:24px;line-height:1.1}.dv-tls{font-size:12px;color:var(--muted)}
+.dv-tlc.late .dv-tls{color:var(--bad);font-weight:600}.dv-tlc.soon .dv-tls{color:var(--warn);font-weight:600}
+.dv-bulk{position:sticky;top:8px;z-index:5;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:10px 14px;border:2px solid var(--accent);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+.dv-bulk[hidden]{display:none}.dv-one{display:flex;gap:6px;align-items:center;font-size:13px}.dv-ttl{min-width:240px}
+.dv-out{display:grid;gap:14px}
+.dv-gh{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:4px 0 6px}.dv-gh h4{margin:0;font-size:15px}
+table.att.dv-t{min-width:0}table.att.dv-t th,table.att.dv-t td{text-align:left;vertical-align:middle;white-space:normal}
+table.att.dv-t td:first-child{width:28px}
+.dv-no strong{display:block;white-space:nowrap;font-size:12.5px}.dv-title small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+tr.dv-row.late td{background:color-mix(in srgb,var(--bad-soft) 55%,transparent)}tr.dv-row.soon td{background:color-mix(in srgb,var(--warn-soft) 60%,transparent)}tr.dv-row.done td{color:var(--muted)}
+.dv-due{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--ink)}
+.dv-due.late{background:var(--bad-soft);color:var(--bad)}.dv-due.soon{background:var(--warn-soft);color:var(--warn)}.dv-due.done{background:var(--ok-soft);color:var(--ok)}
+td.task .dv-due{display:inline-block;margin:3px 0 1px}
+.dv-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
+.dv-pill.progress{background:var(--accent-soft);color:var(--accent)}.dv-pill.ready{background:var(--ok-soft);color:var(--ok)}.dv-pill.submitted,.dv-pill.approved{background:var(--ok-soft);color:var(--ok)}
+.dv-pill.revise{background:var(--warn-soft);color:var(--warn)}.dv-pill.noneed{background:var(--surface-2);color:var(--muted)}
+.dv-who{font-weight:600}
+.dv-st{font:inherit;font-size:12px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);max-width:150px}
 dialog.perm-dlg{width:min(1180px,calc(100vw - 24px))}
 #pmBody{margin-top:10px}
 .pm-wrap{overflow:auto;max-height:calc(100vh - 260px);border:1px solid var(--line);border-radius:10px}
@@ -1087,7 +1113,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <header class="band" id="appBand" hidden>
   <div class="band-in">
     <div class="brand"><div class="logo sm" role="img" aria-label="IBIMS, Integrated BIM Services"></div><span>Team Task Tracker</span></div>
-    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance <b class="badge" id="attCount" hidden>0</b></button><button type="button" id="tabKpi" aria-pressed="false" hidden>KPI</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
+    <nav class="views" aria-label="View"><button type="button" class="exec" id="tabMgmt" aria-pressed="false">Management dashboard</button><button type="button" id="tabTracker" aria-pressed="true">Tracker</button><button type="button" id="tabDash" aria-pressed="false">Team dashboard</button><button type="button" id="tabAtt" aria-pressed="false" hidden>Attendance <b class="badge" id="attCount" hidden>0</b></button><button type="button" id="tabDeliv" aria-pressed="false" hidden>Drawings <b class="badge" id="dlvCount" hidden>0</b></button><button type="button" id="tabKpi" aria-pressed="false" hidden>KPI</button><button type="button" id="tabReview" aria-pressed="false" hidden>My review <b class="badge" id="reviewCount" hidden>0</b></button></nav>
     <div class="band-tools">
       <div class="conn" id="conn"><i></i><span id="connText">Connecting…</span></div>
       <button class="btn punch" id="btnPunch" type="button" hidden></button>
@@ -1107,6 +1133,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 
 <main class="wrap" id="appMain" hidden>
   <section id="bcBox" class="bc-box" aria-label="Announcements" aria-live="polite" hidden></section>
+  <section id="dlvNote" class="dlv-note" aria-live="polite" hidden></section>
   <section id="backupNote" class="backup-note" hidden></section>
   <section id="motd" class="motd" aria-label="Man of the day" hidden></section>
   <section id="dueBox" class="due-box" aria-label="Reminders due now" aria-live="polite" hidden></section>
@@ -1186,6 +1213,15 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       </div>
       <p class="how-read"><b>Reading the chart:</b> if the orange line (Earned) is under the blue line (Planned), the project is behind plan. If the green line (Actual) is above the orange line, more hours are being spent than the work achieved.</p>
     </section>
+  </div>
+
+  <div id="viewDeliv" class="view" hidden>
+    <div class="mhead"><div><h2>Drawing targets</h2><p id="dlvSub"></p></div>
+      <div class="kpi-tools"><label class="field att-month" id="dlvProjWrap" hidden><span>Project</span><select id="dlvProj"></select></label>
+        <button class="btn primary" id="dlvUpload" type="button" hidden>Upload Excel</button><input type="file" id="dlvFile" accept=".xlsx,.xlsm" hidden></div></div>
+    <section class="stats" id="dlvStats" aria-label="Drawing summary"></section>
+    <p class="err" id="dlvErr" role="alert" hidden></p>
+    <div id="dlvBody" class="dv-body"></div>
   </div>
 
   <div id="viewKpi" class="view" hidden>
@@ -1528,6 +1564,18 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="dlg-f"><button class="btn left" id="pmReset" type="button">Back to the original</button><button class="btn" id="pmCancel" type="button">Cancel</button><button class="btn primary" id="pmSave" type="button">Save</button></div>
 </dialog>
 
+<dialog id="dlvImpDlg" class="kpi-dlg" aria-labelledby="diTitle">
+  <div class="dlg-h"><h3 id="diTitle">Upload target dates</h3></div>
+  <div class="team-b">
+    <p class="hint" id="diInfo"></p>
+    <div class="copy-dates"><label class="field"><span>Project</span><select id="diProj"></select></label><label class="field"><span>Discipline</span><select id="diDisc"></select></label></div>
+    <div id="diPrev"></div>
+    <p class="hint">Drawings already uploaded keep their status and tasks; their title and target date are updated. Drawings that are no longer in the sheet are kept but marked.</p>
+    <p class="err" id="diErr" role="alert"></p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="diCancel" type="button">Cancel</button><button class="btn primary" id="diGo" type="button">Upload</button></div>
+</dialog>
+
 <dialog id="attDlg" aria-labelledby="attTitle">
   <div class="dlg-h"><h3 id="attTitle">Correct attendance</h3></div>
   <div class="team-b">
@@ -1636,7 +1684,7 @@ function canDelete(t){return isAdmin()||(isTL()&&t.discipline===me.discipline);}
 function canEdit(t){return editAll()||(isTL()&&t.discipline===me.discipline)||(isEng()&&!!me.engineer&&t.engineer===me.engineer);}
 function roleName(r){return {admin:"Admin",manager:"Manager",teamleader:"Team leader",senior:"Senior",midsenior:"Mid Senior",engineer:"Engineer"}[r]||r||"";}
 function row2task(o){return {id:String(o.id),date:String(o.date||"").slice(0,10),engineer:String(o.engineer||""),discipline:String(o.discipline||""),project:String(o.project||""),
-  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),sent_to:o.sent_to?String(o.sent_to):"",sent_at:o.sent_at?String(o.sent_at):"",ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):"",completed_at:o.completed_at?String(o.completed_at):"",created_at:o.created_at?String(o.created_at):""};}
+  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),sent_to:o.sent_to?String(o.sent_to):"",sent_at:o.sent_at?String(o.sent_at):"",ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):"",completed_at:o.completed_at?String(o.completed_at):"",created_at:o.created_at?String(o.created_at):"",due_date:o.due_date?String(o.due_date).slice(0,10):"",doc_ref:String(o.doc_ref||"")};}
 function upsertLocal(t){var i,found=false;for(i=0;i<S.tasks.length;i++){if(S.tasks[i].id===t.id){S.tasks[i]=t;found=true;break;}}if(!found)S.tasks.push(t);}
 function dropLocal(id){S.tasks=S.tasks.filter(function(x){return x.id!==id;});}
 function run(q){return Promise.resolve(q).then(function(r){if(r&&r.error)throw r.error;return r?r.data:null;});}
@@ -2037,19 +2085,21 @@ function render(){
   renderFilters();renderInbox();
   if(S.view==="management"&&!canMgmt())S.view="tracker";
   if(S.view==="dashboard"&&me&&!can("tab_dash"))S.view="tracker";
+  if(S.view==="deliv"&&me&&!can("deliv_view"))S.view="tracker";
   if(S.view==="review"&&me&&!canReview())S.view="tracker";
   if(S.view==="attendance"&&me&&!canAttend())S.view="tracker";
   var rows=S.tasks.filter(match),v=S.view;
   $("tabMgmt").hidden=!canMgmt();$("btnPerms").hidden=!isAdmin();$("tabDash").hidden=!can("tab_dash");$("btnUsers").hidden=!isAdmin();$("fEngineer").parentNode.hidden=!seesTeam();$("btnOnline").hidden=!can("see_online");
-  $("viewTracker").hidden=v!=="tracker";$("viewReview").hidden=v!=="review";$("viewAtt").hidden=v!=="attendance";$("viewKpi").hidden=v!=="kpi";$("tabKpi").hidden=!me;$("tabKpi").setAttribute("aria-pressed",String(v==="kpi"));$("tabAtt").hidden=!canAttend();$("tabAtt").setAttribute("aria-pressed",String(v==="attendance"));paintPunch();$("tabReview").hidden=!canReview();$("tabReview").setAttribute("aria-pressed",String(v==="review"));paintReviewCount();$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
-  $("filtersBox").hidden=v==="management"||v==="review"||v==="attendance"||v==="kpi";$("stats").hidden=v==="management"||v==="review"||v==="attendance"||v==="kpi";
+  $("viewTracker").hidden=v!=="tracker";$("viewReview").hidden=v!=="review";$("viewAtt").hidden=v!=="attendance";$("viewKpi").hidden=v!=="kpi";$("viewDeliv").hidden=v!=="deliv";$("tabDeliv").hidden=!can("deliv_view");$("tabDeliv").setAttribute("aria-pressed",String(v==="deliv"));$("tabKpi").hidden=!me;$("tabKpi").setAttribute("aria-pressed",String(v==="kpi"));$("tabAtt").hidden=!canAttend();$("tabAtt").setAttribute("aria-pressed",String(v==="attendance"));paintPunch();$("tabReview").hidden=!canReview();$("tabReview").setAttribute("aria-pressed",String(v==="review"));paintReviewCount();$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
+  $("filtersBox").hidden=v==="management"||v==="review"||v==="attendance"||v==="kpi"||v==="deliv";$("stats").hidden=v==="management"||v==="review"||v==="attendance"||v==="kpi"||v==="deliv";
   $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
-  if(v==="kpi")renderKpi();
+  if(v==="deliv")renderDeliv();
+  else if(v==="kpi")renderKpi();
   else if(v==="attendance")renderAtt();
   else if(v==="review")renderReview();
   else if(v==="management"){renderMgmt();renderCurves();renderEngScore();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
-  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();paintReqBadge();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded||!can("export_data");
+  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();paintReqBadge();renderDlvNote();paintDlvBadge();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded||!can("export_data");
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
   $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
 }
@@ -2160,7 +2210,7 @@ function loadSettings(){
 function loadTasks(){
   var out=[],size=1000;
   function page(from){
-    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind,completed_at,created_at").order("date",{ascending:false}).order("id").range(from,from+size-1))
+    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind,completed_at,created_at,due_date,doc_ref").order("date",{ascending:false}).order("id").range(from,from+size-1))
       .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});
   }
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
@@ -2192,6 +2242,8 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_projects"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_engineers"},settingsChanged)
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_broadcasts"},function(){loadBc();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_deliverables"},function(){dlvLater();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_deliv_tasks"},function(){dlvLater();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_user_perms"},function(){loadConfig().then(function(){render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_config"},function(p){if(p["new"]&&p["new"].key==="perms")loadConfig().then(function(){render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_kpi"},function(){if(S.view==="kpi"||$("kpiDlg").open)loadKpi();})
@@ -2209,7 +2261,8 @@ function unsubscribe(){
 /* ---------- new-task notification + confirmation ---------- */
 var knownPending=null,baseTitle=document.title;
 function niceStamp(iso){var d=new Date(iso);return isNaN(d)?"":d.toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});}
-function ackNote(t){return t.ack?h("span",{class:"sub",text:"Confirmed "+niceStamp(t.ack)}):h("span",{class:"sub wait",text:"Awaiting confirmation"});}
+function ackNote(t){return (t.due_date&&typeof dueNote==="function")?h("span",null,dueNote(t),ackNote0(t)):ackNote0(t);}
+function ackNote0(t){return t.ack?h("span",{class:"sub",text:"Confirmed "+niceStamp(t.ack)}):h("span",{class:"sub wait",text:"Awaiting confirmation"});}
 function myPending(){
   if(!me||!me.engineer)return [];
   return S.tasks.filter(function(t){return t.engineer===me.engineer&&!t.ack;}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
@@ -3127,9 +3180,9 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopPR();attReady=false;myPerms={};allUserPerms=[];stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
-  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
 }
 function enter(session){
@@ -3138,7 +3191,7 @@ function enter(session){
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
     me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();loadAtt();
-    return loadAll().then(function(){subscribe();startBc();startPR();if(S.view==="kpi")loadKpi();});
+    return loadAll().then(function(){subscribe();startBc();startPR();loadDeliv();if(S.view==="kpi")loadKpi();});
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
     if(c==="42P01"||c==="PGRST205"||c==="PGRST202"||/does not exist|could not find the (table|function)/i.test(m))showAuth("blocked","The database is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then reload this page.");
@@ -3249,7 +3302,7 @@ function wire(){
 
 function start(){
   loadFilters();
-  try{var sv=localStorage.getItem("stt.view");if(sv==="dashboard"||sv==="management"||sv==="review"||sv==="attendance"||sv==="kpi")S.view=sv;}catch(e){}
+  try{var sv=localStorage.getItem("stt.view");if(sv==="dashboard"||sv==="management"||sv==="review"||sv==="attendance"||sv==="kpi"||sv==="deliv")S.view=sv;}catch(e){}
   wire();
   if(CFG.url.indexOf("YOUR-PROJECT")>=0||CFG.key.indexOf("YOUR-PUBLISHABLE")>=0){
     showAuth("note","This copy of the tracker is not connected to its database yet.",h("ol",null,
@@ -3477,7 +3530,7 @@ function stateLabel(x){
   return {free:"No open task",working:"Working",paused:"Paused",idle:"Timer off",waiting:"Not confirmed",stopped:x.task?x.task.status:"Stopped"}[x.kind];
 }
 function renderFree(v){
-  var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance";
+  var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance"&&v!=="deliv";
   box.hidden=!show;if(!show)return;clear(box);
   var list=teamStates(),c={free:0,working:0,paused:0,soon:0,stopped:0,idle:0,waiting:0};
   list.forEach(function(x){c[x.kind]++;if(x.soon)c.soon++;});
@@ -5173,6 +5226,8 @@ var PERMS=[
     ["att_correct","Correct attendance","Fix or add clock-in records"],
     ["approve_requests","Approve leave and permission","For people below them (anyone with See every discipline)"],
     ["clock_in","Clock in and out","Has the Clock in button; can ask for leave and permission"]]],
+  ["Drawings",[["deliv_view","Drawing targets","See the Drawings tab with target dates and get the due-soon alerts"],
+    ["deliv_manage","Upload and give drawings","Upload the Excel, set a drawing's status and give drawings to engineers"]]],
   ["KPI",[["kpi_hr","KPI · HR part","Fill the HR part of the monthly KPI"],
     ["kpi_mgr","KPI · Direct manager part","For people below them in their discipline"],
     ["kpi_top","KPI · Top / PM part","Fill the top management part"],
@@ -5181,12 +5236,13 @@ var PERM_ROLES=["manager","projectmanager","topmanagement","sectionhead","teamle
 var LEADS4=["sectionhead","teamleader","senior","midsenior"];
 var PERM_SHORT={tab_dash:"Team dash.",see_free:"Available now",see_online:"Online list",export_data:"Export",view_all:"All disc.",mgmt_dash:"Mgmt dash.",add_tasks:"Give tasks",
   edit_tasks:"Edit tasks",manage_rows:"Correct hours",review_page:"My review",ping:"Alert",announce:"Announce",att_view_team:"Team attend.",att_correct:"Fix attend.",
-  approve_requests:"Approve leave",clock_in:"Clock in",kpi_hr:"KPI HR",kpi_mgr:"KPI mgr",kpi_top:"KPI top",kpi_send:"KPI send"};
+  approve_requests:"Approve leave",clock_in:"Clock in",deliv_view:"Drawings",deliv_manage:"Give drawings",kpi_hr:"KPI HR",kpi_mgr:"KPI mgr",kpi_top:"KPI top",kpi_send:"KPI send"};
 var ALLROLES=["manager","projectmanager","topmanagement"].concat(["sectionhead","teamleader","senior","midsenior"],["coordinator","engineer"]);
 var PERM_DEF={tab_dash:ALLROLES,see_free:["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior"],
   see_online:["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior"],export_data:ALLROLES,view_all:["manager","projectmanager","topmanagement"],mgmt_dash:["manager","projectmanager","topmanagement"],add_tasks:LEADS4,
   edit_tasks:["manager"].concat(LEADS4),manage_rows:LEADS4,review_page:LEADS4,ping:["manager"].concat(LEADS4),announce:["projectmanager","topmanagement"].concat(LEADS4),
   att_view_team:["manager","projectmanager","topmanagement"].concat(LEADS4),att_correct:LEADS4,approve_requests:LEADS4,clock_in:LEADS4.concat(["coordinator","engineer"]),
+  deliv_view:["manager","projectmanager","topmanagement"].concat(LEADS4),deliv_manage:LEADS4,
   kpi_hr:["manager"],kpi_mgr:LEADS4,kpi_top:["projectmanager","topmanagement"],kpi_send:["projectmanager","topmanagement"]};
 var myPerms={},allUserPerms=[];
 function permCfg(){try{var j=JSON.parse((S.cfg||{}).perms||"null");return j&&typeof j==="object"?j:{};}catch(e){return {};}}
@@ -5319,6 +5375,208 @@ function renderPermAll(host){
   draw();
 }
 var pmRole="";
+
+/* ---------- drawing targets: upload the Excel, follow the dates, give drawings to engineers ---------- */
+var dlv=[],dlvLinks=[],dlvLoaded=false,dlvSel={},dlvF=(function(){var d={proj:"",disc:"",q:"",sys:"",el:"",type:"",st:"",group:"date"};
+  try{var j=JSON.parse(localStorage.getItem("tt-dlv-f")||"null");if(j)["proj","group"].forEach(function(k){if(typeof j[k]==="string")d[k]=j[k];});}catch(e){}return d;})();
+function saveDlvF(){try{localStorage.setItem("tt-dlv-f",JSON.stringify({proj:dlvF.proj,group:dlvF.group}));}catch(e){}}
+function canDeliv(){return can("deliv_view");}
+function canDelivManage(){return can("deliv_manage");}
+function warnDays(){var v=num((S.cfg||{}).deliv_warn_days);return v>0?v:3;}
+function row2dlv(o){return {id:String(o.id),project:String(o.project||""),discipline:String(o.discipline||""),doc_no:String(o.doc_no||""),title:String(o.title||""),system:String(o.system||""),
+  element:String(o.element||""),dtype:String(o.dtype||""),target:o.target_date?String(o.target_date).slice(0,10):"",remark:String(o.remark||""),status:String(o.status||""),
+  note:String(o.status_note||""),in_sheet:o.in_sheet!==false,imported_at:String(o.imported_at||"")};}
+function loadDeliv(){
+  if(!sb||!me||!canDeliv())return Promise.resolve();
+  function page(tbl,cols,from,acc){return run(sb.from(tbl).select(cols).range(from,from+999)).then(function(d){d=d||[];acc=acc.concat(d);return d.length===1000?page(tbl,cols,from+1000,acc):acc;});}
+  return Promise.all([page("tt_deliverables","*",0,[]),page("tt_deliv_tasks","deliverable_id,task_id",0,[])]).then(function(r){
+    dlv=r[0].map(row2dlv);dlvLinks=r[1].map(function(x){return {d:String(x.deliverable_id),t:String(x.task_id)};});dlvLoaded=true;
+    paintDlvBadge();if(S.view==="deliv")renderDeliv();renderDlvNote();},function(){});
+}
+var dlvSoon=null;function dlvLater(){if(dlvSoon)clearTimeout(dlvSoon);dlvSoon=setTimeout(function(){dlvSoon=null;loadDeliv();},1200);}
+function dlvTasks(d){var ids={};dlvLinks.forEach(function(l){if(l.d===d.id)ids[l.t]=1;});return S.tasks.filter(function(t){return ids[t.id];});}
+/* where a drawing stands: what someone set by hand wins, otherwise its tasks decide */
+function dlvState(d){
+  if(d.status==="Submitted")return {k:"submitted",label:"Submitted",done:true};
+  if(d.status==="Approved")return {k:"approved",label:"Approved",done:true};
+  if(d.status==="No need")return {k:"noneed",label:"No need",done:true};
+  var ts=dlvTasks(d);
+  if(ts.some(function(t){return t.status==="Completed";}))return {k:"ready",label:"Ready to submit",done:true,tasks:ts};
+  if(d.status==="Revise")return {k:"revise",label:"Revise",done:false,tasks:ts};
+  if(ts.length)return {k:"progress",label:ts.some(function(t){return t.status==="In Progress"||t.status==="Comment";})?"In progress":"Assigned",done:false,tasks:ts};
+  return {k:"open",label:"Not assigned",done:false,tasks:[]};
+}
+function daysLeft(d){if(!d.target)return null;return Math.round((parseDate(d.target)-parseDate(today()))/86400000);}
+function dlvDue(d,st){st=st||dlvState(d);if(st.done||!d.target||!d.in_sheet)return "";var n=daysLeft(d);return n<0?"late":n<=warnDays()?"soon":"";}
+function dueTxt(n){return n===null?"no date":n<0?(-n)+(n===-1?" day late":" days late"):n===0?"due today":n===1?"tomorrow":"in "+n+" days";}
+function dlvScope(){var proj=dlvF.proj||(dlvProjects()[0]||"");return dlv.filter(function(d){return d.project===proj&&(!dlvF.disc||d.discipline===dlvF.disc);});}
+function dlvProjects(){var p=[];dlv.forEach(function(d){if(p.indexOf(d.project)<0)p.push(d.project);});return p.sort();}
+function dlvCounts(list){var c={late:0,soon:0};list.forEach(function(d){var k=dlvDue(d);if(k)c[k]++;});return c;}
+function paintDlvBadge(){var b=$("dlvCount");if(!b)return;var c=dlvCounts(dlv),n=c.late+c.soon;b.textContent=String(n);b.hidden=!n;b.classList.toggle("late",c.late>0);}
+function renderDlvNote(){
+  var box=$("dlvNote");if(!box)return;var c=dlvCounts(dlv),show=canDeliv()&&dlvLoaded&&(c.late+c.soon)>0&&S.view!=="deliv";
+  box.hidden=!show;clear(box);if(!show)return;
+  box.append(h("span",{"class":"dn-ic","aria-hidden":"true"}),h("span",{"class":"dn-t"},h("b",{text:"Drawing targets: "}),
+    [c.late?c.late+(c.late===1?" drawing is late":" drawings are late"):"",c.soon?c.soon+" due within "+warnDays()+" days":""].filter(Boolean).join(" · ")),
+    h("button",{"class":"btn small",type:"button",onclick:function(){dlvF.st=c.late?"late":"soon";setView("deliv");}},"Open"));
+}
+function dlvChip(d,st){var k=dlvDue(d,st),n=daysLeft(d);return h("span",{"class":"dv-due "+(k||(st.done?"done":"")),text:d.target?niceDate(d.target)+" · "+(st.done?st.label:dueTxt(n)):"No date"});}
+function renderDeliv(){
+  var host=clear($("dlvBody")),st=clear($("dlvStats"));
+  $("dlvUpload").hidden=!canDelivManage();
+  var projs=dlvProjects();if(dlvF.proj&&projs.indexOf(dlvF.proj)<0)dlvF.proj="";var proj=dlvF.proj||projs[0]||"";
+  var ps=clear($("dlvProj"));projs.forEach(function(p){ps.append(h("option",{value:p,text:p}));});ps.value=proj;$("dlvProjWrap").hidden=projs.length<2;
+  if(!dlvLoaded){host.append(h("div",{"class":"empty"},h("p",{text:"Loading…"})));return;}
+  if(!dlv.length){host.append(h("div",{"class":"empty"},h("p",{text:canDelivManage()?"No target dates yet. Click Upload Excel and pick the sheet with the drawing list.":"No target dates have been uploaded yet."})));
+    $("dlvSub").textContent="";return;}
+  var all=dlvScope(),last="";all.forEach(function(d){if(d.imported_at>last)last=d.imported_at;});
+  var discs=[];all.forEach(function(d){if(discs.indexOf(d.discipline)<0)discs.push(d.discipline);});
+  $("dlvSub").textContent=proj+" · "+(discs.map(titleCase).join(", ")||"")+(last?" · last upload "+niceStamp(last):"")+" · warning "+warnDays()+" days ahead";
+  var states={};all.forEach(function(d){states[d.id]=dlvState(d);});
+  var live=all.filter(function(d){return d.in_sheet;}),done=live.filter(function(d){return states[d.id].done;}).length,c=dlvCounts(live);
+  var asg=live.filter(function(d){return !states[d.id].done&&states[d.id].k!=="open";}).length,open=live.filter(function(d){return states[d.id].k==="open";}).length;
+  st.append(stat("Drawings",String(live.length),"",done+" done · "+(live.length?Math.round(done/live.length*100):0)+"%"),
+    stat("Late",String(c.late),"","past the target date",c.late>0),stat("Due soon",String(c.soon),"","within "+warnDays()+" days",c.soon>0),
+    stat("Assigned",String(asg),"","given to an engineer, not done yet"),stat("Not assigned",String(open),"","nobody has these yet"));
+  /* coming dates */
+  var byDate={};live.forEach(function(d){if(!d.target||states[d.id].done)return;(byDate[d.target]=byDate[d.target]||[]).push(d);});
+  var dates=Object.keys(byDate).sort().slice(0,10);
+  if(dates.length){var tl=h("div",{"class":"dv-tl"});
+    dates.forEach(function(k){var g=byDate[k],n=daysLeft(g[0]),all_=live.filter(function(d){return d.target===k;}),dn=all_.filter(function(d){return states[d.id].done;}).length;
+      var cls=n<0?"late":n<=warnDays()?"soon":"";
+      tl.append(h("button",{type:"button","class":"dv-tlc "+cls,title:"Show these drawings",onclick:function(){dlvF.q="";dlvF.st="";dlvF.date=k;drawList();}},
+        h("span",{"class":"dv-tld",text:niceDate(k)}),h("b",{text:String(g.length)}),h("span",{"class":"dv-tls",text:"left · "+dueTxt(n)}),
+        h("span",{"class":"kpi-track"},h("i",{style:"width:"+(all_.length?dn/all_.length*100:0)+"%"}))));});
+    host.append(h("section",{"class":"att-sec dv-sec"},h("h3",{text:"Next target dates"}),tl));}
+  /* filters */
+  var sys=[],els=[],types=[];live.forEach(function(d){if(d.system&&sys.indexOf(d.system)<0)sys.push(d.system);if(d.element&&els.indexOf(d.element)<0)els.push(d.element);if(d.dtype&&types.indexOf(d.dtype)<0)types.push(d.dtype);});
+  var q=h("input",{type:"search","class":"kpi-search",placeholder:"Search drawing number or title…",value:dlvF.q,"aria-label":"Search drawings"});
+  q.addEventListener("input",function(){dlvF.q=q.value;dlvF.date="";drawList();});
+  function sel(key,label,opts){var s=h("select",{"class":"kpi-sort","aria-label":label});s.append(h("option",{value:"",text:label}));opts.sort().forEach(function(o){s.append(h("option",{value:o,text:o}));});
+    s.value=dlvF[key]||"";s.addEventListener("change",function(){dlvF[key]=s.value;dlvF.date="";drawList();});return s;}
+  var stSel=h("select",{"class":"kpi-sort","aria-label":"Status"});[["","All statuses"],["late","Late"],["soon","Due soon"],["open","Not assigned"],["progress","Assigned / in progress"],["ready","Ready to submit"],["submitted","Submitted"],["approved","Approved"],["revise","Revise"],["noneed","No need"],["gone","Not in the latest sheet"]].forEach(function(o){stSel.append(h("option",{value:o[0],text:o[1]}));});
+  stSel.value=dlvF.st;stSel.addEventListener("change",function(){dlvF.st=stSel.value;dlvF.date="";drawList();});
+  var grp=kpiSegD("group",[["date","By date"],["element","By element"]]);
+  host.append(h("div",{"class":"kpi-bar"},h("div",{"class":"kpi-bar-row"},q,sel("sys","All systems",sys),sel("el","All elements",els),sel("type","All types",types),stSel,h("span",{"class":"kpi-gap"}),grp)));
+  var bulk=h("div",{"class":"dv-bulk",id:"dlvBulk"});host.append(bulk);
+  var out=h("div",{"class":"dv-out"});host.append(h("p",{"class":"kpi-count",id:"dlvCountTxt"}),out);
+  function kpiSegD(key,opts){var g=h("div",{"class":"seg kpi-seg",role:"group","aria-label":key});opts.forEach(function(o){g.append(h("button",{type:"button","aria-pressed":String(dlvF[key]===o[0]),onclick:function(){dlvF[key]=o[0];saveDlvF();renderDeliv();}},o[1]));});return g;}
+  function match_(d){var s=states[d.id],qq=(dlvF.q||"").trim().toLowerCase();
+    if(dlvF.date&&d.target!==dlvF.date)return false;
+    if(dlvF.st==="gone")return !d.in_sheet;if(!d.in_sheet)return false;
+    if(dlvF.sys&&d.system!==dlvF.sys)return false;if(dlvF.el&&d.element!==dlvF.el)return false;if(dlvF.type&&d.dtype!==dlvF.type)return false;
+    if(dlvF.st==="late"||dlvF.st==="soon"){if(dlvDue(d,s)!==dlvF.st)return false;}else if(dlvF.st&&s.k!==dlvF.st)return false;
+    if(qq&&(d.doc_no+" "+d.title+" "+d.element+" "+d.system).toLowerCase().indexOf(qq)<0)return false;return true;}
+  function drawList(){
+    clear(out);var list=all.filter(match_).sort(function(a,b){return (a.target||"9999")<(b.target||"9999")?-1:(a.target||"9999")>(b.target||"9999")?1:a.doc_no.localeCompare(b.doc_no);});
+    $("dlvCountTxt").textContent=list.length+" of "+live.length+" drawings"+(dlvF.date?" · target "+niceDate(dlvF.date):"");
+    if(dlvF.date)$("dlvCountTxt").append(" ",h("button",{"class":"btn small quiet",type:"button",onclick:function(){dlvF.date="";drawList();}},"show all dates"));
+    if(!list.length){out.append(h("div",{"class":"empty"},h("p",{text:"No drawing matches these filters."})));paintBulk();return;}
+    var groups=[],m={};list.forEach(function(d){var k=dlvF.group==="element"?(d.system+" · "+d.element):(d.target||"");if(!m[k]){m[k]=[];groups.push(k);}m[k].push(d);});
+    groups.forEach(function(k){var g=m[k],allSel=g.every(function(d){return dlvSel[d.id];});
+      var head=dlvF.group==="element"?k:(k?niceDate(k)+" · "+dueTxt(daysLeft(g[0])):"No target date");
+      var cb=h("input",{type:"checkbox","aria-label":"Select all in "+head});cb.checked=allSel&&g.length>0;
+      cb.addEventListener("change",function(){g.forEach(function(d){if(cb.checked&&!states[d.id].done)dlvSel[d.id]=1;else delete dlvSel[d.id];});drawList();});
+      var tb=h("tbody");
+      g.forEach(function(d){var s=states[d.id],due=dlvDue(d,s),c2=h("input",{type:"checkbox","aria-label":"Select "+d.doc_no});c2.checked=!!dlvSel[d.id];
+        c2.addEventListener("change",function(){if(c2.checked)dlvSel[d.id]=1;else delete dlvSel[d.id];paintBulk();});
+        var who=(s.tasks||[]).map(function(t){return t.engineer;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+        var stEl;
+        if(canDelivManage()){stEl=h("select",{"class":"dv-st","aria-label":"Status of "+d.doc_no});[["","Auto: "+(d.status?"—":s.label)],["Submitted","Submitted"],["Approved","Approved"],["Revise","Revise"],["No need","No need"]].forEach(function(o){stEl.append(h("option",{value:o[0],text:o[1]}));});
+          stEl.value=d.status;stEl.addEventListener("change",function(){stEl.disabled=true;run(sb.rpc("tt_deliv_set",{p_id:d.id,p_status:stEl.value,p_note:""})).then(function(){d.status=stEl.value;toast(d.doc_no+": "+(stEl.value||"automatic status"));renderDeliv();}).catch(function(e){toast(writeError(e),true);stEl.disabled=false;});});}
+        tb.append(h("tr",{"class":"dv-row "+(due||"")+(s.done?" done":"")},
+          h("td",null,c2),
+          h("td",{"class":"dv-no"},h("strong",{text:d.doc_no}),d.remark?h("small",{"class":"rv-hint",text:d.remark}):null),
+          h("td",{"class":"dv-title"},d.title,h("small",{text:[d.system,d.element,d.dtype].filter(Boolean).join(" · ")})),
+          h("td",null,dlvChip(d,s)),
+          h("td",null,who.length?h("span",{"class":"dv-who"},who.join(", ")):h("span",{"class":"rv-hint",text:"—"})),
+          h("td",null,h("span",{"class":"dv-pill "+s.k,text:s.label})),
+          h("td",null,stEl||null)));});
+      out.append(h("section",{"class":"dv-grp"},h("div",{"class":"dv-gh"},cb,h("h4",{text:head}),h("span",{"class":"rv-hint",text:g.length+(g.length===1?" drawing":" drawings")+" · "+g.filter(function(d){return states[d.id].done;}).length+" done"})),
+        h("div",{"class":"att-wrap"},h("table",{"class":"att dv-t"},h("thead",null,h("tr",null,["","Drawing","Title","Target","Engineer","Status",canDelivManage()?"Set":""].map(function(c){return h("th",{text:c});}))),tb))));
+    });
+    paintBulk();
+  }
+  function paintBulk(){
+    var ids=Object.keys(dlvSel).filter(function(id){return all.some(function(d){return d.id===id;});}),b=clear($("dlvBulk"));
+    b.hidden=!ids.length||!canDelivManage();if(b.hidden)return;
+    var eng=h("select",{"class":"kpi-sort","aria-label":"Engineer"});eng.append(h("option",{value:"",text:"Pick the engineer"}));
+    var disc=null;all.forEach(function(d){if(dlvSel[d.id])disc=d.discipline;});
+    S.settings.engineers.filter(function(e){return !disc||inDisc(e,disc);}).forEach(function(e){eng.append(h("option",{value:e.name,text:e.name}));});
+    var dt=h("input",{type:"date",value:today(),"class":"kpi-sort","aria-label":"Task date"});
+    var one=h("input",{type:"checkbox","aria-label":"One task for all"});var ttl=h("input",{type:"text","class":"kpi-sort dv-ttl",placeholder:"Task name (one task for all)",maxlength:"300",hidden:true});
+    one.addEventListener("change",function(){ttl.hidden=!one.checked;});
+    var go=h("button",{"class":"btn primary",type:"button"},"Give to engineer");
+    go.addEventListener("click",function(){if(!eng.value){toast("Pick the engineer first.",true);return;}go.disabled=true;
+      run(sb.rpc("tt_deliv_assign",{p_ids:ids,p_engineer:eng.value,p_date:dt.value||today(),p_one:one.checked,p_title:ttl.value})).then(function(n){
+        toast((one.checked?"1 task":n+(n===1?" task":" tasks"))+" given to "+eng.value+". The engineer confirms and enters the estimate.");dlvSel={};return Promise.all([loadTasks(),loadDeliv()]);})
+        .then(function(){render();}).catch(function(e){toast(writeError(e),true);go.disabled=false;});});
+    b.append(h("b",{text:ids.length+(ids.length===1?" drawing selected":" drawings selected")}),eng,dt,h("label",{"class":"dv-one"},one," one task for all"),ttl,go,
+      h("button",{"class":"btn small quiet",type:"button",onclick:function(){dlvSel={};drawList();}},"Clear"));
+  }
+  drawList();
+}
+/* ---------- reading the Excel sheet ---------- */
+var dlvImport=null;
+function dlvPickFile(){var f=$("dlvFile");f.value="";f.click();}
+function cellVal(v){if(v==null)return "";if(v instanceof Date)return v;if(typeof v==="object"){if(v.result!==undefined)return cellVal(v.result);if(v.text!==undefined)return String(v.text);if(v.richText)return v.richText.map(function(x){return x.text;}).join("");}return v;}
+function toYmd(v){if(!v)return "";if(v instanceof Date){return v.getUTCFullYear()+"-"+String(v.getUTCMonth()+1).padStart(2,"0")+"-"+String(v.getUTCDate()).padStart(2,"0");}
+  if(typeof v==="number"&&v>20000&&v<80000){var d=new Date(Math.round((v-25569)*86400000));return toYmd(d);}
+  var s=String(v).trim(),m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);if(m)return m[1]+"-"+m[2].padStart(2,"0")+"-"+m[3].padStart(2,"0");
+  m=/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/.exec(s);if(m)return m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0");
+  var t=Date.parse(s);return isNaN(t)?"":toYmd(new Date(t));}
+function dlvReadFile(file){
+  if(!file)return;$("dlvErr").textContent="";
+  loadLib(LIB_EXCEL).then(function(){return file.arrayBuffer();}).then(function(buf){var wb=new ExcelJS.Workbook();return wb.xlsx.load(buf);}).then(function(wb){
+    var best=null;
+    wb.eachSheet(function(ws){if(best)return;
+      ws.eachRow({includeEmpty:false},function(row,rn){if(best&&best.ws===ws)return;var vals=row.values,map={};
+        for(var c=1;c<vals.length;c++){var t=String(cellVal(vals[c])||"").trim().toLowerCase();if(!t)continue;
+          if(/document\s*(number|no)|doc\.?\s*no|drawing\s*(number|no)|^dwg/.test(t))map.doc_no=c;else if(/title|description/.test(t))map.title=c;
+          else if(/^system/.test(t))map.system=c;else if(/^element/.test(t))map.element=c;else if(/^type/.test(t))map.dtype=c;
+          else if(/target|due|deadline/.test(t))map.target_date=c;else if(/remark|note|comment|status/.test(t))map.remark=c;}
+        if(map.doc_no&&map.target_date)best={ws:ws,row:rn,map:map};});});
+    if(!best)throw {plain:true,message:"Could not find the drawing list. The sheet needs a header row with “Document Number” and “Target Date”."};
+    var m=best.map,rows=[],maxCol=0;Object.keys(m).forEach(function(k){if(m[k]>maxCol)maxCol=m[k];});
+    if(!m.remark)m.remark=maxCol+1;
+    best.ws.eachRow({includeEmpty:false},function(row,rn){if(rn<=best.row)return;var v=row.values;function g(k){return m[k]?cellVal(v[m[k]]):"";}
+      var dn=String(g("doc_no")||"").trim();if(!dn||/document\s*number/i.test(dn))return;
+      rows.push({doc_no:dn,title:String(g("title")||"").trim(),system:String(g("system")||"").trim(),element:String(g("element")||"").trim(),dtype:String(g("dtype")||"").trim(),
+        target_date:toYmd(g("target_date")),remark:String(g("remark")||"").trim()});});
+    if(!rows.length)throw {plain:true,message:"The drawing list in this sheet is empty."};
+    dlvImport={rows:rows,file:file.name,sheet:best.ws.name};openDlvImport();
+  }).catch(function(e){toast((e&&e.plain)?e.message:"This file could not be read as an Excel workbook.",true);});
+}
+function openDlvImport(){
+  var r=dlvImport.rows,ps=clear($("diProj")),ds=clear($("diDisc"));
+  var projs=S.settings.projects.slice();dlvProjects().forEach(function(p){if(projs.indexOf(p)<0)projs.push(p);});
+  projs.forEach(function(p){ps.append(h("option",{value:p,text:p}));});
+  var guess=projs.filter(function(p){return dlvImport.file.toUpperCase().indexOf(p.toUpperCase())>=0;})[0]||dlvF.proj||projs[0]||"";ps.value=guess;
+  var mine=can("view_all")?DISC.map(function(d){return d.k;}):myDiscs();
+  mine.forEach(function(d){ds.append(h("option",{value:d,text:titleCase(d)}));});
+  var fu=dlvImport.file.toUpperCase(),dg=/ARCH|ARC[-_ ]/.test(fu)?"ARCHITECTURE":/ELEC|ELE[-_ ]/.test(fu)?"ELECTRICAL":/MECH|MEP|MEC[-_ ]/.test(fu)?"MECHANICAL":"STRUCTURE";
+  ds.value=mine.indexOf(dg)>=0?dg:(mine[0]||"");
+  var dated=r.filter(function(x){return x.target_date;}).map(function(x){return x.target_date;}).sort();
+  $("diInfo").textContent=r.length+" drawings found in “"+dlvImport.sheet+"” of "+dlvImport.file+(dated.length?" · targets "+niceDate(dated[0])+" to "+niceDate(dated[dated.length-1]):"")+
+    (r.length-dated.length?" · "+(r.length-dated.length)+" without a date":"");
+  var tb=h("tbody");r.slice(0,6).forEach(function(x){tb.append(h("tr",null,h("td",{text:x.doc_no}),h("td",{text:x.title}),h("td",{text:x.element}),h("td",{text:x.dtype}),h("td",{text:x.target_date?niceDate(x.target_date):"—"})));});
+  clear($("diPrev")).append(h("div",{"class":"att-wrap"},h("table",{"class":"att dv-t"},h("thead",null,h("tr",null,["Drawing","Title","Element","Type","Target"].map(function(c){return h("th",{text:c});}))),tb)));
+  $("diErr").textContent="";$("dlvImpDlg").showModal();
+}
+function doDlvImport(){
+  var b=$("diGo");b.disabled=true;$("diErr").textContent="";
+  run(sb.rpc("tt_deliv_import",{p_project:$("diProj").value,p_discipline:$("diDisc").value,p_rows:dlvImport.rows})).then(function(res){
+    res=res||{};$("dlvImpDlg").close();dlvF.proj=$("diProj").value;saveDlvF();
+    toast("Uploaded: "+(res.added||0)+" new, "+(res.updated||0)+" updated"+(res.missing?", "+res.missing+" no longer in the sheet":"")+".");return loadDeliv();})
+    .catch(function(e){$("diErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");}).then(function(){b.disabled=false;});
+}
+(function(){var t=$("tabDeliv");if(!t)return;t.addEventListener("click",function(){setView("deliv");loadDeliv();});
+  $("dlvUpload").addEventListener("click",dlvPickFile);$("dlvFile").addEventListener("change",function(){var f=this.files&&this.files[0];if(f)dlvReadFile(f);});
+  $("dlvProj").addEventListener("change",function(){dlvF.proj=this.value;dlvSel={};saveDlvF();renderDeliv();});
+  $("diGo").addEventListener("click",doDlvImport);$("diCancel").addEventListener("click",function(){$("dlvImpDlg").close();});})();
+/* the due date on the task itself */
+function dueNote(t){if(!t.due_date)return null;var n=Math.round((parseDate(t.due_date)-parseDate(today()))/86400000),k=t.status==="Completed"?"done":n<0?"late":n<=warnDays()?"soon":"";
+  return h("span",{"class":"dv-due "+k,title:t.doc_ref?"Drawing "+t.doc_ref:null,text:"Target "+niceDate(t.due_date)+(t.status==="Completed"?"":" · "+dueTxt(n))+(t.doc_ref?" · "+(t.doc_ref.length>40?t.doc_ref.slice(0,40)+"…":t.doc_ref):"")});}
 
 start();
 })();
