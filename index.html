@@ -769,6 +769,14 @@ table.pm-t tbody tr:hover td{background:color-mix(in srgb,var(--accent-soft) 40%
 .pm-prow.chg{background:var(--gold-soft)}.pm-prow select{font:inherit;font-size:13px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
 .pm-eff{font-size:12px;color:var(--muted);text-align:right}
 @media (max-width:640px){.pm-prow{grid-template-columns:1fr}.pm-eff{text-align:left}}
+.pm-all{max-height:calc(100vh - 290px)}
+.pm-all table.pm-t th.pm-gh{color:var(--accent);border-left:2px solid var(--line)}
+.pm-all table.pm-t th.pm-vh{height:96px;vertical-align:bottom;padding:4px 2px;min-width:34px;top:29px}
+.pm-all table.pm-t th.pm-vh span{display:inline-block;writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:11px}
+.pm-all .pm-sticky{position:sticky;left:0;z-index:2;background:var(--surface);min-width:190px;box-shadow:1px 0 0 var(--line)}
+.pm-all thead .pm-sticky{z-index:3;background:var(--surface-2)}
+.pm-all table.pm-t td{padding:5px 2px}
+.pm-all table.pm-t td.pm-name{padding:6px 8px}
 td.act-lock{white-space:nowrap}.lock-ic{display:inline-block;width:11px;height:11px;margin-right:5px;vertical-align:-1px;background:var(--muted);opacity:.7;
   -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 10V7a6 6 0 0 1 12 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h8V7a4 4 0 0 0-8 0z'/></svg>") center/contain no-repeat;
   mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 10V7a6 6 0 0 1 12 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h8V7a4 4 0 0 0-8 0z'/></svg>") center/contain no-repeat}
@@ -1513,7 +1521,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <dialog id="permDlg" class="perm-dlg" aria-labelledby="pmTitle">
   <div class="dlg-h"><h3 id="pmTitle">Permissions</h3></div>
   <div class="team-b">
-    <div class="seg" id="pmTabs" role="group" aria-label="Permissions by"><button type="button" data-k="roles" aria-pressed="true">By role</button><button type="button" data-k="people" aria-pressed="false">For one person</button></div>
+    <div class="seg" id="pmTabs" role="group" aria-label="Permissions by"><button type="button" data-k="roles" aria-pressed="true">By role</button><button type="button" data-k="all" aria-pressed="false">Everyone</button><button type="button" data-k="people" aria-pressed="false">For one person</button></div>
     <div id="pmBody"></div>
     <p class="err" id="pmErr" role="alert"></p>
   </div>
@@ -2028,10 +2036,11 @@ function setView(v){S.view=v;saveView();render();}
 function render(){
   renderFilters();renderInbox();
   if(S.view==="management"&&!canMgmt())S.view="tracker";
+  if(S.view==="dashboard"&&me&&!can("tab_dash"))S.view="tracker";
   if(S.view==="review"&&me&&!canReview())S.view="tracker";
   if(S.view==="attendance"&&me&&!canAttend())S.view="tracker";
   var rows=S.tasks.filter(match),v=S.view;
-  $("tabMgmt").hidden=!canMgmt();$("btnPerms").hidden=!isAdmin();$("btnUsers").hidden=!isAdmin();$("fEngineer").parentNode.hidden=!seesTeam();$("btnOnline").hidden=!seesTeam();
+  $("tabMgmt").hidden=!canMgmt();$("btnPerms").hidden=!isAdmin();$("tabDash").hidden=!can("tab_dash");$("btnUsers").hidden=!isAdmin();$("fEngineer").parentNode.hidden=!seesTeam();$("btnOnline").hidden=!can("see_online");
   $("viewTracker").hidden=v!=="tracker";$("viewReview").hidden=v!=="review";$("viewAtt").hidden=v!=="attendance";$("viewKpi").hidden=v!=="kpi";$("tabKpi").hidden=!me;$("tabKpi").setAttribute("aria-pressed",String(v==="kpi"));$("tabAtt").hidden=!canAttend();$("tabAtt").setAttribute("aria-pressed",String(v==="attendance"));paintPunch();$("tabReview").hidden=!canReview();$("tabReview").setAttribute("aria-pressed",String(v==="review"));paintReviewCount();$("viewDash").hidden=v!=="dashboard";$("viewMgmt").hidden=v!=="management";
   $("filtersBox").hidden=v==="management"||v==="review"||v==="attendance"||v==="kpi";$("stats").hidden=v==="management"||v==="review"||v==="attendance"||v==="kpi";
   $("tabTracker").setAttribute("aria-pressed",String(v==="tracker"));$("tabDash").setAttribute("aria-pressed",String(v==="dashboard"));$("tabMgmt").setAttribute("aria-pressed",String(v==="management"));
@@ -2040,7 +2049,7 @@ function render(){
   else if(v==="review")renderReview();
   else if(v==="management"){renderMgmt();renderCurves();renderEngScore();renderMgmtCharts();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
-  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();paintReqBadge();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded;
+  $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();paintReqBadge();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded||!can("export_data");
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
   $("connText").textContent=S.conn==="live"?"Live":S.conn==="off"?"Offline":"Connecting…";
 }
@@ -3468,7 +3477,7 @@ function stateLabel(x){
   return {free:"No open task",working:"Working",paused:"Paused",idle:"Timer off",waiting:"Not confirmed",stopped:x.task?x.task.status:"Stopped"}[x.kind];
 }
 function renderFree(v){
-  var box=$("freeBox"),show=seesTeam()&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance";
+  var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance";
   box.hidden=!show;if(!show)return;clear(box);
   var list=teamStates(),c={free:0,working:0,paused:0,soon:0,stopped:0,idle:0,waiting:0};
   list.forEach(function(x){c[x.kind]++;if(x.soon)c.soon++;});
@@ -5148,6 +5157,10 @@ function prClose(how){
 
 /* ---------- permissions: the admin decides who may do what (v42) ---------- */
 var PERMS=[
+  ["Screens",[["tab_dash","Team dashboard tab","The Team dashboard with charts"],
+    ["see_free","Available now box","Who is free or working right now, on the Tracker"],
+    ["see_online","Online list","Who has the tracker open right now"],
+    ["export_data","Export","Download tasks to Excel or PDF"]]],
   ["Tasks",[["view_all","See every discipline","Tasks, team and attendance of every discipline, not only their own"],
     ["mgmt_dash","Management dashboard","Open the Management dashboard tab"],
     ["add_tasks","Give and delete tasks","Add, copy and delete tasks in their discipline (everywhere with See every discipline)"],
@@ -5166,7 +5179,12 @@ var PERMS=[
     ["kpi_send","KPI · Send to the person","Share a finished KPI form with the person"]]]];
 var PERM_ROLES=["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior","coordinator","engineer"];
 var LEADS4=["sectionhead","teamleader","senior","midsenior"];
-var PERM_DEF={view_all:["manager","projectmanager","topmanagement"],mgmt_dash:["manager","projectmanager","topmanagement"],add_tasks:LEADS4,
+var PERM_SHORT={tab_dash:"Team dash.",see_free:"Available now",see_online:"Online list",export_data:"Export",view_all:"All disc.",mgmt_dash:"Mgmt dash.",add_tasks:"Give tasks",
+  edit_tasks:"Edit tasks",manage_rows:"Correct hours",review_page:"My review",ping:"Alert",announce:"Announce",att_view_team:"Team attend.",att_correct:"Fix attend.",
+  approve_requests:"Approve leave",clock_in:"Clock in",kpi_hr:"KPI HR",kpi_mgr:"KPI mgr",kpi_top:"KPI top",kpi_send:"KPI send"};
+var ALLROLES=["manager","projectmanager","topmanagement"].concat(["sectionhead","teamleader","senior","midsenior"],["coordinator","engineer"]);
+var PERM_DEF={tab_dash:ALLROLES,see_free:["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior"],
+  see_online:["manager","projectmanager","topmanagement","sectionhead","teamleader","senior","midsenior"],export_data:ALLROLES,view_all:["manager","projectmanager","topmanagement"],mgmt_dash:["manager","projectmanager","topmanagement"],add_tasks:LEADS4,
   edit_tasks:["manager"].concat(LEADS4),manage_rows:LEADS4,review_page:LEADS4,ping:["manager"].concat(LEADS4),announce:["projectmanager","topmanagement"].concat(LEADS4),
   att_view_team:["manager","projectmanager","topmanagement"].concat(LEADS4),att_correct:LEADS4,approve_requests:LEADS4,clock_in:LEADS4.concat(["coordinator","engineer"]),
   kpi_hr:["manager"],kpi_mgr:LEADS4,kpi_top:["projectmanager","topmanagement"],kpi_send:["projectmanager","topmanagement"]};
@@ -5210,6 +5228,7 @@ function permRoleVal(role,perm){if(permDraft[role]&&typeof permDraft[role][perm]
 function renderPerms(){
   Array.prototype.forEach.call(document.querySelectorAll("#pmTabs button"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-k")===permTab));});
   var host=clear($("pmBody"));
+  if(permTab==="all"){renderPermAll(host);return;}
   if(permTab==="roles"){
     var tb=h("tbody");
     PERMS.forEach(function(g){
@@ -5258,8 +5277,48 @@ function savePerms(){
 }
 (function(){var o=$("btnPerms");if(!o)return;o.addEventListener("click",openPerms);
   $("pmSave").addEventListener("click",savePerms);$("pmCancel").addEventListener("click",function(){$("permDlg").close();});
-  $("pmReset").addEventListener("click",function(){if(permTab==="roles"){permDraft={};}else if(permWho){permPersonDraft[permWho]={};}renderPerms();});
+  $("pmReset").addEventListener("click",function(){if(permTab==="roles"){permDraft={};}else if(permTab==="all"){directory.forEach(function(u){permPersonDraft[u.email]={};});}else if(permWho){permPersonDraft[permWho]={};}renderPerms();});
   Array.prototype.forEach.call(document.querySelectorAll("#pmTabs button"),function(b){b.addEventListener("click",function(){permTab=b.getAttribute("data-k");renderPerms();});});})();
+
+/* everyone at once: one row per person, one column per permission; a click gives or takes it */
+var pmQ="",pmDisc="";
+function permEff(email,role,perm){var d=permPersonDraft[email],v;if(d&&typeof d[perm]==="boolean")return d[perm];
+  allUserPerms.forEach(function(x){if(x.email===email&&x.perm===perm)v=x.allow;});return typeof v==="boolean"?v:roleCan(role,perm,permDraft);}
+function permOver(email,perm){var d=permPersonDraft[email];if(d)return typeof d[perm]==="boolean";return allUserPerms.some(function(x){return x.email===email&&x.perm===perm;});}
+function permPersonInit(email){if(!permPersonDraft[email]){var cur={};allUserPerms.forEach(function(x){if(x.email===email)cur[x.perm]=x.allow;});permPersonDraft[email]=cur;}return permPersonDraft[email];}
+function renderPermAll(host){
+  var ps=directory.filter(function(u){return u.role!=="admin";});
+  var q=h("input",{type:"search","class":"kpi-search",placeholder:"Search a name…",value:pmQ,"aria-label":"Search a name"});
+  var ds=h("select",{"class":"pm-who","aria-label":"Discipline"});ds.append(h("option",{value:"",text:"All disciplines"}));DISC.forEach(function(d){ds.append(h("option",{value:d.k,text:titleCase(d.k)}));});ds.value=pmDisc;
+  var rs=h("select",{"class":"pm-who","aria-label":"Role"});rs.append(h("option",{value:"",text:"All roles"}));ALLROLES.forEach(function(r){rs.append(h("option",{value:r,text:roleName(r)}));});rs.value=pmRole;
+  host.append(h("div",{"class":"pm-whobar"},q,ds,rs,h("span",{"class":"hint",text:"Tick or untick a box to give or take that one permission from that one person. Gold = different from their role."})));
+  var cols=[];PERMS.forEach(function(g){g[1].forEach(function(p){cols.push([p[0],p[1],p[2],g[0]]);});});
+  var wrap=h("div",{"class":"pm-wrap pm-all"});host.append(wrap);
+  function draw(){
+    clear(wrap);var qq=pmQ.trim().toLowerCase();
+    var list=ps.filter(function(u){if(pmDisc&&personDiscs(u.email).indexOf(pmDisc)<0)return false;if(pmRole&&u.role!==pmRole)return false;
+      return !qq||String(u.name||"").toLowerCase().indexOf(qq)>=0||u.email.indexOf(qq)>=0;})
+      .sort(function(a,b){return ROLE_ORDER.indexOf(a.role)-ROLE_ORDER.indexOf(b.role)||(a.name||a.email).localeCompare(b.name||b.email);});
+    var hr1=h("tr",null,h("th",{"class":"pm-sticky",rowspan:"2",text:"Person"})),hr2=h("tr"),last="",span=null;
+    cols.forEach(function(c){if(c[3]!==last){span=h("th",{"class":"pm-gh",colspan:"0",text:c[3]});span._n=0;hr1.append(span);last=c[3];}span._n++;span.setAttribute("colspan",String(span._n));
+      hr2.append(h("th",{"class":"pm-vh",title:c[1]+": "+c[2]},h("span",{text:PERM_SHORT[c[0]]||c[1]})));});
+    var tb=h("tbody");
+    if(!list.length)tb.append(h("tr",null,h("td",{colspan:String(cols.length+1),"class":"pm-name",text:"No one matches."})));
+    list.forEach(function(u){var tr=h("tr",null,h("td",{"class":"pm-name pm-sticky"},h("strong",{text:u.name||u.email}),h("small",{text:roleName(u.role)+(personDiscs(u.email).length?" · "+discLabel(personDiscs(u.email)):"")})));
+      cols.forEach(function(c){var on=permEff(u.email,u.role,c[0]),ov=permOver(u.email,c[0]);
+        var cb=h("input",{type:"checkbox","aria-label":c[1]+" · "+(u.name||u.email)});cb.checked=on;
+        var td=h("td",{"class":"pm-cell"+(ov?" chg":""),title:(on?"Has it":"Does not have it")+(ov?" (set for this person)":" (from the role)")},cb);
+        cb.addEventListener("change",function(){var d=permPersonInit(u.email),rv=roleCan(u.role,c[0],permDraft);
+          if(cb.checked===rv)delete d[c[0]];else d[c[0]]=cb.checked;var o=typeof d[c[0]]==="boolean";td.classList.toggle("chg",o);
+          td.title=(cb.checked?"Has it":"Does not have it")+(o?" (set for this person)":" (from the role)");});
+        tr.append(td);});
+      tb.append(tr);});
+    wrap.append(h("table",{"class":"pm-t"},h("thead",null,hr1,hr2),tb));
+  }
+  q.addEventListener("input",function(){pmQ=q.value;draw();});ds.addEventListener("change",function(){pmDisc=ds.value;draw();});rs.addEventListener("change",function(){pmRole=rs.value;draw();});
+  draw();
+}
+var pmRole="";
 
 start();
 })();
