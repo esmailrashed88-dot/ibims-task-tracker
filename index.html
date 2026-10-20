@@ -754,6 +754,8 @@ select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);back
 .dv-body{display:grid;gap:14px}
 .dv-body,.dv-out{grid-template-columns:minmax(0,1fr)}.dv-sec{min-width:0}
 .dv-back{margin-left:6px;padding:2px 8px;font-size:12px}
+#dlvStats{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:860px){#dlvStats{grid-template-columns:repeat(2,minmax(0,1fr))}#dlvStats .stat:last-child{grid-column:auto}}
 .dv-src{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:-4px 0 14px;padding:8px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:9px;background:var(--surface);font-size:13px}
 .dv-src[hidden]{display:none}.dv-src .dot{width:9px;height:9px;border-radius:50%;background:var(--ok,var(--accent))}.dv-src.err{border-left-color:var(--bad)}.dv-src.err .dot{background:var(--bad)}
 .dv-src .grow{flex:1 1 240px;color:var(--muted)}.dv-src .grow b{color:var(--ink)}
@@ -1611,7 +1613,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <label class="field"><span>Share link</span><input id="dlUrl" type="url" placeholder="https://1drv.ms/x/c/…" autocomplete="off"></label>
     <div class="copy-dates"><label class="field"><span>Project</span><select id="dlProj"></select></label><label class="field" id="dlNewWrap" hidden><span>New project name</span><input id="dlNew" type="text" maxlength="60"></label>
       <label class="field"><span>Discipline</span><select id="dlDisc"></select></label>
-      <label class="field"><span>Check every</span><select id="dlEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label></div>
+      <label class="field"><span>Check every</span><select id="dlEvery"><option value="1">1 minute</option><option value="2">2 minutes</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label></div>
     <p class="hint">The sheet is treated as a pending list: drawings that leave it become <b>Submitted</b>, new rows are added, changed dates are updated, and a drawing that comes back becomes <b>Revise</b>. A “Status” column (Submitted / Approved / Revise / No need), if the sheet has one, is applied too.</p>
     <p class="hint" id="dlTest"></p>
     <p class="err" id="dlErr" role="alert"></p>
@@ -5492,8 +5494,12 @@ function renderDeliv(){
   $("dlvSub").textContent=proj+" · "+(discs.map(titleCase).join(", ")||"")+(last?" · last upload "+niceStamp(last):"")+" · warning "+warnDays()+" days ahead";
   var states={};all.forEach(function(d){states[d.id]=dlvState(d);});
   var live=all.filter(function(d){return d.in_sheet;}),done=live.filter(function(d){return states[d.id].done;}).length,c=dlvCounts(live);
-  var asg=live.filter(function(d){return !states[d.id].done&&states[d.id].k!=="open";}).length,open=live.filter(function(d){return states[d.id].k==="open";}).length;
-  st.append(stat("Drawings",String(live.length),"",done+" done · "+(live.length?Math.round(done/live.length*100):0)+"%"),
+  function hasT(d){return (states[d.id].tasks||[]).length>0;}
+  var asg=live.filter(function(d){return !states[d.id].done&&hasT(d);}).length,open=live.filter(function(d){return !states[d.id].done&&!hasT(d);}).length;
+  var left=live.filter(dlvLeft),inSheet=live.length-left.length,noNeed=live.filter(function(d){return d.status==="No need";}).length,
+    sub=live.filter(function(d){return d.status==="Submitted"||d.status==="Approved";}).length,base=live.length-noNeed;
+  st.append(stat(srcOf(proj)?"In the sheet now":"Drawings",String(inSheet),"",noNeed?noNeed+" no need":"still to be submitted"),
+    stat("Submitted",String(sub),"","of "+base+" · "+(base?Math.round(sub/base*100):0)+"%"+(left.length?" · "+left.length+" left the sheet":"")),
     stat("Late",String(c.late),"","past the target date",c.late>0),stat("Due soon",String(c.soon),"","within "+warnDays()+" days",c.soon>0),
     stat("Assigned",String(asg),"","given to an engineer, not done yet"),stat("Not assigned",String(open),"","nobody has these yet"));
   /* coming dates */
@@ -5579,6 +5585,7 @@ function renderDeliv(){
 }
 /* ---------- TIDP linked to an online sheet ---------- */
 var dlvSrc=[],tidpTimer=null,tidpBusy={};
+function dlvLeft(d){return d.status==="Submitted"&&d.note==="Left the pending list";}
 function srcOf(p){return dlvSrc.filter(function(x){return x.project===p;})[0]||null;}
 function dlvResTxt(r){r=r||{};var b=[(r.added||0)+" new",(r.updated||0)+" updated"];if(r.submitted)b.push(r.submitted+" submitted");if(r.back)b.push(r.back+" back for revision");if(r.missing)b.push(r.missing+" no longer in the sheet");return b.join(", ");}
 /* a share link → a link the browser can download the workbook from */
@@ -5610,12 +5617,13 @@ function tidpSyncOne(src,force){
 function tidpTick(){if(!sb||!me||!canDelivManage())return;var now=Date.now();
   dlvSrc.forEach(function(src){if(!inScope(src.discipline))return;var last=src.checked_at?new Date(src.checked_at).getTime():0;
     if(!last||now-last>=src.every*60000)tidpSyncOne(src,false).catch(function(){});});}
-function startTidpSync(){if(tidpTimer||!canDelivManage()||!dlvSrc.length)return;tidpTimer=setInterval(tidpTick,60000);setTimeout(tidpTick,3000);}
+function startTidpSync(){if(tidpTimer||!canDelivManage()||!dlvSrc.length)return;tidpTimer=setInterval(tidpTick,20000);setTimeout(tidpTick,1500);}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&tidpTimer)setTimeout(tidpTick,500);});
 function stopTidpSync(){if(tidpTimer){clearInterval(tidpTimer);tidpTimer=null;}tidpBusy={};}
 function agoTxt(iso){if(!iso)return "never";var m=Math.round((Date.now()-new Date(iso).getTime())/60000);if(m<1)return "just now";if(m<60)return m+" min ago";var hh=Math.round(m/60);return hh<24?hh+" h ago":niceStamp(iso);}
 function renderDlvSrc(src){var box=$("dlvSrc");if(!box)return;clear(box);box.hidden=!src;if(!src)return;
   var busy=!!tidpBusy[src.project],r=src.last_result;box.className="dv-src"+(src.last_error?" err":"")+(busy?" busy":"");
-  var txt=h("span",{"class":"grow"},h("b",{text:"Online sheet "}),busy?"reading now…":"checked "+agoTxt(src.checked_at)+" · every "+src.every+" min"+
+  var txt=h("span",{"class":"grow"},h("b",{text:"Online sheet "}),busy?"reading now…":"checked "+agoTxt(src.checked_at)+" · every "+(src.every===1?"minute":src.every+" min")+
     (src.synced_at?" · last change read "+agoTxt(src.synced_at)+(r?" ("+dlvResTxt(r)+")":""):""));
   if(src.last_error)txt.append(h("br"),h("span",{"class":"err",text:src.last_error}));
   box.append(h("span",{"class":"dot","aria-hidden":"true"}),txt,h("a",{href:src.url,target:"_blank",rel:"noopener","class":"btn small quiet"},"Open sheet"));
@@ -5630,7 +5638,7 @@ function openDlvLink(){
   projs.forEach(function(p){ps.append(h("option",{value:p,text:p}));});ps.append(h("option",{value:"__new",text:"+ New project…"}));ps.value=proj||projs[0]||"__new";
   var mine=can("view_all")?DISC.map(function(d){return d.k;}):myDiscs();mine.forEach(function(d){ds.append(h("option",{value:d,text:titleCase(d)}));});
   var disc=src?src.discipline:(dlv.filter(function(d){return d.project===proj;})[0]||{}).discipline;ds.value=mine.indexOf(disc)>=0?disc:(mine.indexOf("STRUCTURE")>=0?"STRUCTURE":mine[0]||"");
-  $("dlUrl").value=src?src.url:"";$("dlEvery").value=String(src?src.every:15);if(!$("dlEvery").value)$("dlEvery").value="15";
+  $("dlUrl").value=src?src.url:"";$("dlEvery").value=String(src?src.every:2);if(!$("dlEvery").value)$("dlEvery").value="2";
   $("dlNew").value="";$("dlNewWrap").hidden=ps.value!=="__new";$("dlTest").textContent="";$("dlErr").textContent="";$("dlGo").disabled=false;$("dlvLinkDlg").showModal();}
 function dlLinkProj(){return $("dlProj").value==="__new"?$("dlNew").value.trim().toUpperCase().replace(/\s+/g," "):$("dlProj").value;}
 function dlCheck(){var u=$("dlUrl").value.trim();$("dlErr").textContent="";$("dlTest").textContent="Reading the sheet…";
@@ -5639,7 +5647,7 @@ function dlCheck(){var u=$("dlUrl").value.trim();$("dlErr").textContent="";$("dl
     $("dlTest").textContent="✓ "+p.rows.length+" drawings found in “"+p.sheet+"”"+(dated.length?" · targets "+niceDate(dated[0])+" to "+niceDate(dated[dated.length-1]):"")+(st?" · "+st+" with a status":"")+".";return p;},
     function(e){$("dlTest").textContent="";$("dlErr").textContent=(e&&e.plain)?e.message:"The online sheet could not be read as an Excel workbook.";throw e;});}
 function dlGo(){var pj=dlLinkProj(),b=$("dlGo");if(!pj){$("dlErr").textContent="Write the project name.";return;}b.disabled=true;
-  dlCheck().then(function(){return run(sb.rpc("tt_tidp_source_set",{p_project:pj,p_discipline:$("dlDisc").value,p_url:$("dlUrl").value.trim(),p_every:+$("dlEvery").value||15}));})
+  dlCheck().then(function(){return run(sb.rpc("tt_tidp_source_set",{p_project:pj,p_discipline:$("dlDisc").value,p_url:$("dlUrl").value.trim(),p_every:+$("dlEvery").value||2}));})
     .then(function(){dlvGoProj(pj,"");return loadDeliv();}).then(function(){var src=srcOf(pj);$("dlvLinkDlg").close();
       if(!src)return;toast("Linked. Reading "+pj+" now…");return tidpSyncOne(src,true).then(function(res){toast(pj+" read from the online sheet: "+dlvResTxt(res)+".");});})
     .catch(function(e){if(e){var m=(e&&e.plain)?e.message:writeError(e);if(/tt_tidp_source_set|does not exist|schema cache/i.test(String(e&&e.message)))m="Run the new database setup (version 31) in Supabase first.";
@@ -5738,7 +5746,7 @@ function doDlvImport(){
     toast(pj+" uploaded: "+dlvResTxt(res)+".");return loadDeliv();})
     .catch(function(e){$("diErr").textContent=writeError(e).replace(/^Could not save:\s*/,"");}).then(function(){b.disabled=false;});
 }
-(function(){var t=$("tabDeliv");if(!t)return;t.addEventListener("click",function(){setView("deliv");loadDeliv();});
+(function(){var t=$("tabDeliv");if(!t)return;t.addEventListener("click",function(){setView("deliv");loadDeliv().then(function(){if(tidpTimer)tidpTick();});});
   $("dlvUpload").addEventListener("click",function(){dlvNewProj=false;dlvPickFile();});
   $("diProj").addEventListener("change",function(){$("diNewWrap").hidden=this.value!=="__new";if(this.value==="__new")$("diNew").focus();});$("dlvFile").addEventListener("change",function(){var f=this.files&&this.files[0];if(f)dlvReadFile(f);});
   $("dlvProj").addEventListener("change",function(){dlvF.proj=this.value;dlvSel={};saveDlvF();renderDeliv();});
