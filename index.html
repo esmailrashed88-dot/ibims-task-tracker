@@ -756,6 +756,16 @@ select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);back
 .mg-kpi b{font-size:15px}.mg-kpi small{font-size:11px;color:var(--muted)}.mg-kpi:hover{border-color:var(--accent)}
 .mg-kpi.ok b{color:var(--ok)}.mg-kpi.warn b{color:var(--warn)}.mg-kpi.bad b{color:var(--bad)}
 dialog.kpi-dlg.mg-dlg{width:min(1180px,96vw);max-width:96vw}.mg-dlg .dlg-h .sub{margin:4px 0 0;opacity:.85;font-size:13px}.mg-dsec{padding:0}
+.fr-chips{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 2px}
+.fr-chip{display:grid;grid-template-columns:auto auto;gap:2px 14px;align-items:center;text-align:left;min-width:200px;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--idle);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.fr-chip.has{border-left-color:var(--ok)}.fr-chip:hover{border-color:var(--accent)}.fr-chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.fr-chip b{font-size:15px}.fr-chip .fr-n{justify-self:end;display:inline-flex;gap:6px;align-items:center;font-weight:700;font-size:13px}.fr-chip.has .fr-n{color:var(--ok)}
+.fr-dot{width:8px;height:8px;border-radius:50%;background:var(--idle)}.fr-chip.has .fr-dot{background:var(--ok)}
+.fr-chip .fr-sub{font-size:12px;color:var(--muted)}.fr-chip .fr-chev{justify-self:end;color:var(--muted);font-size:12px}
+#freeBox .tm-grid{margin-top:12px}
+.stat.dv-tile{cursor:pointer;position:relative}.stat.dv-tile:hover,.stat.dv-tile:focus-visible{background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.stat.dv-tile.on{box-shadow:inset 0 -3px 0 var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.mg-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -1537,7 +1547,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 <dialog id="kpiDlg" class="kpi-dlg" aria-labelledby="kpiTitle">
   <div class="dlg-h"><h3 id="kpiTitle">KPI</h3></div>
   <div id="kpiBody" class="kpi-body"></div>
-  <div class="dlg-f"><span class="hint left" id="kpiRelNote"></span><button class="btn" id="kpiClose" type="button">Close</button><button class="btn primary" id="kpiRelease" type="button" hidden>Send</button></div>
+  <div class="dlg-f"><span class="hint left" id="kpiRelNote"></span><button class="btn danger" id="kpiDelForm" type="button" hidden>Delete form</button><button class="btn" id="kpiClose" type="button">Close</button><button class="btn primary" id="kpiRelease" type="button" hidden>Send</button></div>
 </dialog>
 
 <dialog id="kpiSumDlg" class="kpi-dlg" aria-labelledby="kpiSumTitle">
@@ -3578,7 +3588,7 @@ function stateLeftTxt(x){
 function stateLabel(x){
   return {free:"No open task",working:"Working",paused:"Paused",idle:"Timer off",waiting:"Not confirmed",stopped:x.task?x.task.status:"Stopped"}[x.kind];
 }
-function renderFree(v){
+function renderFree0(v){
   var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance"&&v!=="deliv"&&v!=="management";
   box.hidden=!show;if(!show)return;clear(box);
   var list=teamStates(),c={free:0,working:0,paused:0,soon:0,stopped:0,idle:0,waiting:0};
@@ -5019,15 +5029,28 @@ function renderKpiForm(){
       row.append(g,h("small",{"class":"kpi-sl",text:cur?KPI_SCALE[cur]:""}));list.append(row);});
     card.append(list);
     if(can){var ta=h("textarea",{"class":"kpi-note",maxlength:"1500",placeholder:"Notes for this part (optional)"});ta.value=d.note;ta.addEventListener("input",function(){d.note=ta.value;});
-      card.append(ta,h("div",{"class":"kpi-acts"},h("button",{type:"button","class":"btn small",onclick:function(ev){saveKpi(key,labels,false,ev.currentTarget);}},"Save draft"),
-        h("button",{type:"button","class":"btn small primary",onclick:function(ev){saveKpi(key,labels,true,ev.currentTarget);}},saved&&saved.done?"Submit again":"Submit")));}
+      card.append(ta,h("div",{"class":"kpi-acts"},saved?h("button",{type:"button","class":"btn small danger left",title:"Remove the scores of this part",onclick:function(ev){clearKpi(r,key,P[1],ev.currentTarget);}},"Delete this part"):null,
+        h("button",{type:"button","class":"btn small",onclick:function(ev){saveKpi(key,labels,false,ev.currentTarget);}},"Save draft"),
+        h("button",{type:"button","class":"btn small primary",onclick:function(ev){saveKpi(key,labels,true,ev.currentTarget);}},saved&&saved.done?"Save changes":"Submit")));
+      if(saved&&saved.done)card.append(h("p",{"class":"hint",text:"Already submitted. Change any score and click Save changes, or delete this part."}));}
+    else if(released&&kpiCan(key,email))card.append(h("p",{"class":"hint",text:"This form was sent to the person. Take it back first to change this part."}));
     else if(saved&&saved.note)card.append(h("p",{"class":"kpi-noteview",text:saved.note}));
     host.append(card);
   });
+  var kdb=$("kpiDelForm");kdb.hidden=!r||!(isAdmin()||kpiCanRelease());kdb.onclick=function(){clearKpi(r,"all","",kdb);};
   var rb=$("kpiRelease");rb.hidden=!kpiCanRelease()||!r;
   if(r){rb.textContent=released?"Take it back from "+((u&&u.name)||r.name):"Send to "+((u&&u.name)||r.name);rb.disabled=!released&&!f.complete;rb.title=!released&&!f.complete?"All three parts have to be submitted first":"";}
   $("kpiRelNote").textContent=released?"Sent to the person on "+niceStamp(r.released_at):(r&&f.complete&&kpiCanRelease()?"All parts are in. You can send it to the person.":"");
 }
+function clearKpi(r,part,label,btn){if(!r)return;var who=r.name||r.email;
+  if(!confirm(part==="all"?"Delete the whole KPI form of "+who+" for "+kpiMonthName(r.month)+"? All three parts are removed.":"Delete the "+label+" part of "+who+" for "+kpiMonthName(r.month)+"?"))return;
+  btn.disabled=true;
+  run(sb.rpc("tt_kpi_clear",{p_id:r.id,p_part:part})).then(function(res){
+    if(res==="deleted"){kpiRows=kpiRows.filter(function(x){return x.id!==r.id;});mgKpi=mgKpi.filter(function(x){return x.id!==r.id;});}
+    else{kpiRows.forEach(function(x){if(x.id===r.id){x[part]=null;x.released_at="";}});}
+    delete kpiDraft[part];if(part==="all")kpiDraft={};
+    toast(part==="all"||res==="deleted"?"KPI form deleted.":"Part deleted.");renderKpiForm();if(S.view==="kpi")renderKpi();mgKpiState="";if(S.view==="management")renderMgmt2();})
+    .catch(function(e){var m=String(e&&e.message||"");toast(/tt_kpi_clear|does not exist|schema cache/i.test(m)?"Run the new database setup (version 34) in Supabase first.":writeError(e).replace(/^Could not save:\s*/,""),true);btn.disabled=false;});}
 function saveKpi(part,labels,done,btn){
   var d=kpiDraft[part]||{scores:{},note:""},scores=labels.map(function(l){return {label:l,score:d.scores[l]||null};});
   if(done&&scores.some(function(x){return !x.score;})){toast("Give every item a score before you submit.",true);return;}
@@ -5501,10 +5524,14 @@ function renderDeliv(){
   var asg=live.filter(function(d){return !states[d.id].done&&hasT(d);}).length,open=live.filter(function(d){return !states[d.id].done&&!hasT(d);}).length;
   var left=live.filter(dlvLeft),inSheet=live.length-left.length,noNeed=live.filter(function(d){return d.status==="No need";}).length,
     sub=live.filter(function(d){return d.status==="Submitted"||d.status==="Approved";}).length,base=live.length-noNeed;
-  st.append(stat(srcOf(proj)?"In the sheet now":"Drawings",String(inSheet),"",noNeed?noNeed+" no need":"still to be submitted"),
-    stat("Submitted",String(sub),"","of "+base+" · "+(base?Math.round(sub/base*100):0)+"%"+(left.length?" · "+left.length+" left the sheet":"")),
-    stat("Late",String(c.late),"","past the target date",c.late>0),stat("Due soon",String(c.soon),"","within "+warnDays()+" days",c.soon>0),
-    stat("Assigned",String(asg),"","given to an engineer, not done yet"),stat("Not assigned",String(open),"","nobody has these yet"));
+  function tile(el,key,n){if(!n&&key)return el;el.classList.add("dv-tile");el.setAttribute("role","button");el.tabIndex=0;el.title=key?"Show these drawings":"Show all drawings";
+    if(dlvF.st===key&&!dlvF.date)el.classList.add("on");
+    var go=function(){dlvF.st=key;dlvF.date="";dlvF.q="";renderDeliv();var c0=$("dlvCountTxt");if(c0)c0.scrollIntoView({behavior:"smooth",block:"start"});};
+    el.addEventListener("click",go);el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});return el;}
+  st.append(tile(stat(srcOf(proj)?"In the sheet now":"Drawings",String(inSheet),"",noNeed?noNeed+" no need":"still to be submitted"),"",1),
+    tile(stat("Submitted",String(sub),"","of "+base+" · "+(base?Math.round(sub/base*100):0)+"%"+(left.length?" · "+left.length+" left the sheet":"")),"sent",sub),
+    tile(stat("Late",String(c.late),"","past the target date",c.late>0),"late",c.late),tile(stat("Due soon",String(c.soon),"","within "+warnDays()+" days",c.soon>0),"soon",c.soon),
+    tile(stat("Assigned",String(asg),"","given to an engineer, not done yet"),"progress",asg),tile(stat("Not assigned",String(open),"","nobody has these yet"),"open",open));
   /* coming dates */
   var byDate={};live.forEach(function(d){if(!d.target||states[d.id].done)return;(byDate[d.target]=byDate[d.target]||[]).push(d);});
   var dates=Object.keys(byDate).sort().slice(0,10);
@@ -5521,7 +5548,7 @@ function renderDeliv(){
   q.addEventListener("input",function(){dlvF.q=q.value;dlvF.date="";drawList();});
   function sel(key,label,opts){var s=h("select",{"class":"kpi-sort","aria-label":label});s.append(h("option",{value:"",text:label}));opts.sort().forEach(function(o){s.append(h("option",{value:o,text:o}));});
     s.value=dlvF[key]||"";s.addEventListener("change",function(){dlvF[key]=s.value;dlvF.date="";drawList();});return s;}
-  var stSel=h("select",{"class":"kpi-sort","aria-label":"Status"});[["","All statuses"],["late","Late"],["soon","Due soon"],["open","Not assigned"],["progress","Assigned / in progress"],["ready","Ready to submit"],["submitted","Submitted"],["approved","Approved"],["revise","Revise"],["noneed","No need"],["gone","Not in the latest sheet"]].forEach(function(o){stSel.append(h("option",{value:o[0],text:o[1]}));});
+  var stSel=h("select",{"class":"kpi-sort","aria-label":"Status"});[["","All statuses"],["late","Late"],["soon","Due soon"],["open","Not assigned"],["progress","Assigned / in progress"],["ready","Ready to submit"],["sent","Submitted or approved"],["submitted","Submitted"],["approved","Approved"],["revise","Revise"],["noneed","No need"],["gone","Not in the latest sheet"]].forEach(function(o){stSel.append(h("option",{value:o[0],text:o[1]}));});
   stSel.value=dlvF.st;stSel.addEventListener("change",function(){dlvF.st=stSel.value;dlvF.date="";drawList();});
   var grp=kpiSegD("group",[["date","By date"],["element","By element"]]);
   host.append(h("div",{"class":"kpi-bar"},h("div",{"class":"kpi-bar-row"},q,sel("sys","All systems",sys),sel("el","All elements",els),sel("type","All types",types),stSel,h("span",{"class":"kpi-gap"}),grp)));
@@ -5532,7 +5559,11 @@ function renderDeliv(){
     if(dlvF.date&&d.target!==dlvF.date)return false;
     if(dlvF.st==="gone")return !d.in_sheet;if(!d.in_sheet)return false;
     if(dlvF.sys&&d.system!==dlvF.sys)return false;if(dlvF.el&&d.element!==dlvF.el)return false;if(dlvF.type&&d.dtype!==dlvF.type)return false;
-    if(dlvF.st==="late"||dlvF.st==="soon"){if(dlvDue(d,s)!==dlvF.st)return false;}else if(dlvF.st&&s.k!==dlvF.st)return false;
+    if(dlvF.st==="late"||dlvF.st==="soon"){if(dlvDue(d,s)!==dlvF.st)return false;}
+    else if(dlvF.st==="sent"){if(s.k!=="submitted"&&s.k!=="approved")return false;}
+    else if(dlvF.st==="open"){if(s.done||(s.tasks||[]).length)return false;}
+    else if(dlvF.st==="progress"){if(s.done||!(s.tasks||[]).length)return false;}
+    else if(dlvF.st&&s.k!==dlvF.st)return false;
     if(qq&&(d.doc_no+" "+d.title+" "+d.element+" "+d.system).toLowerCase().indexOf(qq)<0)return false;return true;}
   function drawList(){
     clear(out);var list=all.filter(match_).sort(function(a,b){return (a.target||"9999")<(b.target||"9999")?-1:(a.target||"9999")>(b.target||"9999")?1:a.doc_no.localeCompare(b.doc_no);});
@@ -5873,6 +5904,14 @@ function mgTaskTable(list,st,inDlg){st=st||MG.tt||(MG.tt={q:"",s:"",n:25});
     if(l.length>st.n)out.append(h("div",{"class":"mg-more"},h("button",{"class":"btn",type:"button",onclick:function(){st.n+=50;draw();}},"Show "+Math.min(50,l.length-st.n)+" more"),h("span",{"class":"rv-hint",text:"showing "+st.n+" of "+l.length})));}
   q.addEventListener("input",function(){st.q=q.value;st.n=25;draw();});ss.addEventListener("change",function(){st.s=ss.value;st.n=25;draw();});draw();
   return wrap;}
+function mgDiscSec(list){
+    var tb=h("tbody"),anyD=false;DISC.forEach(function(d){var dlst=list.filter(function(t){return t.discipline===d.k;});if(!dlst.length)return;anyD=true;var x=mgSum(dlst);
+      tb.append(h("tr",null,h("td",{"class":"mg-name"},h("strong",{text:titleCase(d.k)}),h("small",{text:x.n+" tasks · "+x.done+" finished"})),h("td",{"class":"mg-bcell"},mgBar(x.est,x.act,titleCase(d.k))),
+        h("td",{"class":"r num"},h("b",{text:h1(Math.round(x.act*10)/10)}),h("small",{text:" / "+h1(Math.round(x.est*10)/10)+" h"})),h("td",{"class":"r num mg-"+mgTone(x.used),text:mgPct(x.used)}),
+        h("td",{"class":"r num"},x.late?h("span",{"class":"pill bad",text:String(x.late)}):"0")));});
+    return anyD?(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"By discipline"})),h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},
+      h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Actual vs estimated"}),h("th",{"class":"r",text:"Actual / Est."}),h("th",{"class":"r",text:"Used"}),h("th",{"class":"r",text:"Delayed"}))),tb)))):null;
+}
 function renderMgmt2(){
   hideTip();mgLoadKpi();var host=clear($("m2Body")),tools=clear($("m2Tools"));
   mgSeg(tools,PERIODS,S.period,function(v){S.period=v;render();}).setAttribute("aria-label","Period");
@@ -5895,13 +5934,7 @@ function renderMgmt2(){
     var st=h("section",{"class":"stats mg-stats"});mgTiles(o,st,pl,open||"No project");host.append(st);
     var mix=statusMix({by:o.by,n:o.n});
     host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Task status"}),h("p",{text:o.n+" tasks"})),mix[0],mix[1]));
-    /* by discipline */
-    var tb=h("tbody"),anyD=false;DISC.forEach(function(d){var dlst=pl.filter(function(t){return t.discipline===d.k;});if(!dlst.length)return;anyD=true;var x=mgSum(dlst);
-      tb.append(h("tr",null,h("td",{"class":"mg-name"},h("strong",{text:titleCase(d.k)}),h("small",{text:x.n+" tasks · "+x.done+" finished"})),h("td",{"class":"mg-bcell"},mgBar(x.est,x.act,titleCase(d.k))),
-        h("td",{"class":"r num"},h("b",{text:h1(Math.round(x.act*10)/10)}),h("small",{text:" / "+h1(Math.round(x.est*10)/10)+" h"})),h("td",{"class":"r num mg-"+mgTone(x.used),text:mgPct(x.used)}),
-        h("td",{"class":"r num"},x.late?h("span",{"class":"pill bad",text:String(x.late)}):"0")));});
-    if(anyD)host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"By discipline"})),h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},
-      h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Actual vs estimated"}),h("th",{"class":"r",text:"Actual / Est."}),h("th",{"class":"r",text:"Used"}),h("th",{"class":"r",text:"Delayed"}))),tb))));
+    var ds0=mgDiscSec(pl);if(ds0)host.append(ds0);
     host.append(mgEngTable(pl,"Hours by engineer",(open||"No project")+" · sorted by actual hours"));
     var wk=mgWeeks(pl);if(wk)host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Hours by week"}),h("p",{text:"by task date · last 12 weeks"})),
       h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated")),wk));
@@ -5912,6 +5945,11 @@ function renderMgmt2(){
     c.addEventListener("click",function(){MG.open=p;MG.tt={q:"",s:"",n:25};render();try{window.scrollTo(0,0);}catch(e){}});grid.append(c);});
   host.append(h("div",{"class":"mg-sh top"},h("h3",{text:"Projects"}),h("p",{text:"Click a project for its details"})),grid);
   host.append(mgEngTable(rows,"Hours by engineer","All projects · sorted by actual hours"));
+  var two=h("div",{"class":"mg-two"}),ds1=mgDiscSec(rows),wk1=mgWeeks(rows);
+  if(ds1)two.append(ds1);
+  if(wk1)two.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Hours by week"}),h("p",{text:"all projects · by task date · last 12 weeks"})),
+      h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated"),h("span",null,h("i",{"class":"sw mg-ovr"}),"Week over its estimate")),wk1));
+  if(two.childNodes.length)host.append(two);
   var late=rows.filter(function(t){return t.status==="Delayed";});
   var over=rows.filter(function(t){var e=estT(t);return e>0&&liveAct(t)>e+0.01;}).sort(function(a,b){return (liveAct(b)-estT(b))-(liveAct(a)-estT(a));}).slice(0,10);
   if(over.length){var tb2=h("tbody");over.forEach(function(t){var e=estT(t),a=liveAct(t);tb2.append(h("tr",null,h("td",{"class":"nowrap"},t.project?h("span",{"class":"tag",text:t.project}):"—"),h("td",{"class":"nowrap"},h("strong",{text:t.engineer||"—"})),
@@ -5927,6 +5965,45 @@ function renderMgmt2(){
 setInterval(function(){try{if(S.view==="management"&&me&&!document.hidden&&!(document.activeElement&&/INPUT|SELECT/.test(document.activeElement.tagName)&&$("viewMgmt").contains(document.activeElement)))renderMgmt2();}catch(e){}},60000);
 
 (function(){var c=$("mgDlgClose");if(c)c.addEventListener("click",function(){$("mgDlg").close();});})();
+/* Available now, one chip per discipline; click a discipline to see who is in it */
+var freeOpen=(function(){try{return localStorage.getItem("stt.freeDisc")||"";}catch(e){return "";}})();
+function renderFree(v){
+  var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance"&&v!=="deliv"&&v!=="management";
+  box.hidden=!show;if(!show)return;clear(box);
+  var list=teamStates();
+  var discs=DISC.map(function(d){return d.k;}).filter(function(k){return list.some(function(x){return inDisc(x.e,k);});});
+  if(freeOpen&&freeOpen!=="__all"&&discs.indexOf(freeOpen)<0)freeOpen="";
+  if(!freeOpen&&discs.length===1)freeOpen=discs[0];
+  function cnt(l){var c={free:0,working:0,paused:0,off:0,stopped:0,soon:0};l.forEach(function(x){if(x.kind==="free")c.free++;else if(x.kind==="working")c.working++;else if(x.kind==="paused")c.paused++;else if(x.kind==="stopped")c.stopped++;else c.off++;if(x.soon)c.soon++;});return c;}
+  var all=cnt(list);
+  box.append(h("div",{"class":"free-h"},h("h2",{text:"Available now"}),h("p",{text:list.length?[all.free+" free",all.working+" working",all.paused?all.paused+" paused":"",all.off?all.off+" timer off":"",all.soon?all.soon+" finishing soon":""].filter(Boolean).join(" · ")+" · click a discipline to see who":"No engineers with a login yet."})));
+  if(!list.length)return;
+  var chips=h("div",{"class":"fr-chips",role:"group","aria-label":"Disciplines"});
+  function chip(key,label,l){var c=cnt(l),on=freeOpen===key;
+    chips.append(h("button",{type:"button","class":"fr-chip"+(on?" on":"")+(c.free?" has":""),"aria-pressed":String(on),
+      onclick:function(){freeOpen=on?"":key;try{localStorage.setItem("stt.freeDisc",freeOpen);}catch(e){}renderFree(S.view);}},
+      h("b",{text:label}),h("span",{"class":"fr-n"},h("i",{"class":"fr-dot free"}),c.free+" free"),
+      h("span",{"class":"fr-sub",text:[c.working?c.working+" working":"",c.paused?c.paused+" paused":"",c.off?c.off+" timer off":"",c.stopped?c.stopped+" stopped":""].filter(Boolean).join(" · ")||"—"}),
+      h("span",{"class":"fr-chev",text:on?"▾":"▸"})));}
+  discs.forEach(function(k){chip(k,titleCase(k),list.filter(function(x){return inDisc(x.e,k);}));});
+  if(discs.length>1)chip("__all","Everyone",list);
+  box.append(chips);
+  if(!freeOpen)return;
+  var sel=freeOpen==="__all"?list:list.filter(function(x){return inDisc(x.e,freeOpen);});
+  var order={free:0,soon:1,off:2,paused:3,working:4,stopped:5};
+  sel=sel.slice().sort(function(a,b){var ka=a.kind==="free"?0:a.soon?1:(a.kind==="idle"||a.kind==="waiting")?2:a.kind==="paused"?3:a.kind==="working"?4:5,kb=b.kind==="free"?0:b.soon?1:(b.kind==="idle"||b.kind==="waiting")?2:b.kind==="paused"?3:b.kind==="working"?4:5;return ka-kb||a.e.name.localeCompare(b.e.name);});
+  var grid=h("div",{"class":"tm-grid"});
+  sel.forEach(function(x){
+    var can=canAdd()&&(isAdmin()||inScope(freeOpen==="__all"?discsOf(x.e)[0]:freeOpen)),cls="tmc "+x.kind+(x.soon?" soon":"");
+    var pill=h("span",{"class":"tmc-pill"},x.kind==="working"?h("i"):null,stateLabel(x));
+    var line2=x.kind==="paused"&&x.pause?h("span",{"class":"tmc-why"},(x.pause.reason||"Paused")+" · ",h("span",{"data-live":"pzeng","data-eng":x.e.name,text:durTxt(spanSecs(x.pause))})):
+      x.task?h("span",{"class":"tmc-task",text:x.task.task||""}):h("span",{"class":"tmc-task muted",text:"Nothing assigned right now"});
+    var left=h("span",{"class":"tmc-left","data-live":"teng","data-eng":x.e.name,text:stateLeftTxt(x)});
+    var kids=[h("div",{"class":"tmc-top"},h("b",{text:x.e.name}),pill),line2,left,
+      h("div",{"class":"tmc-foot"},h("span",{text:discLabel(discsOf(x.e))}),x.soon?h("span",{"class":"tmc-soon",text:"Finishing soon"}):null)];
+    grid.append(can?h("button",{"class":cls,type:"button",title:"Add a task for "+x.e.name,onclick:function(){giveTaskTo(x.e);}},kids):h("div",{"class":cls},kids));});
+  box.append(grid);
+}
 start();
 })();
 </script>
