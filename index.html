@@ -2251,8 +2251,8 @@ function openTask(t,preset){
   $("f-task").value=t?(t.task||""):"";fillTaskList();$("taskHint").textContent="";
   $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";$("f-actual").disabled=t?!canManageRows(t):!isAdmin();
   $("f-level").value=t?(t.level||""):"";$("f-path").value=t?(t.submission_path||""):"";$("f-element").value=t?(t.element||""):"";
-  var canEst=!!t&&((isEng()&&t.engineer===me.engineer&&!num(t.est))||isAdmin());$("f-est").disabled=!canEst;
-  $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":canEst?(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
+  var estFixer=!!t&&!isAdmin()&&num(t.est)>0&&canFixEst(t);var canEst=!!t&&((isEng()&&t.engineer===me.engineer&&!num(t.est))||isAdmin()||estFixer);$("f-est").disabled=!canEst;
+  $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":estFixer?"Estimated hours (you can correct it · the engineer is told)":canEst?(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
   fillSelect($("f-status"),STATUS,preset||(t?t.status:"Not Started"));
   $("f-reason").value=t?(t.reason||""):"";
   syncDerived();$("taskDlg").showModal();
@@ -2283,7 +2283,11 @@ function saveTask(ev){
   busy=true;$("btnSave").disabled=true;$("taskErr").textContent="";
   var cur=editing,extra=cur?[]:moreChosen().filter(function(n){return n!==d.engineer;});
   var rows=[d].concat(extra.map(function(n){var x=Object.assign({},d);x.engineer=n;return x;}));
-  var p=run(cur?sb.from("tt_tasks").update(d).eq("id",cur.id).select().single():sb.from("tt_tasks").insert(rows).select())
+  var estFix=!!cur&&!isAdmin()&&num(cur.est)>0&&canFixEst(cur)&&!$("f-est").disabled&&num(d.est)!==num(cur.est);
+  if(cur&&!isAdmin()&&!(isEng()&&cur.engineer===me.engineer&&!num(cur.est)))delete d.est;
+  if(estFix&&!(num($("f-est").value)>0)){busy=false;$("btnSave").disabled=false;$("taskErr").textContent="Estimated hours have to be more than 0.";return;}
+  var p=(estFix?run(sb.rpc("tt_set_est",{p_task:cur.id,p_round:null,p_est:num($("f-est").value)})).catch(function(e){if(/tt_set_est|does not exist|schema cache/i.test(String(e&&e.message)))throw {plain:true,message:"Run the new database setup (version 36) in Supabase first."};throw e;}):Promise.resolve())
+    .then(function(){return run(cur?sb.from("tt_tasks").update(d).eq("id",cur.id).select().single():sb.from("tt_tasks").insert(rows).select());})
     .then(function(r){if(cur)return r;r=r||[];r.slice(1).forEach(function(o){upsertLocal(row2task(o));});return r[0];});
   p.then(function(saved){
     var t=row2task(saved);upsertLocal(t);
@@ -2458,6 +2462,13 @@ function commitRound(r,field,inp){
   if(rebuilding||!sb||inp.disabled)return;
   var v=num(inp.value);
   if(v===num(r[field])){inp.value=num(r[field])?fmt(r[field]):"";return;}
+  var tk=null;S.tasks.forEach(function(x){if(x.id===r.task_id)tk=x;});
+  if(field==="est"&&tk&&r.kind!=="nextday"&&num(r.est)>0&&!canManageRows(tk)&&canFixEst(tk)){
+    if(!(v>0)){inp.value=fmt(r.est);toast("Estimated hours have to be more than 0.",true);return;}
+    inp.disabled=true;
+    run(sb.rpc("tt_set_est",{p_task:tk.id,p_round:r.id,p_est:v})).then(function(){r.est=v;toast("Estimate changed to "+fmt(v)+" h. "+(tk.engineer||"The engineer")+" was told.");return loadRounds();}).then(function(){render();})
+      .catch(function(e){toast(/tt_set_est|does not exist|schema cache/i.test(String(e&&e.message))?"Run the new database setup (version 36) in Supabase first.":writeError(e),true);render();});
+    return;}
   if(isEng()&&field==="est"&&v>0){
     var ok=false;try{ok=window.confirm("Set "+fmt(v)+" h as the estimate for this comment?\n\nYou can set it only once. After that only your lead can change it.");}catch(e){ok=true;}
     if(!ok){inp.value="";return;}}
@@ -2473,7 +2484,7 @@ function roundLabel(t,r){
 }
 function roundRow(t,r,fl,more){
   var ed=canEdit(t),mg=canManageRows(t),done=r.status==="Done",rem=Math.max(0,num(r.est)-num(r.actual)),nd=r.kind==="nextday";
-  var canE=mg||(!nd&&ed&&!done&&isEng()&&!num(r.est)),canA=mg;
+  var fx=!nd&&!mg&&num(r.est)>0&&canFixEst(t),canE=mg||fx||(!nd&&ed&&!done&&isEng()&&t.engineer===me.engineer&&!num(r.est)),canA=mg;
   var dateEl=null;
   if(nd){
     if(mg||(ed&&!done)){dateEl=h("input",{type:"date",value:r.work_date,"data-tid":"r"+r.id,"data-field":"work_date","aria-label":"Day to continue "+(t.task||"task")});
@@ -2483,7 +2494,7 @@ function roundRow(t,r,fl,more){
   return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"16"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
-    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:isEng()?"set once":"0",title:isEng()?"You can set it only once":null}):h("strong",{"class":"num",title:"Locked"},h("span",{"class":"lock-ic","aria-hidden":"true"}),fmt(num(r.est)))),
+    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":fx?"Estimated h (you can correct)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:isEng()&&!fx?"set once":"0",title:fx?"You gave this task, so you can correct the estimate. The engineer is told.":isEng()?"You can set it only once":null}):h("strong",{"class":"num",title:"Locked"},h("span",{"class":"lock-ic","aria-hidden":"true"}),fmt(num(r.est)))),
     h("label",{title:"Counted by the task timer"},"Actual h",(canA&&rdFix[r.id])?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num"},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})),
       (canA&&!rdFix[r.id])?h("button",{"class":"btn small quiet",type:"button",title:"Correct the timed hours",onclick:function(){rdFix[r.id]=1;render();}},"correct"):null),
     rdTimer(t,r,done),
@@ -5390,6 +5401,7 @@ function editAll(){return can("view_all");}
 function isTL(){return !!me&&isLeadRole(me.role)&&!!me.discipline&&!can("view_all");}
 function canEdit(t){return (can("edit_tasks")&&inScope(t.discipline))||(isEng()&&!!me.engineer&&t.engineer===me.engineer)||(!!me&&t.created_by===me.email&&can("add_tasks")&&inScope(t.discipline));}
 function canAdd(){return can("add_tasks");}
+function canFixEst(t){return !!me&&!!t&&(isAdmin()||(can("add_tasks")&&inScope(t.discipline)&&(!isEng()||t.engineer!==me.engineer)));}
 function canDelete(t){return can("add_tasks")&&inScope(t.discipline);}
 function canManageRows(t){return can("manage_rows")&&inScope(t.discipline);}
 function canReview(){return can("review_page");}
