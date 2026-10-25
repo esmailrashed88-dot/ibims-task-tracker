@@ -748,10 +748,19 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
+.stat.mg-click{cursor:pointer}.stat.mg-click:hover,.stat.mg-click:focus-visible{background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.mg-link{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 50%,transparent);text-underline-offset:3px}
+.mg-link:hover{color:var(--accent)}.mg-name .mg-link{display:block}.mg-link.sm{font-weight:400;text-decoration:none}.mg-link.sm:hover b{color:var(--accent)}
+.pill.mg-pbtn{border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:600}.pill.mg-pbtn:hover{filter:brightness(.95);outline:1px solid var(--bad)}
+.mg-kpi{display:inline-grid;justify-items:end;gap:0;background:none;border:1px solid var(--line);border-radius:8px;padding:3px 9px;font:inherit;color:var(--ink);cursor:pointer;line-height:1.2}
+.mg-kpi b{font-size:15px}.mg-kpi small{font-size:11px;color:var(--muted)}.mg-kpi:hover{border-color:var(--accent)}
+.mg-kpi.ok b{color:var(--ok)}.mg-kpi.warn b{color:var(--warn)}.mg-kpi.bad b{color:var(--bad)}
+dialog.kpi-dlg.mg-dlg{width:min(1180px,96vw);max-width:96vw}.mg-dlg .dlg-h .sub{margin:4px 0 0;opacity:.85;font-size:13px}.mg-dsec{padding:0}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
-.mg-body .stats.mg-stats{grid-template-columns:repeat(6,minmax(0,1fr))}
+.mg-body .stats.mg-stats{grid-template-columns:repeat(7,minmax(0,1fr))}
+@media (max-width:1200px){.mg-body .stats.mg-stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:1000px){.mg-body .stats.mg-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:600px){.mg-body .stats.mg-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mg-body .stats.mg-stats .stat:last-child{grid-column:auto}}
 .mg-ok{color:var(--ok)}.mg-warn{color:var(--warn)}.mg-bad{color:var(--bad)}
@@ -1607,6 +1616,12 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     <p class="err" id="dlErr" role="alert"></p>
   </div>
   <div class="dlg-f"><button class="btn" id="dlCancel" type="button">Cancel</button><button class="btn" id="dlCheck" type="button">Check link</button><button class="btn primary" id="dlGo" type="button">Link and read now</button></div>
+</dialog>
+
+<dialog id="mgDlg" class="kpi-dlg mg-dlg" aria-labelledby="mgDlgTitle">
+  <div class="dlg-h"><h3 id="mgDlgTitle">Tasks</h3><p class="sub" id="mgDlgSub"></p></div>
+  <div id="mgDlgBody" class="kpi-body"></div>
+  <div class="dlg-f"><button class="btn" id="mgDlgClose" type="button">Close</button></div>
 </dialog>
 
 <dialog id="attDlg" aria-labelledby="attTitle">
@@ -3214,9 +3229,9 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};dlvSrc=[];stopTidpSync();stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};dlvSrc=[];mgKpi=[];mgKpiState="";stopTidpSync();stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
-  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg","dlvLinkDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg","dlvLinkDlg","mgDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
 }
 function enter(session){
@@ -5746,11 +5761,27 @@ function dueNote(t){if(!t.due_date)return null;var n=Math.round((parseDate(t.due
 
 /* ---------- management dashboard v2: estimated vs actual (timer) hours, per project, click a project for its details ---------- */
 var MG={open:null,disc:"",tStatus:"",tq:"",tN:25,lateAll:false};
-function mgSum(list){var o={n:list.length,done:0,est:0,act:0,doneEst:0,doneAct:0,over:0,overN:0,late:0,open:0,eng:{},by:{}};
-  list.forEach(function(t){var e=estT(t),a=liveAct(t);o.est+=e;o.act+=a;o.by[t.status]=(o.by[t.status]||0)+1;if(t.engineer)o.eng[t.engineer]=1;
+function mgSum(list){var o={n:list.length,done:0,est:0,act:0,doneEst:0,doneAct:0,over:0,overN:0,late:0,open:0,eng:{},by:{},cmtN:0,cmtH:0,cmtT:0};
+  list.forEach(function(t){var e=estT(t),a=liveAct(t),cr=cmtRounds(t).length;if(cr){o.cmtN+=cr;o.cmtT++;o.cmtH+=liveCmt(t);}o.est+=e;o.act+=a;o.by[t.status]=(o.by[t.status]||0)+1;if(t.engineer)o.eng[t.engineer]=1;
     if(t.status==="Completed"){o.done++;o.doneEst+=e;o.doneAct+=a;}else o.open++;
     if(t.status==="Delayed")o.late++;if(e>0&&a>e+0.01){o.over+=a-e;o.overN++;}});
   o.used=o.est>0?o.act/o.est*100:null;o.acc=o.doneEst>0?o.doneAct/o.doneEst*100:null;o.engN=Object.keys(o.eng).length;return o;}
+function mgIsOver(t){var e=estT(t);return e>0&&liveAct(t)>e+0.01;}
+function mgCmtTxt(n,hh){return n?n+(n===1?" round":" rounds")+" · "+mgH(hh):"none";}
+var mgKpi=[],mgKpiState="";
+function mgLoadKpi(){if(mgKpiState||!sb)return;mgKpiState="loading";
+  run(sb.from("tt_kpi").select("*").order("month",{ascending:false}).range(0,1999)).then(function(d){mgKpi=(d||[]).map(row2kpi);mgKpiState="ok";if(S.view==="management")renderMgmt2();},function(){mgKpiState="ok";});}
+function mgEmailOf(eng){var e="";directory.forEach(function(u){if(!e&&isWorkerRole(u.role)&&u.engineer===eng)e=u.email;});return e;}
+function mgKpiCell(eng){var em=mgEmailOf(eng);if(!em)return h("span",{"class":"rv-hint",title:"No login is linked to this engineer",text:"—"});
+  var rows=mgKpi.filter(function(r){return r.email===em;});if(!rows.length)return h("span",{"class":"rv-hint",title:mgKpiState==="ok"?"No KPI form yet":"Loading",text:"—"});
+  var sm=kpiSum(rows),v=sm.avg===null?null:Math.round(sm.avg),tone=v===null?"":v>=75?"ok":v>=60?"warn":"bad";
+  return h("button",{type:"button","class":"mg-kpi "+tone,title:v===null?"KPI forms not complete yet · open the summary":kpiRating(sm.avg)+" · average of "+sm.n+(sm.n===1?" month":" months")+(sm.lastScore!==null?" · last month "+Math.round(sm.lastScore)+"%":"")+" · click for the summary",
+    onclick:function(ev){ev.stopPropagation();kpiRows=mgKpi.slice();openKpiPerson(em);}},h("b",{text:v===null?"…":v+"%"}),h("small",{text:v===null?"in progress":kpiRating(sm.avg)}));}
+function mgOpen(title,sub,list,preset){var st={q:"",s:preset||"",n:25};
+  $("mgDlgTitle").textContent=title;$("mgDlgSub").textContent=sub||"";var b=clear($("mgDlgBody"));b.append(mgTaskTable(list,st,true));
+  if(!$("mgDlg").open)$("mgDlg").showModal();}
+function mgEngLink(name,list,scope){return h("button",{type:"button","class":"mg-link",title:"Show the tasks of "+name,
+  onclick:function(ev){ev.stopPropagation();mgOpen(name,scope+" · "+list.length+(list.length===1?" task":" tasks"),list);}},name);}
 function mgH(v){return h1(Math.round(v*10)/10)+" h";}
 function mgPct(p){return p==null?"—":Math.round(p)+"%";}
 function mgTone(p){return p==null?"":p>110?"bad":p>100?"warn":"ok";}
@@ -5760,12 +5791,17 @@ function mgBar(est,act,label){var mx=Math.max(est,act,0.01),pe=est/mx*100,pa=act
     over?h("i",{"class":"mg-ovr",style:"left:"+pe+"%;width:"+(pa-pe)+"%"}):null);return b;}
 function mgTile(label,val,sub,tone){return h("div",{"class":"stat"+(tone==="bad"?" alert":"")},h("span",{"class":"label",text:label}),h("b",{"class":tone?"mg-"+tone:null,text:val}),h("small",{text:sub||" "}));}
 function mgRows(){var rows=S.tasks.filter(inPeriod);if(MG.disc)rows=rows.filter(function(t){return t.discipline===MG.disc;});return rows;}
-function mgTiles(o,host){host.append(
+function mgTiles(o,host,list,scope){host.append(
   mgTile("Estimated",mgH(o.est),o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished"),
   mgTile("Actual (timer)",mgH(o.act),o.engN+(o.engN===1?" engineer":" engineers")+" worked"),
   mgTile("Hours used",mgPct(o.used),o.used==null?"no estimates yet":"actual ÷ estimated · "+(o.act>o.est?mgH(o.act-o.est)+" more than planned":mgH(o.est-o.act)+" still in the plan"),mgTone(o.used)),
   mgTile("Finished tasks",mgPct(o.acc),o.acc==null?"no finished task yet":"actual ÷ estimate · "+mgH(o.doneAct)+" for "+mgH(o.doneEst)+" planned",mgTone(o.acc)),
-  mgTile("Over estimate",String(o.overN),o.overN?mgH(o.over)+" beyond the estimates":"no task beyond its estimate",o.overN?"bad":""),
+  (function(){var tl=mgTile("Over estimate",String(o.overN),o.overN?mgH(o.over)+" beyond the estimates · click to see them":"no task beyond its estimate",o.overN?"bad":"");
+    if(o.overN&&list){tl.classList.add("mg-click");tl.setAttribute("role","button");tl.tabIndex=0;var go=function(){mgOpen("Over estimate",scope+" · "+o.overN+" tasks went beyond their estimate",list.filter(mgIsOver),"__over");};
+      tl.addEventListener("click",go);tl.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});}return tl;})(),
+  (function(){var tl=mgTile("Comments",String(o.cmtN),o.cmtN?mgH(o.cmtH)+" on comments · "+o.cmtT+(o.cmtT===1?" task":" tasks")+(o.act>0?" · "+Math.round(o.cmtH/o.act*100)+"% of actual":""):"no comment rounds",o.cmtN&&o.act>0&&o.cmtH/o.act>0.2?"bad":"");
+    if(o.cmtN&&list){tl.classList.add("mg-click");tl.setAttribute("role","button");tl.tabIndex=0;var go=function(){mgOpen("Tasks with comments",scope+" · "+o.cmtT+" tasks · "+mgCmtTxt(o.cmtN,o.cmtH),list.filter(function(t){return cmtRounds(t).length>0;}),"__cmt");};
+      tl.addEventListener("click",go);tl.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});}return tl;})(),
   mgTile("Delayed",String(o.late),o.late?"tasks marked Delayed":"no delayed tasks",o.late?"bad":""));}
 function mgSeg(host,opts,cur,fn){var g=h("div",{"class":"seg",role:"group"});opts.forEach(function(p){g.append(h("button",{type:"button","aria-pressed":String(cur===p[0]),onclick:function(){fn(p[0]);}},p[1]));});host.append(g);return g;}
 function mgEngTable(list,title,sub){
@@ -5775,15 +5811,20 @@ function mgEngTable(list,title,sub){
     h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated"),h("span",null,h("i",{"class":"sw mg-ovr"}),"Beyond the estimate")));
   if(!names.length){sec.append(h("p",{"class":"hint",text:"No hours in this period."}));return sec;}
   var tb=h("tbody");
-  names.forEach(function(x){var o=x.o;tb.append(h("tr",null,
-    h("td",{"class":"mg-name"},h("strong",{text:x.name}),h("small",{text:o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished"})),
+  var scope=sub.split(" · ")[0];
+  names.forEach(function(x){var o=x.o,el=by[x.name];tb.append(h("tr",null,
+    h("td",{"class":"mg-name"},mgEngLink(x.name,el,scope),h("small",{text:o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished"})),
     h("td",{"class":"mg-bcell"},mgBar(o.est,o.act,x.name)),
     h("td",{"class":"r num"},h("b",{text:h1(Math.round(o.act*10)/10)}),h("small",{text:" / "+h1(Math.round(o.est*10)/10)+" h"})),
     h("td",{"class":"r num mg-"+mgTone(o.used),text:mgPct(o.used)}),
     h("td",{"class":"r num mg-"+mgTone(o.acc),title:o.acc==null?"No finished task yet":"Finished tasks: "+mgH(o.doneAct)+" actual for "+mgH(o.doneEst)+" estimated",text:mgPct(o.acc)}),
-    h("td",{"class":"r num"},o.overN?h("span",{"class":"pill bad",text:o.overN+" · "+mgH(o.over)}):h("span",{"class":"rv-hint",text:"—"}))));});
+    h("td",{"class":"r num"},o.cmtN?h("button",{type:"button","class":"mg-link sm",title:"Show "+x.name+"'s tasks with comments",onclick:function(){mgOpen(x.name+" · comments",scope+" · "+o.cmtT+" tasks · "+mgCmtTxt(o.cmtN,o.cmtH),el.filter(function(t){return cmtRounds(t).length>0;}),"__cmt");}},
+      h("b",{text:String(o.cmtN)}),h("small",{text:" · "+mgH(o.cmtH)})):h("span",{"class":"rv-hint",text:"—"})),
+    h("td",{"class":"r num"},o.overN?h("button",{type:"button","class":"pill bad mg-pbtn",onclick:function(){mgOpen(x.name+" · over estimate",scope+" · "+o.overN+" tasks · +"+mgH(o.over),el.filter(mgIsOver),"__over");},title:o.overN+(o.overN===1?" task went":" tasks went")+" beyond the estimate, "+mgH(o.over)+" more in total",text:o.overN+(o.overN===1?" task":" tasks")+" · +"+mgH(o.over)}):h("span",{"class":"rv-hint",text:"—"})),
+    h("td",{"class":"r"},mgKpiCell(x.name))));});
   sec.append(h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,h("th",{text:"Engineer"}),h("th",{text:"Actual vs estimated"}),h("th",{"class":"r",text:"Actual / Est."}),
-    h("th",{"class":"r",title:"Actual ÷ estimated, all tasks",text:"Used"}),h("th",{"class":"r",title:"Actual ÷ estimated on finished tasks. Under 100% = faster than planned",text:"Finished"}),h("th",{"class":"r",text:"Over estimate"}))),tb)));
+    h("th",{"class":"r",title:"Actual ÷ estimated, all tasks",text:"Used"}),h("th",{"class":"r",title:"Actual ÷ estimated on finished tasks. Under 100% = faster than planned",text:"Finished"}),
+    h("th",{"class":"r",title:"Comment rounds and the timer hours spent on them",text:"Comments"}),h("th",{"class":"r",text:"Over estimate"}),h("th",{"class":"r",title:"Average of the complete monthly KPI forms",text:"KPI"}))),tb)));
   return sec;}
 function mgWeeks(list){var wk={};list.forEach(function(t){var d=parseDate(t.date);if(!d)return;var m=new Date(d);m.setDate(m.getDate()-((m.getDay()+1)%7));var k=m.getFullYear()+"-"+String(m.getMonth()+1).padStart(2,"0")+"-"+String(m.getDate()).padStart(2,"0");
     if(!wk[k])wk[k]={est:0,act:0};wk[k].est+=estT(t);wk[k].act+=liveAct(t);});
@@ -5801,34 +5842,39 @@ function mgProjCard(name,list){var o=mgSum(list),mix=statusMix({by:o.by,n:o.n});
       h("div",null,h("span",{text:"Used"}),h("b",{"class":"mg-"+mgTone(o.used),text:mgPct(o.used)}))),
     mgBar(o.est,o.act,name),
     h("div",{"class":"mg-pfoot"},h("span",{text:o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished · "+o.engN+(o.engN===1?" engineer":" engineers")}),
-      o.overN?h("span",{"class":"mg-bad",text:o.overN+" over estimate (+"+mgH(o.over)+")"}):h("span",{"class":"mg-ok",text:"none over estimate"})),
+      o.overN?h("span",{"class":"mg-bad",text:o.overN+" over estimate (+"+mgH(o.over)+")"}):h("span",{"class":"mg-ok",text:"none over estimate"}),
+      h("span",{text:"Comments: "+mgCmtTxt(o.cmtN,o.cmtH)})),
     mix[0]);
   return c;}
-function mgTaskTable(list){
+function mgTaskTable(list,st,inDlg){st=st||MG.tt||(MG.tt={q:"",s:"",n:25});
   var wrap=h("section",{"class":"panel mg-sec"});
   var tools=h("div",{"class":"mg-sh"},h("h3",{text:"Tasks"}));
-  var q=h("input",{type:"search","class":"kpi-search",placeholder:"Search task, engineer, level…",value:MG.tq,"aria-label":"Search tasks"});
-  var ss=h("select",{"class":"kpi-sort","aria-label":"Status"});[["","All statuses"],["__over","Over estimate"]].concat(STATUS.map(function(s){return [s,s];})).forEach(function(o){ss.append(h("option",{value:o[0],text:o[1]}));});ss.value=MG.tStatus;
-  tools.append(h("div",{"class":"mg-tools"},q,ss));wrap.append(tools);
+  var q=h("input",{type:"search","class":"kpi-search",placeholder:"Search task, engineer, level…",value:st.q,"aria-label":"Search tasks"});
+  var ss=h("select",{"class":"kpi-sort","aria-label":"Status"});[["","All statuses"],["__over","Over estimate"]].concat([["__cmt","With comments"]]).concat(STATUS.map(function(s){return [s,s];})).forEach(function(o){ss.append(h("option",{value:o[0],text:o[1]}));});ss.value=st.s;
+  tools.append(h("div",{"class":"mg-tools"},q,ss));if(inDlg){wrap.className="mg-sec mg-dsec";tools.firstChild.remove();}wrap.append(tools);
   var out=h("div");wrap.append(out);
-  function draw(){clear(out);var qq=MG.tq.trim().toLowerCase();
-    var l=list.filter(function(t){if(MG.tStatus==="__over"){if(!(liveAct(t)>estT(t)+0.01))return false;}else if(MG.tStatus&&t.status!==MG.tStatus)return false;
+  function draw(){clear(out);var qq=st.q.trim().toLowerCase();
+    var l=list.filter(function(t){if(st.s==="__over"){if(!mgIsOver(t))return false;}else if(st.s==="__cmt"){if(!cmtRounds(t).length)return false;}else if(st.s&&t.status!==st.s)return false;
       return !qq||[t.task,t.engineer,t.level,t.element,t.discipline].join(" ").toLowerCase().indexOf(qq)>=0;});
     l.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(liveAct(b)-estT(b))-(liveAct(a)-estT(a));});
     out.append(h("p",{"class":"kpi-count",text:l.length+" of "+list.length+" tasks"}));
     if(!l.length){out.append(h("p",{"class":"hint",text:"No task matches."}));return;}
-    var tb=h("tbody");l.slice(0,MG.tN).forEach(function(t){var e=estT(t),a=liveAct(t),d=a-e;
-      tb.append(h("tr",{"class":t.status==="Delayed"?"is-delayed":null},h("td",{"class":"nowrap num",text:niceDate(t.date)}),h("td",{"class":"nowrap"},h("strong",{text:t.engineer||"—"})),
+    var tb=h("tbody");l.slice(0,st.n).forEach(function(t){var e=estT(t),a=liveAct(t),d=a-e,cr=cmtRounds(t).length;
+      var el=t.engineer?list.filter(function(x){return x.engineer===t.engineer;}):[];
+      tb.append(h("tr",{"class":t.status==="Delayed"?"is-delayed":null},h("td",{"class":"nowrap num",text:niceDate(t.date)}),h("td",{"class":"nowrap"},t.engineer?(inDlg?h("strong",{text:t.engineer}):mgEngLink(t.engineer,el,t.project||"No project")):"—"),
+        list.some(function(x){return x.project!==list[0].project;})?h("td",{"class":"nowrap"},t.project?h("span",{"class":"tag",text:t.project}):"—"):null,
         h("td",{"class":"nowrap"},h("span",{"class":"code",title:t.discipline,text:discCode(t.discipline)})),h("td",{"class":"task"},t.task||"",t.level||t.element?h("small",{"class":"rv-hint",text:" · "+[t.level,t.element].filter(Boolean).join(" · ")}):null),
         h("td",{"class":"nowrap"},h("span",{"class":"pill "+({"Completed":"ok","In Progress":"info","Comment":"cmt","Next Day":"nxt","Delayed":"bad","On Hold":"warn"}[t.status]||""),text:t.status})),
         h("td",{"class":"r num",text:e?h1(e):"—"}),h("td",{"class":"r num",text:h1(Math.round(a*100)/100)}),
+        h("td",{"class":"r num",title:cr?cr+" comment rounds · "+mgH(liveCmt(t))+" on them":"No comments"},cr?h("span",null,h("b",{text:String(cr)}),h("small",{text:" · "+mgH(liveCmt(t))})):h("span",{"class":"rv-hint",text:"—"})),
         h("td",{"class":"r num "+(e&&d>0.01?"mg-bad":e&&t.status==="Completed"?"mg-ok":""),text:!e?"no estimate":d>0.01?"+"+h1(Math.round(d*10)/10)+" h":t.status==="Completed"?(d<-0.01?h1(Math.round(-d*10)/10)+" h saved":"on estimate"):h1(Math.round(-d*10)/10)+" h left"})));});
-    out.append(h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,["Date","Engineer","Disc.","Task","Status",["Est. h","r"],["Actual h","r"],["Vs estimate","r"]].map(function(c){return Array.isArray(c)?h("th",{"class":c[1],text:c[0]}):h("th",{text:c});}))),tb)));
-    if(l.length>MG.tN)out.append(h("div",{"class":"mg-more"},h("button",{"class":"btn",type:"button",onclick:function(){MG.tN+=50;draw();}},"Show "+Math.min(50,l.length-MG.tN)+" more"),h("span",{"class":"rv-hint",text:"showing "+MG.tN+" of "+l.length})));}
-  q.addEventListener("input",function(){MG.tq=q.value;MG.tN=25;draw();});ss.addEventListener("change",function(){MG.tStatus=ss.value;MG.tN=25;draw();});draw();
+    var showP=list.some(function(x){return x.project!==list[0].project;});
+    out.append(h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,["Date","Engineer"].concat(showP?["Project"]:[]).concat(["Disc.","Task","Status",["Est. h","r"],["Actual h","r"],["Comments","r"],["Vs estimate","r"]]).map(function(c){return Array.isArray(c)?h("th",{"class":c[1],text:c[0]}):h("th",{text:c});}))),tb)));
+    if(l.length>st.n)out.append(h("div",{"class":"mg-more"},h("button",{"class":"btn",type:"button",onclick:function(){st.n+=50;draw();}},"Show "+Math.min(50,l.length-st.n)+" more"),h("span",{"class":"rv-hint",text:"showing "+st.n+" of "+l.length})));}
+  q.addEventListener("input",function(){st.q=q.value;st.n=25;draw();});ss.addEventListener("change",function(){st.s=ss.value;st.n=25;draw();});draw();
   return wrap;}
 function renderMgmt2(){
-  hideTip();var host=clear($("m2Body")),tools=clear($("m2Tools"));
+  hideTip();mgLoadKpi();var host=clear($("m2Body")),tools=clear($("m2Tools"));
   mgSeg(tools,PERIODS,S.period,function(v){S.period=v;render();}).setAttribute("aria-label","Period");
   var dOpts=[["","All disciplines"]].concat(DISC.map(function(d){return [d.k,titleCase(d.k)];}));
   var dsel=h("select",{"class":"kpi-sort","aria-label":"Discipline"});dOpts.forEach(function(o){dsel.append(h("option",{value:o[0],text:o[1]}));});dsel.value=MG.disc;
@@ -5845,8 +5891,8 @@ function renderMgmt2(){
   if(open!=null){
     var pl=rows.filter(function(t){return (t.project||"")===open;}),o=mgSum(pl);
     host.append(h("div",{"class":"mg-back"},h("button",{"class":"btn",type:"button",onclick:function(){MG.open=null;render();}},"‹ All projects"),
-      h("div",{"class":"seg",role:"group","aria-label":"Project"},names.map(function(p){return h("button",{type:"button","aria-pressed":String(p===open),onclick:function(){MG.open=p;MG.tStatus="";MG.tq="";MG.tN=25;render();}},p||"No project");}))));
-    var st=h("section",{"class":"stats mg-stats"});mgTiles(o,st);host.append(st);
+      h("div",{"class":"seg",role:"group","aria-label":"Project"},names.map(function(p){return h("button",{type:"button","aria-pressed":String(p===open),onclick:function(){MG.open=p;MG.tt={q:"",s:"",n:25};render();}},p||"No project");}))));
+    var st=h("section",{"class":"stats mg-stats"});mgTiles(o,st,pl,open||"No project");host.append(st);
     var mix=statusMix({by:o.by,n:o.n});
     host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Task status"}),h("p",{text:o.n+" tasks"})),mix[0],mix[1]));
     /* by discipline */
@@ -5861,9 +5907,9 @@ function renderMgmt2(){
       h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated")),wk));
     host.append(mgTaskTable(pl));
     return;}
-  var st2=h("section",{"class":"stats mg-stats"});mgTiles(mgSum(rows),st2);host.append(st2);
+  var st2=h("section",{"class":"stats mg-stats"});mgTiles(mgSum(rows),st2,rows,"All projects");host.append(st2);
   var grid=h("div",{"class":"mg-pgrid"});names.forEach(function(p){var c=mgProjCard(p||"No project",rows.filter(function(t){return (t.project||"")===p;}));
-    c.addEventListener("click",function(){MG.open=p;MG.tStatus="";MG.tq="";MG.tN=25;render();try{window.scrollTo(0,0);}catch(e){}});grid.append(c);});
+    c.addEventListener("click",function(){MG.open=p;MG.tt={q:"",s:"",n:25};render();try{window.scrollTo(0,0);}catch(e){}});grid.append(c);});
   host.append(h("div",{"class":"mg-sh top"},h("h3",{text:"Projects"}),h("p",{text:"Click a project for its details"})),grid);
   host.append(mgEngTable(rows,"Hours by engineer","All projects · sorted by actual hours"));
   var late=rows.filter(function(t){return t.status==="Delayed";});
@@ -5880,6 +5926,7 @@ function renderMgmt2(){
 }
 setInterval(function(){try{if(S.view==="management"&&me&&!document.hidden&&!(document.activeElement&&/INPUT|SELECT/.test(document.activeElement.tagName)&&$("viewMgmt").contains(document.activeElement)))renderMgmt2();}catch(e){}},60000);
 
+(function(){var c=$("mgDlgClose");if(c)c.addEventListener("click",function(){$("mgDlg").close();});})();
 start();
 })();
 </script>
