@@ -766,6 +766,25 @@ dialog.kpi-dlg.mg-dlg{width:min(1180px,96vw);max-width:96vw}.mg-dlg .dlg-h .sub{
 .stat.dv-tile{cursor:pointer;position:relative}.stat.dv-tile:hover,.stat.dv-tile:focus-visible{background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
 .stat.dv-tile.on{box-shadow:inset 0 -3px 0 var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
 .mg-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
+.bc-roles{display:flex;flex-wrap:wrap;gap:6px}
+.bc-rchip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.bc-rchip:hover{border-color:var(--accent)}.bc-rchip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.fb-lh{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:0 0 10px}.fb-lh h3{margin:0;font-size:16px}
+.fb-item{border:1px solid var(--line);border-left:4px solid var(--info);border-radius:10px;padding:12px 14px;margin:0 0 10px;background:var(--surface)}
+.fb-item.problem{border-left-color:var(--bad)}.fb-ih{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.fb-msg{margin:8px 0;white-space:pre-wrap}.fb-img{max-height:180px;border-radius:8px;border:1px solid var(--line);cursor:zoom-in}
+.fb-reply{margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--ok-soft);color:var(--ink)}.fb-adm{display:grid;gap:8px;margin-top:8px}
+.mg-topgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:14px}
+.mg-topcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}.mg-topcard h4{margin:0 0 6px;font-size:15px}.mg-topcard h4 small{color:var(--muted);font-weight:400}
+.mg-rank{width:28px;text-align:center;font-weight:700;color:var(--muted)}.mg-rank.first{color:var(--gold);font-size:16px}
+.mg-tbar{height:10px;border-radius:5px;background:var(--surface-2,var(--line));overflow:hidden}.mg-tbar i{display:block;height:100%;background:var(--gold-mark);border-radius:5px}
+.mg-cbox{border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}.mg-cbox h4{margin:0 0 4px;font-size:15px}.mg-cbox .hint{margin:0 0 8px;font-size:12px}
+.mg-ctools{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.mg-chart .mg-legend{margin:0 0 4px}.mg-lgi{cursor:default}.mg-lgi .sw.dash{background:repeating-linear-gradient(90deg,var(--c-est) 0 4px,transparent 4px 7px)!important;height:3px}
+.mg-svgw{width:100%;overflow:hidden}.mg-svg{width:100%;height:auto;display:block}
+.mg-svg .mg-grid{stroke:var(--line);stroke-width:1}.mg-svg .mg-ref{stroke:var(--bad);stroke-width:1.2;stroke-dasharray:4 4}.mg-svg .mg-ax{fill:var(--muted);font-size:11px}
+.mg-svg .mg-endl{font-size:11px;font-weight:700}.mg-svg .mg-line,.mg-svg .mg-pt{transition:opacity .15s}
+.mg-mh{margin:16px 0 6px;font-size:15px}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -1189,6 +1208,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <button class="btn punch" id="btnPunch" type="button" hidden></button>
       <button class="btn ghost announce" id="btnAnnounce" type="button" hidden>Announce</button>
       <button class="btn ghost" id="btnNotif" type="button"><span>Notifications</span><b class="badge" id="notifCount" hidden>0</b></button>
+      <button class="btn ghost fb-btn" id="btnFb" type="button" hidden title="Suggest an idea or report a problem with the tracker"><span>Suggestions</span><b class="badge" id="fbCount" hidden>0</b></button>
       <button class="btn ghost" id="btnOnline" type="button" hidden><i class="live-dot"></i><span id="onlineCount">Online</span></button>
       <button class="btn ghost" id="btnUsers" type="button" hidden>Users</button>
       <button class="btn ghost" id="btnPerms" type="button" hidden>Permissions</button>
@@ -1513,6 +1533,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
       <label class="field"><span>Send to</span><select id="bcAud"></select></label>
       <label class="field"><span>Stays up for</span><select id="bcDur"></select></label>
     </div>
+    <div class="field"><span>Positions</span><div id="bcRoles" class="bc-roles" role="group" aria-label="Positions"></div><small class="hint" id="bcRoleNote"></small></div>
     <p class="hint">Everyone it is sent to gets it as a big pop-up with a sound, then it stays as a banner at the top until the time ends. You see who has seen it.</p>
     <p class="err" id="bcErr" role="alert"></p>
     <div class="dlg-f" style="padding:8px 0 0;border:0"><button class="btn primary" id="bcSend" type="submit">Send announcement</button></div>
@@ -1632,6 +1653,21 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="dlg-h"><h3 id="mgDlgTitle">Tasks</h3><p class="sub" id="mgDlgSub"></p></div>
   <div id="mgDlgBody" class="kpi-body"></div>
   <div class="dlg-f"><button class="btn" id="mgDlgClose" type="button">Close</button></div>
+</dialog>
+
+<dialog id="fbDlg" class="kpi-dlg" aria-labelledby="fbTitle">
+  <div class="dlg-h"><h3 id="fbTitle">Suggestions and problems</h3></div>
+  <div class="team-b">
+    <p class="hint">Have an idea that would make the tracker better, or did something not work? Write it here. The admin reads every one and answers you.</p>
+    <div class="seg rq-seg" id="fbKind" role="group" aria-label="Type"><button type="button" data-k="idea" aria-pressed="true">Suggestion</button><button type="button" data-k="problem" aria-pressed="false">Problem</button></div>
+    <label class="field"><span>Your message</span><textarea id="fbMsg" maxlength="3000" rows="4"></textarea></label>
+    <div class="field"><span>Screenshot (optional, you can also paste it in the box)</span><div class="bc-imgpick"><button type="button" class="btn small" id="fbPickImg">Add a screenshot</button>
+      <input type="file" id="fbFile" accept="image/*" hidden><div id="fbImgPrev" class="bc-imgprev"></div></div></div>
+    <p class="err" id="fbErr" role="alert"></p>
+    <div class="dlg-f" style="padding:8px 0 0;border:0"><button class="btn primary" id="fbSend" type="button">Send</button></div>
+  </div>
+  <div class="team-b" id="fbList"></div>
+  <div class="dlg-f"><button class="btn" id="fbClose" type="button">Close</button></div>
 </dialog>
 
 <dialog id="attDlg" aria-labelledby="attTitle">
@@ -2303,6 +2339,7 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_deliverables"},function(){dlvLater();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_deliv_tasks"},function(){dlvLater();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_tidp_sources"},function(){dlvLater();})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tt_feedback"},function(){fbLater();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_user_perms"},function(){loadConfig().then(function(){render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_config"},function(p){if(p["new"]&&p["new"].key==="perms")loadConfig().then(function(){render();});})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_kpi"},function(){if(S.view==="kpi"||$("kpiDlg").open)loadKpi();})
@@ -3239,9 +3276,9 @@ function showAuth(mode,text,extra){
 }
 function showApp(){$("authScreen").hidden=true;$("appBand").hidden=false;$("appMain").hidden=false;paintAccount();render();}
 function leave(){
-  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};dlvSrc=[];mgKpi=[];mgKpiState="";stopTidpSync();stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
+  stopPR();attReady=false;myPerms={};allUserPerms=[];dlv=[];dlvLinks=[];dlvLoaded=false;dlvSel={};dlvSrc=[];mgKpi=[];mgKpiState="";fbRows=[];fbLoaded=false;paintFbBadge();stopTidpSync();stopBc();kpiRows=[];kpiAuto={};stopReminders();stopMotd();stopTick();stopReview();stopLive();attRows=[];attMine=null;S.time=[];S.timeBy={};stopAlarm(true);try{if($("pingDlg").open)$("pingDlg").close();}catch(e){}sentPings=[];
   stopPresence();me=null;users=[];notifs=[];directory=[];paintNotifs();knownPending=null;document.title=baseTitle;unsubscribe();S.rounds=[];S.roundsBy={};S.tasks=[];S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";
-  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg","dlvLinkDlg","mgDlg"].forEach(function(id){if($(id).open)$(id).close();});
+  ["taskDlg","teamDlg","usersDlg","acctDlg","onlineDlg","exportDlg","notifDlg","bcDlg","kpiDlg","kpiCfgDlg","kpiSumDlg","permDlg","dlvImpDlg","dlvDelDlg","dlvLinkDlg","mgDlg","fbDlg"].forEach(function(id){if($(id).open)$(id).close();});
   $("loginErr").textContent="";showAuth("login");
 }
 function enter(session){
@@ -3250,7 +3287,7 @@ function enter(session){
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
     me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();loadAtt();
-    return loadAll().then(function(){subscribe();startBc();startPR();loadDeliv();if(S.view==="kpi")loadKpi();});
+    return loadAll().then(function(){subscribe();startBc();startPR();loadDeliv();loadFb();if(S.view==="kpi")loadKpi();});
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
     if(c==="42P01"||c==="PGRST205"||c==="PGRST202"||/does not exist|could not find the (table|function)/i.test(m))showAuth("blocked","The database is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then reload this page.");
@@ -4567,8 +4604,8 @@ var bcs=[],bcSeen={},bcAud={},bcTimer=null,bcKnown=null,bcMin={},bcDraft={links:
 function canAnnounce(){return !!me&&(me.role==="admin"||isViewer()||isTL());}
 function bcLive(b){return !b.ended_at&&Date.parse(b.ends_at)>nowMs();}
 function bcMine(b){return !!me&&b.from_email===me.email;}
-function bcForMe(b){if(!me)return false;if(bcMine(b))return true;return b.audience==="ALL"||myDiscs().indexOf(b.audience)>=0;}
-function bcWho(a){return a==="ALL"?"Everyone":titleCase(a);}
+function bcForMe(b){if(!me)return false;if(bcMine(b))return true;if(b.roles&&b.roles.length&&b.roles.indexOf(me.role)<0)return false;return b.audience==="ALL"||myDiscs().indexOf(b.audience)>=0;}
+function bcWho(a,roles){var base=a==="ALL"?"Everyone":titleCase(a);if(!roles||!roles.length)return base;return (a==="ALL"?"":base+" · ")+roles.map(rolePlural).join(", ");}
 function bcLeft(b){var m=Math.max(0,Math.round((Date.parse(b.ends_at)-nowMs())/60000));
   if(m<1)return "ends in under a minute";if(m<60)return "up for "+m+" more min";var hh=Math.floor(m/60);
   if(hh<24)return "up for "+hh+" h "+(m%60?(m%60)+" min ":"")+"more";var dd=Math.floor(hh/24);return "up for "+dd+(dd===1?" more day":" more days")+(hh%24?" "+(hh%24)+" h":"");}
@@ -4594,11 +4631,13 @@ function bcBody(b,size){
 function openBcImg(src){var d=$("bcImgDlg");clear($("bcImgBox")).append(h("img",{src:src,alt:"Announcement picture"}));d.showModal();}
 function row2bc(o){var links=[];try{links=Array.isArray(o.links)?o.links:JSON.parse(o.links||"[]");}catch(e){links=[];}
   return {id:String(o.id),from_email:String(o.from_email||""),from_name:String(o.from_name||""),audience:String(o.audience||"ALL"),message:String(o.message||""),
-    created_at:String(o.created_at||""),ends_at:String(o.ends_at||""),ended_at:o.ended_at?String(o.ended_at):"",links:(links||[]).slice(0,5),image:o.image?String(o.image):""};}
+    created_at:String(o.created_at||""),ends_at:String(o.ends_at||""),ended_at:o.ended_at?String(o.ended_at):"",links:(links||[]).slice(0,5),image:o.image?String(o.image):"",roles:Array.isArray(o.roles)?o.roles.map(String):[]};}
 function loadBc(){
   if(!sb||!me)return Promise.resolve();
   var since=new Date(nowMs()-60000).toISOString();
-  return Promise.all([run(sb.from("tt_broadcasts").select("id,from_email,from_name,audience,message,created_at,ends_at,ended_at,links,image").gte("ends_at",since).is("ended_at",null).order("created_at",{ascending:false}).range(0,99)),
+  function bq(cols){return run(sb.from("tt_broadcasts").select(cols).gte("ends_at",since).is("ended_at",null).order("created_at",{ascending:false}).range(0,99));}
+  var base="id,from_email,from_name,audience,message,created_at,ends_at,ended_at,links,image";
+  return Promise.all([bq(base+",roles").catch(function(){return bq(base);}),
                       run(sb.from("tt_broadcast_seen").select("broadcast_id,email,seen_at").eq("email",me.email).range(0,999))]).then(function(r){
     var fresh=[];bcs=(r[0]||[]).map(row2bc);
     bcSeen={};(r[1]||[]).forEach(function(x){bcSeen[String(x.broadcast_id)]=String(x.seen_at||"");});
@@ -4633,10 +4672,10 @@ function renderBc(){
     else acts.append(h("button",{type:"button","class":"btn small",onclick:function(){setBcMin(b.id,!slim);}},slim?"Show":"Make smaller"));
     var from=(mine?"You":b.from_name||"Office")+" · "+niceStamp(b.created_at)+" · "+bcLeft(b);
     if(slim){box.append(h("div",{"class":"bc slim"},h("span",{"class":"bc-ic","aria-hidden":"true"}),
-      h("span",{"class":"bc-line"},h("b",{text:bcWho(b.audience)+": "}),b.message||(b.image?"Picture":"Links")),h("span",{"class":"bc-from",text:from}),acts));return;}
+      h("span",{"class":"bc-line"},h("b",{text:bcWho(b.audience,b.roles)+": "}),b.message||(b.image?"Picture":"Links")),h("span",{"class":"bc-from",text:from}),acts));return;}
     box.append(h("div",{"class":"bc"+(seen?" seen":" new"),role:"status"},
       h("div",{"class":"bc-head"},h("span",{"class":"bc-ic big","aria-hidden":"true"}),
-        h("div",{"class":"bc-ht"},h("span",{"class":"bc-kick",text:"Announcement · "+bcWho(b.audience)}),h("span",{"class":"bc-from",text:from}))),
+        h("div",{"class":"bc-ht"},h("span",{"class":"bc-kick",text:"Announcement · "+bcWho(b.audience,b.roles)}),h("span",{"class":"bc-from",text:from}))),
       bcBody(b,"mid"),acts));
   });
 }
@@ -4667,10 +4706,16 @@ function openBc(focusId){
   if(me.role==="admin"||isViewer()){a.append(h("option",{value:"ALL",text:"Everyone in the office"}));DISC.forEach(function(d){a.append(h("option",{value:d.k,text:titleCase(d.k)+" only"}));});a.disabled=false;}
   else{a.append(h("option",{value:me.discipline,text:titleCase(me.discipline)+" only"}));a.disabled=true;}
   var du=$("bcDur");if(!du.options.length){BC_DUR.forEach(function(x){du.append(h("option",{value:x[0],text:x[1]}));});du.value="60";}
+  renderBcRoles();
   if(!bcDraft.links.length)bcDraft.links=[{url:"",label:""}];
   $("bcErr").textContent="";$("bcForm").hidden=!canAnnounce();renderBcDraft();renderBcList(focusId);$("bcDlg").showModal();
   if(!focusId&&canAnnounce())setTimeout(function(){try{$("bcMsg").focus();}catch(e){}},0);
 }
+var BC_ROLES=["engineer","coordinator","midsenior","senior","teamleader","sectionhead","manager","projectmanager","topmanagement","admin"],bcRoles={};
+function renderBcRoles(){var host=clear($("bcRoles"));
+  var all=h("button",{type:"button","class":"bc-rchip"+(Object.keys(bcRoles).length?"":" on"),"aria-pressed":String(!Object.keys(bcRoles).length),onclick:function(){bcRoles={};renderBcRoles();}},"All positions");host.append(all);
+  BC_ROLES.forEach(function(r){var on=!!bcRoles[r];host.append(h("button",{type:"button","class":"bc-rchip"+(on?" on":""),"aria-pressed":String(on),onclick:function(){if(on)delete bcRoles[r];else bcRoles[r]=1;renderBcRoles();}},rolePlural(r)));});
+  var n=Object.keys(bcRoles);$("bcRoleNote").textContent=n.length?"Only "+n.map(rolePlural).join(", ")+" will get it"+($("bcAud").value&&$("bcAud").value!=="ALL"?" in "+titleCase($("bcAud").value):"")+".":"Everyone in the chosen group gets it, whatever their position.";}
 function renderBcDraft(){
   var lw=clear($("bcLinks"));
   bcDraft.links.forEach(function(l,i){
@@ -4702,10 +4747,12 @@ function sendBc(){
   if(bad){$("bcErr").textContent="This link does not look right: "+bad;return;}
   if(!msg&&!links.length&&!bcDraft.image){$("bcErr").textContent="Write the message first.";return;}
   var btn=$("bcSend");busy=true;btn.disabled=true;$("bcErr").textContent="";
-  run(sb.rpc("tt_broadcast_send",{p_audience:$("bcAud").value,p_message:msg,p_minutes:bcMinutes($("bcDur").value),p_links:links,p_image:bcDraft.image||null})).then(function(){
-    $("bcMsg").value="";bcDraft={links:[{url:"",label:""}],image:null};renderBcDraft();
-    toast("Announcement sent to "+($("bcAud").value==="ALL"?"everyone":titleCase($("bcAud").value))+".");return loadBc();})
-    .catch(function(e){$("bcErr").textContent=writeError(e);}).then(function(){busy=false;btn.disabled=false;});
+  var roles=Object.keys(bcRoles),args={p_audience:$("bcAud").value,p_message:msg,p_minutes:bcMinutes($("bcDur").value),p_links:links,p_image:bcDraft.image||null};
+  if(roles.length)args.p_roles=roles;
+  run(sb.rpc("tt_broadcast_send",args)).then(function(){
+    $("bcMsg").value="";bcDraft={links:[{url:"",label:""}],image:null};bcRoles={};renderBcDraft();renderBcRoles();
+    toast("Announcement sent to "+bcWho(args.p_audience,roles)+".");return loadBc();})
+    .catch(function(e){var m=String(e&&e.message||"");$("bcErr").textContent=roles.length&&/p_roles|function|schema cache/i.test(m)?"Run the new database setup (version 35) in Supabase first to send to chosen positions.":writeError(e);}).then(function(){busy=false;btn.disabled=false;});
 }
 function renderBcList(focusId){
   var host=clear($("bcList")),list=bcs.filter(function(b){return bcLive(b)&&(bcMine(b)||isAdmin());});
@@ -4713,7 +4760,7 @@ function renderBcList(focusId){
   host.append(h("h3",{"class":"bc-lh",text:isAdmin()?"Up now":"Your announcements up now"}));
   list.forEach(function(b){var aud=bcAud[b.id]||[],seen=aud.filter(function(x){return x.seen;}),not=aud.filter(function(x){return !x.seen;});
     host.append(h("div",{"class":"bc-item"+(focusId===b.id?" focus":"")},
-      h("div",{"class":"bc-item-h"},h("strong",{text:bcWho(b.audience)}),h("span",{text:(bcMine(b)?"You":b.from_name)+" · "+bcLeft(b)}),
+      h("div",{"class":"bc-item-h"},h("strong",{text:bcWho(b.audience,b.roles)}),h("span",{text:(bcMine(b)?"You":b.from_name)+" · "+bcLeft(b)}),
         h("button",{type:"button","class":"btn small",onclick:function(ev){endBc(b,ev.currentTarget);}},"Take down")),
       bcBody(b,"small"),
       h("p",{"class":"bc-seen"},h("b",{text:"Seen by "+seen.length+" of "+aud.length}),seen.length?" · "+seen.map(function(x){return x.name;}).join(", "):""),
@@ -5913,7 +5960,7 @@ function mgDiscSec(list){
       h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Actual vs estimated"}),h("th",{"class":"r",text:"Actual / Est."}),h("th",{"class":"r",text:"Used"}),h("th",{"class":"r",text:"Delayed"}))),tb)))):null;
 }
 function renderMgmt2(){
-  hideTip();mgLoadKpi();var host=clear($("m2Body")),tools=clear($("m2Tools"));
+  hideTip();mgLoadKpi();mgLoadTop();var host=clear($("m2Body")),tools=clear($("m2Tools"));
   mgSeg(tools,PERIODS,S.period,function(v){S.period=v;render();}).setAttribute("aria-label","Period");
   var dOpts=[["","All disciplines"]].concat(DISC.map(function(d){return [d.k,titleCase(d.k)];}));
   var dsel=h("select",{"class":"kpi-sort","aria-label":"Discipline"});dOpts.forEach(function(o){dsel.append(h("option",{value:o[0],text:o[1]}));});dsel.value=MG.disc;
@@ -5936,6 +5983,7 @@ function renderMgmt2(){
     host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Task status"}),h("p",{text:o.n+" tasks"})),mix[0],mix[1]));
     var ds0=mgDiscSec(pl);if(ds0)host.append(ds0);
     host.append(mgEngTable(pl,"Hours by engineer",(open||"No project")+" · sorted by actual hours"));
+    host.append(mgTrendsSec(pl,open||"No project",true));
     var wk=mgWeeks(pl);if(wk)host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Hours by week"}),h("p",{text:"by task date · last 12 weeks"})),
       h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated")),wk));
     host.append(mgTaskTable(pl));
@@ -5950,6 +5998,8 @@ function renderMgmt2(){
   if(wk1)two.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Hours by week"}),h("p",{text:"all projects · by task date · last 12 weeks"})),
       h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated"),h("span",null,h("i",{"class":"sw mg-ovr"}),"Week over its estimate")),wk1));
   if(two.childNodes.length)host.append(two);
+  host.append(mgTopSec());
+  host.append(mgTrendsSec(rows,"All projects",false));
   var late=rows.filter(function(t){return t.status==="Delayed";});
   var over=rows.filter(function(t){var e=estT(t);return e>0&&liveAct(t)>e+0.01;}).sort(function(a,b){return (liveAct(b)-estT(b))-(liveAct(a)-estT(a));}).slice(0,10);
   if(over.length){var tb2=h("tbody");over.forEach(function(t){var e=estT(t),a=liveAct(t);tb2.append(h("tr",null,h("td",{"class":"nowrap"},t.project?h("span",{"class":"tag",text:t.project}):"—"),h("td",{"class":"nowrap"},h("strong",{text:t.engineer||"—"})),
@@ -6004,6 +6054,145 @@ function renderFree(v){
     grid.append(can?h("button",{"class":cls,type:"button",title:"Add a task for "+x.e.name,onclick:function(){giveTaskTo(x.e);}},kids):h("div",{"class":cls},kids));});
   box.append(grid);
 }
+/* ---------- management: top of the day history + curves and comparisons ---------- */
+var mgTop={key:"",rows:[],state:""};
+function mgTopRange(){var td=parseDate(today()),d=new Date(td);var back=S.period==="today"?0:S.period==="week"?6:S.period==="month"?29:119;d.setDate(d.getDate()-back);return {from:ymd(d),to:today(),label:back===119?"last 120 days":back===0?"today":"last "+(back+1)+" days"};}
+function mgLoadTop(){var r=mgTopRange(),k=r.from+"|"+r.to;if(mgTop.key===k&&mgTop.state)return;mgTop={key:k,rows:[],state:"loading"};
+  run(sb.rpc("tt_top_history",{p_from:r.from,p_to:r.to})).then(function(d){if(mgTop.key!==k)return;mgTop.rows=(d||[]).map(function(o){return {day:String(o.day).slice(0,10),disc:String(o.discipline||""),eng:String(o.engineer||""),name:String(o.full_name||o.engineer||""),pts:num(o.points),overall:!!o.overall};});mgTop.state="ok";if(S.view==="management")renderMgmt2();},
+    function(e){if(mgTop.key!==k)return;mgTop.state=/tt_top_history|does not exist|schema cache/i.test(String(e&&e.message))?"nosql":"err";if(S.view==="management")renderMgmt2();});}
+function mgTopSec(){var r=mgTopRange(),sec=h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Top of the day"}),h("p",{text:"how many times each engineer was the top of the day in their discipline · "+r.label})));
+  if(mgTop.state==="loading"||!mgTop.state){sec.append(h("p",{"class":"hint",text:"Loading…"}));return sec;}
+  if(mgTop.state==="nosql"){sec.append(h("p",{"class":"hint",text:"Run the new database setup (version 35) in Supabase to see this."}));return sec;}
+  var rows=mgTop.rows.filter(function(x){return !MG.disc||x.disc===MG.disc;});
+  if(!rows.length){sec.append(h("p",{"class":"hint",text:"Nobody finished scored work in this period yet."}));return sec;}
+  var days={};mgTop.rows.forEach(function(x){days[x.day]=1;});
+  var grid=h("div",{"class":"mg-topgrid"});
+  DISC.forEach(function(d){var dr=rows.filter(function(x){return x.disc===d.k;});if(!dr.length)return;
+    var by={};dr.forEach(function(x){var o=by[x.eng]||(by[x.eng]={name:x.name,eng:x.eng,n:0,overall:0,pts:0,last:""});o.n++;if(x.overall)o.overall++;o.pts+=x.pts;if(x.day>o.last)o.last=x.day;});
+    var list=Object.keys(by).map(function(k){return by[k];}).sort(function(a,b){return b.n-a.n||b.overall-a.overall||b.pts-a.pts;}),mx=list[0].n;
+    var tb=h("tbody");list.forEach(function(o,i){tb.append(h("tr",null,h("td",{"class":"mg-rank"+(i===0?" first":""),text:String(i+1)}),h("td",{"class":"mg-name"},h("strong",{text:o.name}),h("small",{text:"last on "+niceDate(o.last)})),
+      h("td",{"class":"mg-bcell"},h("div",{"class":"mg-tbar"},h("i",{style:"width:"+(o.n/mx*100)+"%"}))),h("td",{"class":"r num"},h("b",{text:String(o.n)}),h("small",{text:o.n===1?" time":" times"})),
+      h("td",{"class":"r num",title:"Times they were the top of the whole office that day"},o.overall?h("span",{"class":"pill ok",text:"★ "+o.overall}):h("span",{"class":"rv-hint",text:"—"}))));});
+    grid.append(h("div",{"class":"mg-topcard"},h("h4",null,titleCase(d.k),h("small",{text:" · "+dr.length+(dr.length===1?" day":" days")+" with a top"})),h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,h("th",{text:""}),h("th",{text:"Engineer"}),h("th",{text:"Times top"}),h("th",{"class":"r",text:"Count"}),h("th",{"class":"r",title:"Top of the whole office",text:"Overall"}))),tb))));});
+  sec.append(grid);return sec;}
+
+var MG_COL=["--c-prog","--s-earn","--c-done","--c-cmt","--c-hold","--c-nxt","--c-late","--c-est","--gold-mark","--info"];
+function mgWeekKey(ds){var d=parseDate(ds);if(!d)return "";var m=new Date(d);m.setDate(m.getDate()-((m.getDay()+1)%7));return ymd(m);}
+function mgWeekList(list,max){var ks={};list.forEach(function(t){var k=mgWeekKey(t.date);if(k)ks[k]=1;});var a=Object.keys(ks).sort();if(!a.length)return [];
+  var out=[],d=parseDate(a[0]),end=parseDate(a[a.length-1]);while(d<=end){out.push(ymd(d));d=new Date(d);d.setDate(d.getDate()+7);}return out.slice(-(max||16));}
+/* a small line chart: series [{name,color,vals[]}], labels[] */
+function mgLines(o){var W=o.w||640,H=o.h||230,ml=44,mr=12,mt=12,mb=30,iw=W-ml-mr,ih=H-mt-mb,n=o.labels.length;
+  var mx=0;o.series.forEach(function(s){s.vals.forEach(function(v){if(v>mx)mx=v;});});if(o.pct)mx=Math.max(mx,110);mx=mx||1;
+  var step=Math.pow(10,Math.floor(Math.log10(mx)));var nice=[1,2,2.5,5,10].map(function(f){return f*step;}).filter(function(v){return mx/v<=5;})[0]||step*10;var top=Math.ceil(mx/nice)*nice;
+  var NS="http://www.w3.org/2000/svg";function el(tag,a){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  var svg=el("svg",{viewBox:"0 0 "+W+" "+H,"class":"mg-svg",role:"img","aria-label":o.aria||"Line chart"});
+  function X(i){return ml+(n<=1?iw/2:i*iw/(n-1));}function Y(v){return mt+ih-(v/top)*ih;}
+  for(var g=0;g<=top+1e-9;g+=nice){var y=Y(g);svg.appendChild(el("line",{x1:ml,x2:W-mr,y1:y,y2:y,"class":"mg-grid"}));var tx=el("text",{x:ml-6,y:y+4,"text-anchor":"end","class":"mg-ax"});tx.textContent=o.pct?Math.round(g)+"%":(g>=1000?Math.round(g/100)/10+"k":fmt(g));svg.appendChild(tx);}
+  if(o.pct){var y100=Y(100);svg.appendChild(el("line",{x1:ml,x2:W-mr,y1:y100,y2:y100,"class":"mg-ref"}));}
+  var every=Math.ceil(n/8);o.labels.forEach(function(l,i){if(i%every&&i!==n-1)return;var tx=el("text",{x:X(i),y:H-10,"text-anchor":"middle","class":"mg-ax"});tx.textContent=niceDate(l).replace(/ \d{4}$/,"");svg.appendChild(tx);});
+  o.series.forEach(function(s,si){var d="",pts=[];s.vals.forEach(function(v,i){if(v==null){return;}d+=(d?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1);pts.push([i,v]);});
+    var c="var("+s.color+")";var path=el("path",{d:d,fill:"none",stroke:c,"stroke-width":s.dash?"2":"2.5","stroke-dasharray":s.dash?"5 4":"","class":"mg-line","data-s":String(si)});svg.appendChild(path);
+    pts.forEach(function(p){var ci=el("circle",{cx:X(p[0]),cy:Y(p[1]),r:pts.length>20?2:3,fill:c,"class":"mg-pt","data-s":String(si)});var ti=el("title",{});ti.textContent=s.name+" · week of "+niceDate(o.labels[p[0]])+": "+(o.pct?Math.round(p[1])+"%":h1(Math.round(p[1]*10)/10)+" h");ci.appendChild(ti);svg.appendChild(ci);});
+    if(pts.length&&o.endLabels){var lp=pts[pts.length-1],tx=el("text",{x:Math.min(W-mr-2,X(lp[0])+4),y:Y(lp[1])-6,"class":"mg-endl","text-anchor":"end",fill:c});tx.textContent=o.pct?Math.round(lp[1])+"%":h1(Math.round(lp[1]))+" h";svg.appendChild(tx);}});
+  var lg=h("div",{"class":"mg-legend"});o.series.forEach(function(s,si){var it=h("span",{"class":"mg-lgi",tabindex:"0"},h("i",{"class":"sw"+(s.dash?" dash":""),style:"background:var("+s.color+")"}),s.name);
+    function hl(on){Array.prototype.forEach.call(svg.querySelectorAll(".mg-line,.mg-pt"),function(e){e.style.opacity=on&&e.getAttribute("data-s")!==String(si)?"0.15":"";});}
+    it.addEventListener("mouseenter",function(){hl(true);});it.addEventListener("mouseleave",function(){hl(false);});it.addEventListener("focus",function(){hl(true);});it.addEventListener("blur",function(){hl(false);});lg.append(it);});
+  return h("div",{"class":"mg-chart"},lg,h("div",{"class":"mg-svgw"},svg));}
+function mgCumCurve(list){var wk=mgWeekList(list,26);if(wk.length<2)return null;var ce=[],ca=[],se=0,sa=0,by={};
+  list.forEach(function(t){var k=mgWeekKey(t.date);if(!by[k])by[k]={e:0,a:0};by[k].e+=estT(t);by[k].a+=liveAct(t);});
+  wk.forEach(function(k){var x=by[k]||{e:0,a:0};se+=x.e;sa+=x.a;ce.push(se);ca.push(sa);});
+  return mgLines({labels:wk,endLabels:true,aria:"Cumulative estimated and actual hours by week",series:[{name:"Estimated (cumulative)",color:"--c-est",vals:ce,dash:true},{name:"Actual (cumulative)",color:"--s-act",vals:ca}]});}
+function mgCompare(list,keyFn,max,metric){var wk=mgWeekList(list,16);if(wk.length<2)return null;var tot={},by={};
+  list.forEach(function(t){var g=keyFn(t);if(!g)return;var k=mgWeekKey(t.date);tot[g]=(tot[g]||0)+liveAct(t);var b=by[g]||(by[g]={});if(!b[k])b[k]={e:0,a:0};b[k].e+=estT(t);b[k].a+=liveAct(t);});
+  var groups=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a];}).slice(0,max||6);if(!groups.length)return null;
+  return mgLines({labels:wk,pct:metric==="used",aria:"Weekly comparison",series:groups.map(function(g,i){return {name:g,color:MG_COL[i%MG_COL.length],vals:wk.map(function(k){var x=by[g][k];if(!x)return metric==="used"?null:0;return metric==="used"?(x.e>0?x.a/x.e*100:null):x.a;})};})});}
+var mgCmp={metric:"act",by:"eng"};
+function mgTrendsSec(list,scope,inProject){
+  var sec=h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Curves and comparisons"}),h("p",{text:scope+" · by task week"})));
+  var two=h("div",{"class":"mg-two"});
+  var c1=mgCumCurve(list);two.append(h("div",{"class":"mg-cbox"},h("h4",{text:"Cumulative hours"}),h("p",{"class":"hint",text:"Estimated (dashed) against actual. When the green line climbs above the dashed one, more hours are going in than were planned."}),c1||h("p",{"class":"hint",text:"Needs at least two weeks of tasks."})));
+  var box=h("div",{"class":"mg-cbox"});
+  var tools=h("div",{"class":"mg-ctools"});
+  var opts=inProject?[["eng","Engineers"],["disc","Disciplines"]]:[["eng","Engineers"],["proj","Projects"],["disc","Disciplines"]];if(!opts.some(function(o){return o[0]===mgCmp.by;}))mgCmp.by="eng";
+  mgSeg(tools,opts,mgCmp.by,function(v){mgCmp.by=v;render();}).setAttribute("aria-label","Compare");
+  mgSeg(tools,[["act","Actual hours"],["used","Actual ÷ estimate"]],mgCmp.metric,function(v){mgCmp.metric=v;render();}).setAttribute("aria-label","Measure");
+  var kf=mgCmp.by==="proj"?function(t){return t.project||"No project";}:mgCmp.by==="disc"?function(t){return titleCase(t.discipline||"");}:function(t){return t.engineer||"";};
+  var c2=mgCompare(list,kf,6,mgCmp.metric);
+  box.append(h("h4",{text:"Week by week: "+(mgCmp.by==="proj"?"projects":mgCmp.by==="disc"?"disciplines":"engineers")}),tools,
+    h("p",{"class":"hint",text:(mgCmp.metric==="used"?"Actual hours ÷ estimated hours of each week's tasks. The line at 100% is the estimate; above it = slower than planned.":"Timer hours on each week's tasks.")+(mgCmp.by==="eng"?" Top 6 by hours. Point at a name to pick out its line.":"")}),
+    c2||h("p",{"class":"hint",text:"Needs at least two weeks of tasks."}));
+  two.append(box);sec.append(two);
+  /* monthly comparison table */
+  var months={};list.forEach(function(t){var m=String(t.date||"").slice(0,7);if(m)months[m]=1;});var ms=Object.keys(months).sort().slice(-6);
+  if(ms.length>=2){var grp={},tot={};list.forEach(function(t){var g=kf(t),m=String(t.date||"").slice(0,7);if(!g||ms.indexOf(m)<0)return;var o=grp[g]||(grp[g]={});var x=o[m]||(o[m]={e:0,a:0,n:0,d:0});x.e+=estT(t);x.a+=liveAct(t);x.n++;if(t.status==="Completed")x.d++;tot[g]=(tot[g]||0)+liveAct(t);});
+    var gs=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a];}).slice(0,12);
+    var tb=h("tbody");gs.forEach(function(g){var tr=h("tr",null,h("td",{"class":"mg-name"},h("strong",{text:g})));var prev=null;
+      ms.forEach(function(m){var x=grp[g][m];if(!x){tr.append(h("td",{"class":"r rv-hint",text:"—"}));prev=null;return;}var v=mgCmp.metric==="used"?(x.e>0?x.a/x.e*100:null):x.a;
+        var arrow=prev!=null&&v!=null?(v>prev+0.5?"▲":v<prev-0.5?"▼":""):"",good=mgCmp.metric==="used"?(arrow==="▼"):(arrow==="▲");
+        tr.append(h("td",{"class":"r num",title:x.n+" tasks · "+x.d+" finished · "+mgH(x.a)+" actual / "+mgH(x.e)+" estimated"},h("b",{"class":mgCmp.metric==="used"?"mg-"+mgTone(v):null,text:v==null?"—":mgCmp.metric==="used"?Math.round(v)+"%":h1(Math.round(v*10)/10)}),
+          arrow?h("small",{"class":good?"mg-ok":"mg-bad",text:" "+arrow}):null));prev=v;});
+      tb.append(tr);});
+    sec.append(h("h4",{"class":"mg-mh",text:"Month by month ("+(mgCmp.metric==="used"?"actual ÷ estimate":"actual hours")+")"}),
+      h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,[h("th",{text:mgCmp.by==="proj"?"Project":mgCmp.by==="disc"?"Discipline":"Engineer"})].concat(ms.map(function(m){return h("th",{"class":"r",text:kpiMonthShort(m)});})))),tb)));}
+  return sec;}
+
+/* ---------- suggestions and problems ---------- */
+var fbRows=[],fbDraft={kind:"idea",image:null},fbF="open",fbLoaded=false;
+function row2fb(o){return {id:String(o.id),email:String(o.email||""),name:String(o.full_name||o.email||""),kind:String(o.kind||"idea"),message:String(o.message||""),image:o.image?String(o.image):"",
+  status:String(o.status||"New"),reply:String(o.reply||""),replied_at:o.replied_at?String(o.replied_at):"",created_at:String(o.created_at||"")};}
+function loadFb(){if(!sb||!me)return Promise.resolve();
+  return run(sb.from("tt_feedback").select("*").order("created_at",{ascending:false}).range(0,499)).then(function(d){fbRows=(d||[]).map(row2fb);fbLoaded=true;paintFbBadge();if($("fbDlg").open)renderFb();},function(){fbLoaded=true;fbRows=[];paintFbBadge();});}
+var fbSoon=null;function fbLater(){if(fbSoon)clearTimeout(fbSoon);fbSoon=setTimeout(function(){fbSoon=null;loadFb();},1500);}
+function paintFbBadge(){var b=$("fbCount");if(!b)return;var n=isAdmin()?fbRows.filter(function(x){return x.status==="New";}).length:0;b.textContent=String(n);b.hidden=!n;var bt=$("btnFb");if(bt)bt.hidden=!me;}
+function fbTakeImage(file){
+  if(!file||!/^image\//.test(file.type)){$("fbErr").textContent="Pick a picture file (JPG or PNG).";return;}
+  var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){
+      var max=1600,w=im.naturalWidth,hh=im.naturalHeight,sc=Math.min(1,max/Math.max(w,hh));w=Math.round(w*sc);hh=Math.round(hh*sc);
+      var c=document.createElement("canvas");c.width=w;c.height=hh;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,hh);x.drawImage(im,0,0,w,hh);
+      var q=0.85,out=c.toDataURL("image/jpeg",q);while(out.length>1400000&&q>0.4){q-=0.1;out=c.toDataURL("image/jpeg",q);}
+      if(out.length>1400000){$("fbErr").textContent="This picture is too large even after shrinking it.";return;}
+      fbDraft.image=out;$("fbErr").textContent="";renderFbDraft();};
+    im.onerror=function(){$("fbErr").textContent="This file could not be read as a picture.";};im.src=rd.result;};
+  rd.readAsDataURL(file);}
+function renderFbDraft(){var sg=$("fbKind");Array.prototype.forEach.call(sg.querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-k")===fbDraft.kind));});
+  $("fbMsg").placeholder=fbDraft.kind==="idea"?"What would make the tracker better for you? For example: a report I need every week, a button that saves time…":"What went wrong? Where were you, what did you click, and what did you expect to happen?";
+  var pv=clear($("fbImgPrev"));if(fbDraft.image)pv.append(h("img",{src:fbDraft.image,alt:"Picture to send"}),h("button",{type:"button","class":"btn small quiet",onclick:function(){fbDraft.image=null;renderFbDraft();}},"Remove picture"));
+  $("fbPickImg").textContent=fbDraft.image?"Change picture":"Add a screenshot";}
+function openFb(){fbDraft={kind:fbDraft.kind||"idea",image:null};$("fbMsg").value="";$("fbErr").textContent="";renderFbDraft();renderFb();$("fbDlg").showModal();loadFb();setTimeout(function(){try{$("fbMsg").focus();}catch(e){}},0);}
+function sendFb(){var msg=$("fbMsg").value.trim();if(!msg){$("fbErr").textContent="Write your suggestion or the problem first.";return;}
+  var b=$("fbSend");b.disabled=true;$("fbErr").textContent="";
+  run(sb.rpc("tt_feedback_send",{p_kind:fbDraft.kind,p_message:msg,p_image:fbDraft.image||null})).then(function(){$("fbMsg").value="";fbDraft.image=null;renderFbDraft();
+    toast(fbDraft.kind==="idea"?"Thank you. Your suggestion was sent.":"Thank you. The problem was reported.");return loadFb();})
+    .catch(function(e){var m=String(e&&e.message||"");$("fbErr").textContent=/tt_feedback_send|does not exist|schema cache/i.test(m)?"Run the new database setup (version 35) in Supabase first.":writeError(e).replace(/^Could not save:\s*/,"");})
+    .then(function(){b.disabled=false;});}
+var FB_ST={New:"info","Planned":"warn","Done":"ok","Not planned":""};
+function renderFb(){var host=clear($("fbList")),adm=isAdmin();
+  var list=fbRows.filter(function(x){return adm||x.email===me.email;});
+  var counts={open:0,all:list.length};list.forEach(function(x){if(x.status==="New"||x.status==="Planned")counts.open++;});
+  var head=h("div",{"class":"fb-lh"},h("h3",{text:adm?"Suggestions and problems from the team":"What you sent"}));
+  if(adm){var sg=h("div",{"class":"seg",role:"group","aria-label":"Show"});[["open","Open · "+counts.open],["New","New"],["Planned","Planned"],["Done","Done"],["Not planned","Not planned"],["all","All · "+counts.all]].forEach(function(o){
+      sg.append(h("button",{type:"button","aria-pressed":String(fbF===o[0]),onclick:function(){fbF=o[0];renderFb();}},o[1]));});head.append(sg);}
+  host.append(head);
+  var shown=list.filter(function(x){return !adm||fbF==="all"||(fbF==="open"?(x.status==="New"||x.status==="Planned"):x.status===fbF);});
+  if(!fbLoaded){host.append(h("p",{"class":"hint",text:"Loading…"}));return;}
+  if(!shown.length){host.append(h("p",{"class":"hint",text:adm?"Nothing here.":"You have not sent anything yet."}));return;}
+  shown.forEach(function(x){
+    var card=h("article",{"class":"fb-item "+x.kind},h("div",{"class":"fb-ih"},h("span",{"class":"pill "+(x.kind==="idea"?"info":"bad"),text:x.kind==="idea"?"Suggestion":"Problem"}),
+      adm?h("strong",{text:x.name}):null,h("span",{"class":"rv-hint",text:niceStamp(x.created_at)}),h("span",{"class":"pill "+(FB_ST[x.status]||""),text:x.status})),
+      h("p",{"class":"fb-msg",text:x.message}),x.image?h("img",{"class":"fb-img",src:x.image,alt:"Screenshot",onclick:function(){openBcImg(x.image);}}):null);
+    if(!adm&&x.reply)card.append(h("div",{"class":"fb-reply"},h("b",{text:"Answer: "}),x.reply));
+    if(adm){var ss=h("select",{"class":"kpi-sort","aria-label":"Status"});["New","Planned","Done","Not planned"].forEach(function(s){ss.append(h("option",{value:s,text:s}));});ss.value=x.status;
+      var ta=h("textarea",{"class":"kpi-note",maxlength:"2000",placeholder:"Answer to "+x.name+" (they get a notification)"});ta.value=x.reply;
+      var sv=h("button",{"class":"btn small primary",type:"button",onclick:function(){sv.disabled=true;run(sb.rpc("tt_feedback_reply",{p_id:x.id,p_status:ss.value,p_reply:ta.value})).then(function(){toast("Saved. "+x.name+" was told.");return loadFb();}).catch(function(e){toast(writeError(e),true);sv.disabled=false;});}},"Save answer");
+      var del=h("button",{"class":"btn small danger",type:"button",onclick:function(){if(!confirm("Delete this "+(x.kind==="idea"?"suggestion":"problem")+"?"))return;run(sb.rpc("tt_feedback_delete",{p_id:x.id})).then(function(){toast("Deleted.");return loadFb();}).catch(function(e){toast(writeError(e),true);});}},"Delete");
+      card.append(h("div",{"class":"fb-adm"},ss,ta,h("div",{"class":"kpi-acts"},del,sv)));}
+    else if(x.status==="New")card.append(h("div",{"class":"kpi-acts"},h("button",{"class":"btn small quiet",type:"button",onclick:function(){if(!confirm("Take this back?"))return;run(sb.rpc("tt_feedback_delete",{p_id:x.id})).then(function(){return loadFb();}).catch(function(e){toast(writeError(e),true);});}},"Take back")));
+    host.append(card);});}
+(function(){var b=$("btnFb");if(!b)return;b.addEventListener("click",openFb);$("fbClose").addEventListener("click",function(){$("fbDlg").close();});$("fbSend").addEventListener("click",sendFb);
+  Array.prototype.forEach.call($("fbKind").querySelectorAll("button"),function(x){x.addEventListener("click",function(){fbDraft.kind=x.getAttribute("data-k");renderFbDraft();});});
+  $("fbPickImg").addEventListener("click",function(){$("fbFile").value="";$("fbFile").click();});$("fbFile").addEventListener("change",function(){if(this.files&&this.files[0])fbTakeImage(this.files[0]);});
+  $("bcAud").addEventListener("change",renderBcRoles);
+  $("fbMsg").addEventListener("paste",function(e){var it=(e.clipboardData||{}).items||[];for(var i=0;i<it.length;i++){if(it[i].type&&it[i].type.indexOf("image/")===0){fbTakeImage(it[i].getAsFile());e.preventDefault();break;}}});})();
 start();
 })();
 </script>
