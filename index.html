@@ -797,6 +797,8 @@ table.mg-cg td,table.mg-cg th{padding-top:7px;padding-bottom:7px}.mg-cg .mg-cg-w
 .mg-cg-c.t-ok{background:var(--ok-soft);color:var(--ok)}.mg-cg-c.t-warn{background:var(--warn-soft);color:var(--warn)}.mg-cg-c.t-bad{background:var(--bad-soft);color:var(--bad)}.mg-cg-c.t-{background:var(--idle-soft);color:var(--idle)}
 .mg-cg-c.t-h{background:color-mix(in srgb,var(--s-act) calc(var(--a) * 100%),transparent);color:var(--ink)}
 .mg-cg-e{color:var(--muted);display:inline-block;min-width:48px;text-align:center}
+.mg-chead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}.mg-chead .mg-ctools{margin:0}
+.mg-cwho{margin:0 0 4px;font-size:12px;font-weight:700;color:var(--accent)}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -6102,10 +6104,13 @@ function mgLines(o){var W=o.w||640,H=o.h||230,ml=44,mr=12,mt=12,mb=30,iw=W-ml-mr
   for(var g=0;g<=top+1e-9;g+=nice){var y=Y(g);svg.appendChild(el("line",{x1:ml,x2:W-mr,y1:y,y2:y,"class":"mg-grid"}));var tx=el("text",{x:ml-6,y:y+4,"text-anchor":"end","class":"mg-ax"});tx.textContent=o.pct?Math.round(g)+"%":(g>=1000?Math.round(g/100)/10+"k":fmt(g));svg.appendChild(tx);}
   if(o.pct){var y100=Y(100);svg.appendChild(el("line",{x1:ml,x2:W-mr,y1:y100,y2:y100,"class":"mg-ref"}));}
   var every=Math.ceil(n/8);o.labels.forEach(function(l,i){if(i%every&&i!==n-1)return;var tx=el("text",{x:X(i),y:H-10,"text-anchor":i===n-1&&n>1?"end":i===0&&n>1?"start":"middle","class":"mg-ax"});tx.textContent=niceDate(l).replace(/ \d{4}$/,"");svg.appendChild(tx);});
+  var ends=[];
   o.series.forEach(function(s,si){var d="",pts=[];s.vals.forEach(function(v,i){if(v==null){return;}d+=(d?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1);pts.push([i,v]);});
     var c="var("+s.color+")";var path=el("path",{d:d,fill:"none",stroke:c,"stroke-width":s.dash?"2":"2.5","stroke-dasharray":s.dash?"5 4":"","class":"mg-line","data-s":String(si)});svg.appendChild(path);
     pts.forEach(function(p){var ci=el("circle",{cx:X(p[0]),cy:Y(p[1]),r:pts.length>20?2:3,fill:c,"class":"mg-pt","data-s":String(si)});var ti=el("title",{});ti.textContent=s.name+" · week of "+niceDate(o.labels[p[0]])+": "+(o.pct?Math.round(p[1])+"%":h1(Math.round(p[1]*10)/10)+" h");ci.appendChild(ti);svg.appendChild(ci);});
-    if(pts.length&&o.endLabels){var lp=pts[pts.length-1],tx=el("text",{x:Math.min(W-mr-2,X(lp[0])+4),y:Y(lp[1])-6,"class":"mg-endl","text-anchor":"end",fill:c});tx.textContent=o.pct?Math.round(lp[1])+"%":h1(Math.round(lp[1]))+" h";svg.appendChild(tx);}});
+    if(pts.length&&o.endLabels){var lp=pts[pts.length-1];ends.push({x:Math.min(W-mr-2,X(lp[0])+4),y:Y(lp[1])-6,py:Y(lp[1]),c:c,txt:o.pct?Math.round(lp[1])+"%":h1(Math.round(lp[1]))+" h"});}});
+  ends.sort(function(a,b){return a.y-b.y;});for(var ei=1;ei<ends.length;ei++){if(ends[ei].y-ends[ei-1].y<18)ends[ei].y=Math.max(ends[ei-1].y+18,ends[ei].py+16);}
+  ends.forEach(function(e){var tx=el("text",{x:e.x,y:Math.min(e.y,mt+ih+8),"class":"mg-endl","text-anchor":"end",fill:e.c});tx.textContent=e.txt;svg.appendChild(tx);});
   var lg=h("div",{"class":"mg-legend"});o.series.forEach(function(s,si){var it=h("span",{"class":"mg-lgi",tabindex:"0"},h("i",{"class":"sw"+(s.dash?" dash":""),style:"background:var("+s.color+")"}),s.name);
     function hl(on){Array.prototype.forEach.call(svg.querySelectorAll(".mg-line,.mg-pt"),function(e){e.style.opacity=on&&e.getAttribute("data-s")!==String(si)?"0.15":"";});}
     it.addEventListener("mouseenter",function(){hl(true);});it.addEventListener("mouseleave",function(){hl(false);});it.addEventListener("focus",function(){hl(true);});it.addEventListener("blur",function(){hl(false);});lg.append(it);});
@@ -6152,7 +6157,24 @@ function mgCompare(list,keyFn,max,metric){var wk=mgWeekList(list,16);if(wk.lengt
   list.forEach(function(t){var g=keyFn(t);if(!g)return;var k=mgWeekKey(t.date);tot[g]=(tot[g]||0)+liveAct(t);var b=by[g]||(by[g]={});if(!b[k])b[k]={e:0,a:0};b[k].e+=estT(t);b[k].a+=liveAct(t);});
   var groups=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a];}).slice(0,max||6);if(!groups.length)return null;
   return mgLines({labels:wk,pct:metric==="used",aria:"Weekly comparison",series:groups.map(function(g,i){return {name:g,color:MG_COL[i%MG_COL.length],vals:wk.map(function(k){var x=by[g][k];if(!x)return metric==="used"?null:0;return metric==="used"?(x.e>0?x.a/x.e*100:null):x.a;})};})});}
-var mgCmp={metric:"act",by:"eng"};
+var mgCmp={metric:"act",by:"eng"},mgCum={eng:"",disc:""};
+function mgCumBox(list){
+  var box=h("div",{"class":"mg-cbox"}),body=h("div");
+  var discs=DISC.map(function(d){return d.k;}).filter(function(k){return list.some(function(t){return t.discipline===k;});});
+  if(mgCum.disc&&discs.indexOf(mgCum.disc)<0)mgCum.disc="";
+  var ds=h("select",{"class":"kpi-sort","aria-label":"Discipline"});ds.append(h("option",{value:"",text:"All disciplines"}));discs.forEach(function(k){ds.append(h("option",{value:k,text:titleCase(k)}));});ds.value=mgCum.disc;
+  var es=h("select",{"class":"kpi-sort","aria-label":"Engineer"});
+  function fillEng(){clear(es);es.append(h("option",{value:"",text:"All engineers"}));var names={};list.forEach(function(t){if(t.engineer&&(!mgCum.disc||t.discipline===mgCum.disc))names[t.engineer]=1;});
+    var ns=Object.keys(names).sort();if(mgCum.eng&&ns.indexOf(mgCum.eng)<0)mgCum.eng="";ns.forEach(function(n){es.append(h("option",{value:n,text:n}));});es.value=mgCum.eng;}
+  function draw(){clear(body);var l=list.filter(function(t){return (!mgCum.disc||t.discipline===mgCum.disc)&&(!mgCum.eng||t.engineer===mgCum.eng);});
+    var who=[mgCum.eng||"",mgCum.disc?titleCase(mgCum.disc):""].filter(Boolean).join(" · ")||"everyone";
+    var c=mgCumCurve(l);body.append(h("p",{"class":"mg-cwho",text:"Showing: "+who+" · "+l.length+(l.length===1?" task":" tasks")}),c||h("p",{"class":"hint",text:"Needs at least two weeks of tasks for this choice."}));}
+  ds.addEventListener("change",function(){mgCum.disc=ds.value;fillEng();draw();});es.addEventListener("change",function(){mgCum.eng=es.value;draw();});
+  fillEng();
+  box.append(h("div",{"class":"mg-chead"},h("h4",{text:"Cumulative hours"}),h("div",{"class":"mg-ctools"},ds,es,
+      h("button",{"class":"btn small quiet",type:"button",onclick:function(){mgCum={eng:"",disc:""};ds.value="";fillEng();draw();}},"Everyone"))),
+    h("p",{"class":"hint",text:"Estimated (dashed) against actual. When the green line climbs above the dashed one, more hours are going in than were planned."}),body);
+  draw();return box;}
 function mgTrendsSec(list,scope,inProject){
   var sec=h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Curves and comparisons"}),h("p",{text:scope+" · by task week"})));
   var two=h("div",{"class":"mg-one"});
@@ -6167,7 +6189,7 @@ function mgTrendsSec(list,scope,inProject){
   box.append(h("h4",{text:"Week by week: "+(mgCmp.by==="proj"?"projects":mgCmp.by==="disc"?"disciplines":"engineers")}),tools,
     h("p",{"class":"hint",text:mgCmp.metric==="used"?"Actual ÷ estimated hours of each week's tasks. Green = on or under the estimate, amber = up to 10% over, red = more. The bar grows right when over the estimate and left when under.":"Timer hours on each week's tasks. Darker cell = more hours. Last 8 weeks."}),
     c2||h("p",{"class":"hint",text:"No tasks in the last 8 weeks."}));
-  two.append(h("div",{"class":"mg-cbox"},h("h4",{text:"Cumulative hours"}),h("p",{"class":"hint",text:"Estimated (dashed) against actual. When the green line climbs above the dashed one, more hours are going in than were planned."}),c1||h("p",{"class":"hint",text:"Needs at least two weeks of tasks."})));
+  two.append(mgCumBox(list));
   sec.append(box,two);
   /* monthly comparison table */
   var months={};list.forEach(function(t){var m=String(t.date||"").slice(0,7);if(m)months[m]=1;});var ms=Object.keys(months).sort().slice(-6);
