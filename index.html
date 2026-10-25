@@ -785,6 +785,18 @@ dialog.kpi-dlg.mg-dlg{width:min(1180px,96vw);max-width:96vw}.mg-dlg .dlg-h .sub{
 .mg-svg .mg-grid{stroke:var(--line);stroke-width:1}.mg-svg .mg-ref{stroke:var(--bad);stroke-width:1.2;stroke-dasharray:4 4}.mg-svg .mg-ax{fill:var(--muted);font-size:11px}
 .mg-svg .mg-endl{font-size:11px;font-weight:700}.mg-svg .mg-line,.mg-svg .mg-pt{transition:opacity .15s}
 .mg-mh{margin:16px 0 6px;font-size:15px}
+.mg-one{display:grid;gap:16px;margin-top:16px}
+table.mg-cg td,table.mg-cg th{padding-top:7px;padding-bottom:7px}.mg-cg .mg-cg-wk{width:62px;white-space:nowrap}.mg-cg .mg-cg-all{min-width:210px}
+.mg-cg-in{display:flex;gap:10px;align-items:center}
+.mg-cg-v{min-width:52px;text-align:right;font-size:14px}
+.mg-div{position:relative;flex:1;height:12px;border-radius:6px;background:var(--surface-2,var(--line))}
+.mg-div-mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--ink);opacity:.55;border-radius:1px}
+.mg-div-bar{position:absolute;top:0;bottom:0}.mg-div-bar.under{background:var(--ok);border-radius:6px 0 0 6px}.mg-div-bar.over{background:var(--bad);border-radius:0 6px 6px 0}
+.mg-hbar{flex:1;height:12px;border-radius:6px;background:var(--surface-2,var(--line));overflow:hidden}.mg-hbar i{display:block;height:100%;background:var(--s-act);border-radius:6px}
+.mg-cg-c{display:inline-block;min-width:48px;padding:3px 6px;border-radius:6px;font-size:12.5px;font-weight:700;text-align:center}
+.mg-cg-c.t-ok{background:var(--ok-soft);color:var(--ok)}.mg-cg-c.t-warn{background:var(--warn-soft);color:var(--warn)}.mg-cg-c.t-bad{background:var(--bad-soft);color:var(--bad)}.mg-cg-c.t-{background:var(--idle-soft);color:var(--idle)}
+.mg-cg-c.t-h{background:color-mix(in srgb,var(--s-act) calc(var(--a) * 100%),transparent);color:var(--ink)}
+.mg-cg-e{color:var(--muted);display:inline-block;min-width:48px;text-align:center}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -6089,7 +6101,7 @@ function mgLines(o){var W=o.w||640,H=o.h||230,ml=44,mr=12,mt=12,mb=30,iw=W-ml-mr
   function X(i){return ml+(n<=1?iw/2:i*iw/(n-1));}function Y(v){return mt+ih-(v/top)*ih;}
   for(var g=0;g<=top+1e-9;g+=nice){var y=Y(g);svg.appendChild(el("line",{x1:ml,x2:W-mr,y1:y,y2:y,"class":"mg-grid"}));var tx=el("text",{x:ml-6,y:y+4,"text-anchor":"end","class":"mg-ax"});tx.textContent=o.pct?Math.round(g)+"%":(g>=1000?Math.round(g/100)/10+"k":fmt(g));svg.appendChild(tx);}
   if(o.pct){var y100=Y(100);svg.appendChild(el("line",{x1:ml,x2:W-mr,y1:y100,y2:y100,"class":"mg-ref"}));}
-  var every=Math.ceil(n/8);o.labels.forEach(function(l,i){if(i%every&&i!==n-1)return;var tx=el("text",{x:X(i),y:H-10,"text-anchor":"middle","class":"mg-ax"});tx.textContent=niceDate(l).replace(/ \d{4}$/,"");svg.appendChild(tx);});
+  var every=Math.ceil(n/8);o.labels.forEach(function(l,i){if(i%every&&i!==n-1)return;var tx=el("text",{x:X(i),y:H-10,"text-anchor":i===n-1&&n>1?"end":i===0&&n>1?"start":"middle","class":"mg-ax"});tx.textContent=niceDate(l).replace(/ \d{4}$/,"");svg.appendChild(tx);});
   o.series.forEach(function(s,si){var d="",pts=[];s.vals.forEach(function(v,i){if(v==null){return;}d+=(d?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1);pts.push([i,v]);});
     var c="var("+s.color+")";var path=el("path",{d:d,fill:"none",stroke:c,"stroke-width":s.dash?"2":"2.5","stroke-dasharray":s.dash?"5 4":"","class":"mg-line","data-s":String(si)});svg.appendChild(path);
     pts.forEach(function(p){var ci=el("circle",{cx:X(p[0]),cy:Y(p[1]),r:pts.length>20?2:3,fill:c,"class":"mg-pt","data-s":String(si)});var ti=el("title",{});ti.textContent=s.name+" · week of "+niceDate(o.labels[p[0]])+": "+(o.pct?Math.round(p[1])+"%":h1(Math.round(p[1]*10)/10)+" h");ci.appendChild(ti);svg.appendChild(ci);});
@@ -6101,7 +6113,41 @@ function mgLines(o){var W=o.w||640,H=o.h||230,ml=44,mr=12,mt=12,mb=30,iw=W-ml-mr
 function mgCumCurve(list){var wk=mgWeekList(list,26);if(wk.length<2)return null;var ce=[],ca=[],se=0,sa=0,by={};
   list.forEach(function(t){var k=mgWeekKey(t.date);if(!by[k])by[k]={e:0,a:0};by[k].e+=estT(t);by[k].a+=liveAct(t);});
   wk.forEach(function(k){var x=by[k]||{e:0,a:0};se+=x.e;sa+=x.a;ce.push(se);ca.push(sa);});
-  return mgLines({labels:wk,endLabels:true,aria:"Cumulative estimated and actual hours by week",series:[{name:"Estimated (cumulative)",color:"--c-est",vals:ce,dash:true},{name:"Actual (cumulative)",color:"--s-act",vals:ca}]});}
+  return mgLines({labels:wk,endLabels:true,w:1100,h:260,aria:"Cumulative estimated and actual hours by week",series:[{name:"Estimated (cumulative)",color:"--c-est",vals:ce,dash:true},{name:"Actual (cumulative)",color:"--s-act",vals:ca}]});}
+/* comparison as a table: one row per engineer / project / discipline, a bar for the whole period, then one cell per week */
+function mgCompareGrid(list,keyFn,metric){
+  var cur=mgWeekKey(today()),wk=[],d=parseDate(cur);for(var i=7;i>=0;i--){var x=new Date(d);x.setDate(x.getDate()-7*i);wk.push(ymd(x));}
+  var by={},tot={};list.forEach(function(t){var g=keyFn(t),k=mgWeekKey(t.date);if(!g)return;var o=tot[g]||(tot[g]={e:0,a:0,n:0});o.e+=estT(t);o.a+=liveAct(t);o.n++;
+    if(wk.indexOf(k)<0)return;var b=by[g]||(by[g]={});var c=b[k]||(b[k]={e:0,a:0,n:0});c.e+=estT(t);c.a+=liveAct(t);c.n++;});
+  var gs=Object.keys(tot).filter(function(g){return by[g];});if(!gs.length)return null;
+  function val(x){return !x?null:metric==="used"?(x.e>0?x.a/x.e*100:null):x.a;}
+  gs.sort(function(a,b){return tot[b].a-tot[a].a;});
+  var mxH=0;gs.forEach(function(g){wk.forEach(function(k){var v=by[g][k];if(v&&v.a>mxH)mxH=v.a;});});mxH=mxH||1;
+  var mxT=0;gs.forEach(function(g){if(tot[g].a>mxT)mxT=tot[g].a;});mxT=mxT||1;
+  var head=h("tr",null,h("th",{text:mgCmp.by==="proj"?"Project":mgCmp.by==="disc"?"Discipline":"Engineer"}),h("th",{"class":"mg-cg-all",text:metric==="used"?"Whole period (100% = on estimate)":"Whole period"}));
+  wk.forEach(function(k,i){head.append(h("th",{"class":"r mg-cg-wk",title:"Week of "+niceDate(k),text:i===wk.length-1?"This wk":niceDate(k).replace(/ \d{4}$/,"")}));});
+  head.append(h("th",{"class":"r",title:"Last full week against the week before it (this week is not finished yet)",text:"Trend"}));
+  var tb=h("tbody");
+  gs.forEach(function(g){var T=tot[g],tv=val(T),tr=h("tr",null,h("td",{"class":"mg-name"},h("strong",{text:g}),h("small",{text:T.n+" tasks · "+mgH(T.a)+" / "+mgH(T.e)})));
+    var td0=h("td",{"class":"mg-cg-all"}),cell=h("div",{"class":"mg-cg-in"});td0.append(cell);
+    if(metric==="used"){if(tv==null)cell.append(h("span",{"class":"rv-hint",text:"no estimates"}));else{var cl=Math.max(50,Math.min(150,tv)),over=tv>100;
+        cell.append(h("div",{"class":"mg-div",title:Math.round(tv)+"% of the estimate"},h("i",{"class":"mg-div-mid"}),h("i",{"class":"mg-div-bar "+(over?"over":"under"),style:over?"left:50%;width:"+((cl-100)/100*100)+"%":"right:50%;width:"+((100-cl)/100*100)+"%"})),
+          h("b",{"class":"mg-cg-v mg-"+mgTone(tv),text:Math.round(tv)+"%"}));}}
+    else cell.append(h("div",{"class":"mg-hbar"},h("i",{style:"width:"+(T.a/mxT*100)+"%"})),h("b",{"class":"mg-cg-v",text:mgH(T.a)}));
+    tr.append(td0);
+    var vals=[];wk.forEach(function(k){var x=by[g][k],v=val(x);vals.push(v);
+      var c=h("td",{"class":"r mg-cg-wk"});
+      if(v==null)c.append(h("span",{"class":"mg-cg-e",title:x?"No estimate that week":"Nothing that week",text:"·"}));
+      else{var tone=metric==="used"?mgTone(v):"",alpha=metric==="used"?"":Math.max(0.12,v/mxH);
+        c.append(h("span",{"class":"mg-cg-c "+(metric==="used"?"t-"+tone:"t-h"),style:metric==="used"?null:"--a:"+alpha,title:"Week of "+niceDate(k)+": "+x.n+" tasks · "+mgH(x.a)+" actual / "+mgH(x.e)+" estimated"},
+          metric==="used"?Math.round(v)+"%":h1(Math.round(v*10)/10)));}
+      tr.append(c);});
+    var last=vals[vals.length-2],prev=vals[vals.length-3];
+    var tr2="";if(last!=null&&prev!=null){var dlt=last-prev;if(Math.abs(dlt)>=(metric==="used"?3:0.5))tr2=dlt>0?"▲":"▼";}
+    var good=metric==="used"?tr2==="▼":tr2==="▲";
+    tr.append(h("td",{"class":"r"},tr2?h("span",{"class":good?"mg-ok":"mg-bad",title:metric==="used"?(good?"Closer to the estimate than the week before":"Further over the estimate than the week before"):(good?"More hours than the week before":"Fewer hours than the week before"),text:tr2}):h("span",{"class":"rv-hint",text:"—"})));
+    tb.append(tr);});
+  return h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t mg-cg"},h("thead",null,head),tb));}
 function mgCompare(list,keyFn,max,metric){var wk=mgWeekList(list,16);if(wk.length<2)return null;var tot={},by={};
   list.forEach(function(t){var g=keyFn(t);if(!g)return;var k=mgWeekKey(t.date);tot[g]=(tot[g]||0)+liveAct(t);var b=by[g]||(by[g]={});if(!b[k])b[k]={e:0,a:0};b[k].e+=estT(t);b[k].a+=liveAct(t);});
   var groups=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a];}).slice(0,max||6);if(!groups.length)return null;
@@ -6109,19 +6155,20 @@ function mgCompare(list,keyFn,max,metric){var wk=mgWeekList(list,16);if(wk.lengt
 var mgCmp={metric:"act",by:"eng"};
 function mgTrendsSec(list,scope,inProject){
   var sec=h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Curves and comparisons"}),h("p",{text:scope+" · by task week"})));
-  var two=h("div",{"class":"mg-two"});
-  var c1=mgCumCurve(list);two.append(h("div",{"class":"mg-cbox"},h("h4",{text:"Cumulative hours"}),h("p",{"class":"hint",text:"Estimated (dashed) against actual. When the green line climbs above the dashed one, more hours are going in than were planned."}),c1||h("p",{"class":"hint",text:"Needs at least two weeks of tasks."})));
+  var two=h("div",{"class":"mg-one"});
+  var c1=mgCumCurve(list);
   var box=h("div",{"class":"mg-cbox"});
   var tools=h("div",{"class":"mg-ctools"});
   var opts=inProject?[["eng","Engineers"],["disc","Disciplines"]]:[["eng","Engineers"],["proj","Projects"],["disc","Disciplines"]];if(!opts.some(function(o){return o[0]===mgCmp.by;}))mgCmp.by="eng";
   mgSeg(tools,opts,mgCmp.by,function(v){mgCmp.by=v;render();}).setAttribute("aria-label","Compare");
   mgSeg(tools,[["act","Actual hours"],["used","Actual ÷ estimate"]],mgCmp.metric,function(v){mgCmp.metric=v;render();}).setAttribute("aria-label","Measure");
   var kf=mgCmp.by==="proj"?function(t){return t.project||"No project";}:mgCmp.by==="disc"?function(t){return titleCase(t.discipline||"");}:function(t){return t.engineer||"";};
-  var c2=mgCompare(list,kf,6,mgCmp.metric);
+  var c2=mgCompareGrid(list,kf,mgCmp.metric);
   box.append(h("h4",{text:"Week by week: "+(mgCmp.by==="proj"?"projects":mgCmp.by==="disc"?"disciplines":"engineers")}),tools,
-    h("p",{"class":"hint",text:(mgCmp.metric==="used"?"Actual hours ÷ estimated hours of each week's tasks. The line at 100% is the estimate; above it = slower than planned.":"Timer hours on each week's tasks.")+(mgCmp.by==="eng"?" Top 6 by hours. Point at a name to pick out its line.":"")}),
-    c2||h("p",{"class":"hint",text:"Needs at least two weeks of tasks."}));
-  two.append(box);sec.append(two);
+    h("p",{"class":"hint",text:mgCmp.metric==="used"?"Actual ÷ estimated hours of each week's tasks. Green = on or under the estimate, amber = up to 10% over, red = more. The bar grows right when over the estimate and left when under.":"Timer hours on each week's tasks. Darker cell = more hours. Last 8 weeks."}),
+    c2||h("p",{"class":"hint",text:"No tasks in the last 8 weeks."}));
+  two.append(h("div",{"class":"mg-cbox"},h("h4",{text:"Cumulative hours"}),h("p",{"class":"hint",text:"Estimated (dashed) against actual. When the green line climbs above the dashed one, more hours are going in than were planned."}),c1||h("p",{"class":"hint",text:"Needs at least two weeks of tasks."})));
+  sec.append(box,two);
   /* monthly comparison table */
   var months={};list.forEach(function(t){var m=String(t.date||"").slice(0,7);if(m)months[m]=1;});var ms=Object.keys(months).sort().slice(-6);
   if(ms.length>=2){var grp={},tot={};list.forEach(function(t){var g=kf(t),m=String(t.date||"").slice(0,7);if(!g||ms.indexOf(m)<0)return;var o=grp[g]||(grp[g]={});var x=o[m]||(o[m]={e:0,a:0,n:0,d:0});x.e+=estT(t);x.a+=liveAct(t);x.n++;if(t.status==="Completed")x.d++;tot[g]=(tot[g]||0)+liveAct(t);});
