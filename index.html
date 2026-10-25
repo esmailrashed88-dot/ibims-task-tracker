@@ -748,6 +748,41 @@ dialog::backdrop{background:rgba(8,20,32,.55)}
 .chip.multi{border-style:dashed}.chip-also{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
 select.also-add{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:3px 6px;max-width:220px}
 .bc-box{display:grid;gap:8px;margin:0 0 14px}
+.mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
+.mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.mg-body .stats.mg-stats{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:1000px){.mg-body .stats.mg-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:600px){.mg-body .stats.mg-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mg-body .stats.mg-stats .stat:last-child{grid-column:auto}}
+.mg-ok{color:var(--ok)}.mg-warn{color:var(--warn)}.mg-bad{color:var(--bad)}
+.stat b.mg-ok{color:var(--ok)}.stat b.mg-warn{color:var(--warn)}.stat b.mg-bad{color:var(--bad)}
+.mg-sec{padding:16px 18px;min-width:0}.mg-sh{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;margin:0 0 10px}.mg-sh h3{margin:0;font-size:17px}.mg-sh p{margin:0;color:var(--muted);font-size:13px}
+.mg-sh.top{margin:4px 0 -6px}.mg-tools{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.mg-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted);margin:0 0 8px}.mg-legend span{display:inline-flex;gap:6px;align-items:center}
+.mg-legend .sw{display:inline-block;width:14px;height:10px;border-radius:3px}
+.sw.mg-act,.mg-bar .mg-act,.mg-wcols .mg-act{background:var(--s-act)}
+.sw.mg-est{background:color-mix(in srgb,var(--c-est) 28%,transparent);box-shadow:inset 0 0 0 1px var(--c-est)}
+.sw.mg-ovr,.mg-bar .mg-ovr{background:var(--bad)}
+.mg-bar{position:relative;height:12px;border-radius:6px;background:var(--surface-2,var(--line));overflow:hidden;min-width:80px}
+.mg-bar i{position:absolute;top:0;bottom:0;left:0;border-radius:6px}
+.mg-bar .mg-est{background:color-mix(in srgb,var(--c-est) 22%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c-est) 60%,transparent)}
+.mg-bar .mg-act{z-index:1}.mg-bar .mg-ovr{z-index:1;border-radius:0 6px 6px 0}
+.mg-pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.mg-pc{display:grid;gap:10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;padding:16px 18px;border:1px solid var(--line);border-top:4px solid var(--accent);transition:border-color .15s,transform .15s}
+.mg-pc:hover,.mg-pc:focus-visible{border-color:var(--accent);transform:translateY(-1px)}
+.mg-pch{display:flex;gap:8px;align-items:center}.mg-pch h3{margin:0;font-size:19px;flex:1}.mg-open{font-size:12px;font-weight:700;color:var(--accent)}
+.mg-pnums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mg-pnums span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}.mg-pnums b{font-size:20px}
+.mg-pfoot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:12px;color:var(--muted)}
+.mg-pc .stack{height:6px}
+table.plain.mg-t{min-width:0;width:100%}.mg-t td,.mg-t th{vertical-align:middle}
+.mg-name strong{display:block}.mg-name small{color:var(--muted);font-size:12px}
+.mg-bcell{width:38%;min-width:140px}
+.mg-back{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mg-weeks{display:flex;gap:6px;align-items:flex-end;height:190px;padding-top:6px;overflow-x:auto}
+.mg-wk{flex:1 0 42px;display:grid;grid-template-rows:1fr auto auto;height:100%;text-align:center;gap:2px}
+.mg-wcols{display:flex;gap:3px;align-items:flex-end;justify-content:center;height:100%;border-bottom:1px solid var(--line)}
+.mg-wcols i{width:14px;border-radius:3px 3px 0 0;min-height:1px}.mg-wcols .mg-est{background:color-mix(in srgb,var(--c-est) 28%,transparent);box-shadow:inset 0 0 0 1px var(--c-est)}.mg-wcols .mg-act.over{background:var(--bad)}
+.mg-wv{font-size:12px;font-weight:700}.mg-wl{font-size:11px;color:var(--muted);white-space:nowrap}
 #tabDeliv .badge.late{background:var(--bad)}
 .dlv-note{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:0 0 14px;padding:10px 14px;border:1px solid var(--warn);border-left:5px solid var(--bad);border-radius:10px;background:var(--warn-soft);color:var(--ink)}
 .dlv-note .dn-t{flex:1 1 260px}.dlv-note .dn-ic{width:18px;height:18px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 4px color-mix(in srgb,var(--bad) 25%,transparent);animation:prBounce 1.6s ease-in-out infinite}
@@ -1177,58 +1212,11 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
 
   <div id="viewMgmt" class="view" hidden>
     <div class="mhead">
-      <div><h2>All projects</h2><p id="mAsOf"></p></div>
-      <div class="seg" id="mPeriod" role="group" aria-label="Period"></div>
+      <div><h2 id="m2Title">All projects</h2><p id="m2Sub"></p></div>
+      <div class="mg-tbar" id="m2Tools"></div>
     </div>
-    <section class="stats" id="mStats" aria-label="Overall summary"></section>
-    <section>
-      <div class="sec-head"><h2>Progress over time</h2><p>Weekly S-curve for each project · cumulative hours since the first task</p></div>
-      <div id="mCurves" class="curves"></div>
-    </section>
-    <section>
-      <div class="sec-head"><h2>Engineer performance</h2><p id="mEngSub"></p></div>
-      <div id="mEng"></div>
-    </section>
-    <div id="mCharts" class="charts"></div>
-    <section>
-      <div class="sec-head"><h2>Progress by project</h2><p>Progress = estimated hours of completed tasks ÷ all estimated hours</p></div>
-      <div id="mProjects"></div>
-    </section>
-    <section>
-      <div class="sec-head"><h2>Delayed tasks</h2><p id="mDelaySub"></p></div>
-      <div id="mDelays"></div>
-    </section>
-    <section class="howto" aria-labelledby="howH">
-      <div class="sec-head"><h2 id="howH">How the numbers work</h2><p>The terms used on this dashboard, with one worked example</p></div>
-      <div class="how-grid">
-        <div class="how-wrap"><table class="how">
-          <thead><tr><th>Term</th><th>What it means</th><th>How it is calculated</th></tr></thead>
-          <tbody>
-            <tr><td><i class="sw" style="background:var(--s-plan)"></i><b>Planned</b></td><td>The hours the work should take</td><td>Sum of the estimated hours, placed on each task's date</td></tr>
-            <tr><td><i class="sw" style="background:var(--s-act)"></i><b>Actual</b> <small>(Timer)</small></td><td>The hours really spent</td><td>Task timer + any correction by the admin, team leader or senior</td></tr>
-            <tr><td><i class="sw" style="background:var(--s-earn)"></i><b>Earned</b> <small>(time used)</small></td><td>The work really achieved</td><td>For each task: actual hours, but never more than its estimate. A finished task counts its full estimate</td></tr>
-            <tr><td><b>Progress</b></td><td>How much of the work is done</td><td>Earned ÷ Planned (all estimated hours)</td></tr>
-            <tr><td><b>Earned ÷ Actual</b></td><td>How much of the time spent became finished work</td><td>Earned ÷ Actual. Below 100% = hours spent beyond the estimates</td></tr>
-            <tr><td><b>Vs plan to date</b></td><td>Ahead of or behind the schedule</td><td>Earned ÷ Planned up to this week</td></tr>
-            <tr><td><b>Efficiency</b> <small>(per engineer)</small></td><td>Faster or slower than estimated</td><td>Estimated ÷ actual hours of finished tasks. Above 100% = faster</td></tr>
-            <tr><td><b>Score</b> <small>(per engineer)</small></td><td>One mark out of 100</td><td>40 efficiency + 25 on estimate + 20 few comments + 15 few delayed or held tasks</td></tr>
-          </tbody></table></div>
-        <div class="how-wrap"><table class="how ex">
-          <caption>Example: one project with four tasks</caption>
-          <thead><tr><th>Task</th><th>Status</th><th>Estimated</th><th>Actual</th><th>Earned</th><th>Why</th></tr></thead>
-          <tbody>
-            <tr><td>Task 1</td><td>Finished</td><td>4 h</td><td>6 h</td><td><b>4 h</b></td><td>2 h over the estimate are not achievement</td></tr>
-            <tr><td>Task 2</td><td>Finished</td><td>5 h</td><td>4 h</td><td><b>5 h</b></td><td>Finished, so it counts in full</td></tr>
-            <tr><td>Task 3</td><td>In progress</td><td>10 h</td><td>3 h</td><td><b>3 h</b></td><td>3 of 10 hours done</td></tr>
-            <tr><td>Task 4</td><td>In progress</td><td>8 h</td><td>12 h</td><td><b>8 h</b></td><td>Capped at its estimate until it finishes</td></tr>
-            <tr class="tot"><td>Total</td><td></td><td>27 h</td><td>25 h</td><td>20 h</td><td></td></tr>
-          </tbody>
-          <tfoot>
-            <tr><td colspan="6"><b>Progress</b> = 20 ÷ 27 = <b>74%</b> &nbsp;·&nbsp; <b>Earned ÷ Actual</b> = 20 ÷ 25 = <b>80%</b> (5 h went beyond the estimates) &nbsp;·&nbsp; <b>Actual (Timer)</b> = <b>25 h</b></td></tr>
-          </tfoot></table></div>
-      </div>
-      <p class="how-read"><b>Reading the chart:</b> if the orange line (Earned) is under the blue line (Planned), the project is behind plan. If the green line (Actual) is above the orange line, more hours are being spent than the work achieved.</p>
-    </section>
+    <div id="m2Body" class="mg-body"></div>
+    <div hidden><div id="mPeriod"></div><p id="mAsOf"></p><section id="mStats"></section><div id="mCurves"></div><p id="mEngSub"></p><div id="mEng"></div><div id="mCharts"></div><div id="mProjects"></div><p id="mDelaySub"></p><div id="mDelays"></div></div>
   </div>
 
   <div id="viewDeliv" class="view" hidden>
@@ -1729,7 +1717,7 @@ function canDelete(t){return isAdmin()||(isTL()&&t.discipline===me.discipline);}
 function canEdit(t){return editAll()||(isTL()&&t.discipline===me.discipline)||(isEng()&&!!me.engineer&&t.engineer===me.engineer);}
 function roleName(r){return {admin:"Admin",manager:"Manager",teamleader:"Team leader",senior:"Senior",midsenior:"Mid Senior",engineer:"Engineer"}[r]||r||"";}
 function row2task(o){return {id:String(o.id),date:String(o.date||"").slice(0,10),engineer:String(o.engineer||""),discipline:String(o.discipline||""),project:String(o.project||""),
-  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),sent_to:o.sent_to?String(o.sent_to):"",sent_at:o.sent_at?String(o.sent_at):"",ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):"",completed_at:o.completed_at?String(o.completed_at):"",created_at:o.created_at?String(o.created_at):"",due_date:o.due_date?String(o.due_date).slice(0,10):"",doc_ref:String(o.doc_ref||"")};}
+  task:String(o.task||""),level:String(o.level||""),element:String(o.element||""),est:num(o.est),actual:num(o.actual),status:String(o.status||"Not Started"),reason:String(o.reason||""),submission_path:String(o.submission_path||""),sent_to:o.sent_to?String(o.sent_to):"",sent_at:o.sent_at?String(o.sent_at):"",ack:o.ack_at?String(o.ack_at):"",paused_at:o.paused_at?String(o.paused_at):"",resumed_at:o.resumed_at?String(o.resumed_at):"",pause_kind:o.pause_kind?String(o.pause_kind):"",completed_at:o.completed_at?String(o.completed_at):"",created_at:o.created_at?String(o.created_at):"",due_date:o.due_date?String(o.due_date).slice(0,10):"",doc_ref:String(o.doc_ref||""),created_by:String(o.created_by||"")};}
 function upsertLocal(t){var i,found=false;for(i=0;i<S.tasks.length;i++){if(S.tasks[i].id===t.id){S.tasks[i]=t;found=true;break;}}if(!found)S.tasks.push(t);}
 function dropLocal(id){S.tasks=S.tasks.filter(function(x){return x.id!==id;});}
 function run(q){return Promise.resolve(q).then(function(r){if(r&&r.error)throw r.error;return r?r.data:null;});}
@@ -2142,7 +2130,7 @@ function render(){
   else if(v==="kpi")renderKpi();
   else if(v==="attendance")renderAtt();
   else if(v==="review")renderReview();
-  else if(v==="management"){renderMgmt();renderCurves();renderEngScore();renderMgmtCharts();}
+  else if(v==="management"){renderMgmt2();}
   else{renderStats(rows);if(v==="dashboard"){renderDash(rows);renderDashCharts(rows);}else{renderBoard(rows);renderTable(rows);}}
   $("btnAdd").hidden=!canAdd();$("btnCopy").hidden=!canAdd();renderBackupNote();renderFree(v);renderMotd();renderDueNotes();renderBc();paintReqBadge();renderDlvNote();paintDlvBadge();$("btnTeam").hidden=!isAdmin();$("btnExport").hidden=!S.tasksLoaded||!can("export_data");
   var c=$("conn");c.className="conn"+(S.conn==="live"?" live":S.conn==="off"?" off":"");
@@ -2177,7 +2165,8 @@ function openTask(t,preset){
   var disc=t?t.discipline:(S.f.discipline||(S.f.engineer&&engineerDisc(S.f.engineer))||"STRUCTURE");
   fillSelect($("f-discipline"),DISC.map(function(d){return d.k;}),disc);
   syncEngineerOptions(t?t.engineer:S.f.engineer);
-  var own=isEng()&&me.engineer;
+  var own=isEng()&&me.engineer&&!can("add_tasks");
+  if(isEng()&&!own&&!t){var md0=myDiscs();fillSelect($("f-discipline"),md0.length?md0:[engineerDisc(me.engineer)||disc],md0.indexOf(disc)>=0?disc:(engineerDisc(me.engineer)||md0[0]));syncEngineerOptions(S.f.engineer||me.engineer);}
   if(own&&!t){fillSelect($("f-discipline"),DISC.map(function(d){return d.k;}),engineerDisc(me.engineer)||disc);syncEngineerOptions(me.engineer);$("f-engineer").value=me.engineer;
     if($("f-engineer").value!==me.engineer){$("f-engineer").append(h("option",{value:me.engineer,text:me.engineer}));$("f-engineer").value=me.engineer;}}
   if(isTL()){fillSelect($("f-discipline"),[me.discipline],me.discipline);syncEngineerOptions(t?t.engineer:"");}
@@ -2187,7 +2176,7 @@ function openTask(t,preset){
   $("f-task").value=t?(t.task||""):"";fillTaskList();$("taskHint").textContent="";
   $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";$("f-actual").disabled=t?!canManageRows(t):!isAdmin();
   $("f-level").value=t?(t.level||""):"";$("f-path").value=t?(t.submission_path||""):"";$("f-element").value=t?(t.element||""):"";
-  var canEst=!!t&&((isEng()&&!num(t.est))||isAdmin());$("f-est").disabled=!canEst;
+  var canEst=!!t&&((isEng()&&t.engineer===me.engineer&&!num(t.est))||isAdmin());$("f-est").disabled=!canEst;
   $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":canEst?(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
   fillSelect($("f-status"),STATUS,preset||(t?t.status:"Not Started"));
   $("f-reason").value=t?(t.reason||""):"";
@@ -2214,7 +2203,6 @@ function saveTask(ev){
   else if(!d.engineer)err="Select the engineer.";
   else if(!d.project)err="Select the project.";
   else if(!d.task)err="Describe the task.";
-  else if(!editing&&isEng()&&!(d.est>0))err="Enter the estimated hours. You cannot change them after saving.";
   else if((d.status==="Delayed"||d.status==="On Hold")&&!d.reason)err=d.status==="Delayed"?"Add the reason for the delay.":"Add the reason for putting the task on hold.";
   if(err){$("taskErr").textContent=err;return;}
   busy=true;$("btnSave").disabled=true;$("taskErr").textContent="";
@@ -2255,7 +2243,7 @@ function loadSettings(){
 function loadTasks(){
   var out=[],size=1000;
   function page(from){
-    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind,completed_at,created_at,due_date,doc_ref").order("date",{ascending:false}).order("id").range(from,from+size-1))
+    return run(sb.from("tt_tasks").select("id,date,engineer,discipline,project,task,level,element,est,actual,status,reason,submission_path,sent_to,sent_at,ack_at,paused_at,resumed_at,pause_kind,completed_at,created_at,due_date,doc_ref,created_by").order("date",{ascending:false}).order("id").range(from,from+size-1))
       .then(function(d){d=d||[];out=out.concat(d);return d.length===size?page(from+size):out;});
   }
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
@@ -3576,7 +3564,7 @@ function stateLabel(x){
   return {free:"No open task",working:"Working",paused:"Paused",idle:"Timer off",waiting:"Not confirmed",stopped:x.task?x.task.status:"Stopped"}[x.kind];
 }
 function renderFree(v){
-  var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance"&&v!=="deliv";
+  var box=$("freeBox"),show=can("see_free")&&S.tasksLoaded&&S.settingsLoaded&&v!=="dashboard"&&v!=="review"&&v!=="kpi"&&v!=="attendance"&&v!=="deliv"&&v!=="management";
   box.hidden=!show;if(!show)return;clear(box);
   var list=teamStates(),c={free:0,working:0,paused:0,soon:0,stopped:0,idle:0,waiting:0};
   list.forEach(function(x){c[x.kind]++;if(x.soon)c.soon++;});
@@ -5301,7 +5289,7 @@ function loadMyPerms(){if(!sb||!me)return Promise.resolve();
 /* what each part of the app checks */
 function editAll(){return can("view_all");}
 function isTL(){return !!me&&isLeadRole(me.role)&&!!me.discipline&&!can("view_all");}
-function canEdit(t){return (can("edit_tasks")&&inScope(t.discipline))||(isEng()&&!!me.engineer&&t.engineer===me.engineer);}
+function canEdit(t){return (can("edit_tasks")&&inScope(t.discipline))||(isEng()&&!!me.engineer&&t.engineer===me.engineer)||(!!me&&t.created_by===me.email&&can("add_tasks")&&inScope(t.discipline));}
 function canAdd(){return can("add_tasks");}
 function canDelete(t){return can("add_tasks")&&inScope(t.discipline);}
 function canManageRows(t){return can("manage_rows")&&inScope(t.discipline);}
@@ -5755,6 +5743,142 @@ function doDlvImport(){
 /* the due date on the task itself */
 function dueNote(t){if(!t.due_date)return null;var n=Math.round((parseDate(t.due_date)-parseDate(today()))/86400000),k=t.status==="Completed"?"done":n<0?"late":n<=warnDays()?"soon":"";
   return h("span",{"class":"dv-due "+k,title:t.doc_ref?"Drawing "+t.doc_ref:null,text:"Target "+niceDate(t.due_date)+(t.status==="Completed"?"":" · "+dueTxt(n))+(t.doc_ref?" · "+(t.doc_ref.length>40?t.doc_ref.slice(0,40)+"…":t.doc_ref):"")});}
+
+/* ---------- management dashboard v2: estimated vs actual (timer) hours, per project, click a project for its details ---------- */
+var MG={open:null,disc:"",tStatus:"",tq:"",tN:25,lateAll:false};
+function mgSum(list){var o={n:list.length,done:0,est:0,act:0,doneEst:0,doneAct:0,over:0,overN:0,late:0,open:0,eng:{},by:{}};
+  list.forEach(function(t){var e=estT(t),a=liveAct(t);o.est+=e;o.act+=a;o.by[t.status]=(o.by[t.status]||0)+1;if(t.engineer)o.eng[t.engineer]=1;
+    if(t.status==="Completed"){o.done++;o.doneEst+=e;o.doneAct+=a;}else o.open++;
+    if(t.status==="Delayed")o.late++;if(e>0&&a>e+0.01){o.over+=a-e;o.overN++;}});
+  o.used=o.est>0?o.act/o.est*100:null;o.acc=o.doneEst>0?o.doneAct/o.doneEst*100:null;o.engN=Object.keys(o.eng).length;return o;}
+function mgH(v){return h1(Math.round(v*10)/10)+" h";}
+function mgPct(p){return p==null?"—":Math.round(p)+"%";}
+function mgTone(p){return p==null?"":p>110?"bad":p>100?"warn":"ok";}
+function mgBar(est,act,label){var mx=Math.max(est,act,0.01),pe=est/mx*100,pa=act/mx*100,over=act>est+0.01;
+  var b=h("div",{"class":"mg-bar",role:"img","aria-label":label+": "+mgH(act)+" actual of "+mgH(est)+" estimated",title:mgH(act)+" actual · "+mgH(est)+" estimated"+(over?" · "+mgH(act-est)+" over":"")},
+    h("i",{"class":"mg-est",style:"width:"+pe+"%"}),h("i",{"class":"mg-act"+(over?" over":""),style:"width:"+Math.min(pa,pe)+"%"}),
+    over?h("i",{"class":"mg-ovr",style:"left:"+pe+"%;width:"+(pa-pe)+"%"}):null);return b;}
+function mgTile(label,val,sub,tone){return h("div",{"class":"stat"+(tone==="bad"?" alert":"")},h("span",{"class":"label",text:label}),h("b",{"class":tone?"mg-"+tone:null,text:val}),h("small",{text:sub||" "}));}
+function mgRows(){var rows=S.tasks.filter(inPeriod);if(MG.disc)rows=rows.filter(function(t){return t.discipline===MG.disc;});return rows;}
+function mgTiles(o,host){host.append(
+  mgTile("Estimated",mgH(o.est),o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished"),
+  mgTile("Actual (timer)",mgH(o.act),o.engN+(o.engN===1?" engineer":" engineers")+" worked"),
+  mgTile("Hours used",mgPct(o.used),o.used==null?"no estimates yet":"actual ÷ estimated · "+(o.act>o.est?mgH(o.act-o.est)+" more than planned":mgH(o.est-o.act)+" still in the plan"),mgTone(o.used)),
+  mgTile("Finished tasks",mgPct(o.acc),o.acc==null?"no finished task yet":"actual ÷ estimate · "+mgH(o.doneAct)+" for "+mgH(o.doneEst)+" planned",mgTone(o.acc)),
+  mgTile("Over estimate",String(o.overN),o.overN?mgH(o.over)+" beyond the estimates":"no task beyond its estimate",o.overN?"bad":""),
+  mgTile("Delayed",String(o.late),o.late?"tasks marked Delayed":"no delayed tasks",o.late?"bad":""));}
+function mgSeg(host,opts,cur,fn){var g=h("div",{"class":"seg",role:"group"});opts.forEach(function(p){g.append(h("button",{type:"button","aria-pressed":String(cur===p[0]),onclick:function(){fn(p[0]);}},p[1]));});host.append(g);return g;}
+function mgEngTable(list,title,sub){
+  var by={};list.forEach(function(t){var k=t.engineer||"—";(by[k]=by[k]||[]).push(t);});
+  var names=Object.keys(by).map(function(k){return {name:k,o:mgSum(by[k])};}).sort(function(a,b){return b.o.act-a.o.act||b.o.est-a.o.est;});
+  var sec=h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:title}),h("p",{text:sub})),
+    h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated"),h("span",null,h("i",{"class":"sw mg-ovr"}),"Beyond the estimate")));
+  if(!names.length){sec.append(h("p",{"class":"hint",text:"No hours in this period."}));return sec;}
+  var tb=h("tbody");
+  names.forEach(function(x){var o=x.o;tb.append(h("tr",null,
+    h("td",{"class":"mg-name"},h("strong",{text:x.name}),h("small",{text:o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished"})),
+    h("td",{"class":"mg-bcell"},mgBar(o.est,o.act,x.name)),
+    h("td",{"class":"r num"},h("b",{text:h1(Math.round(o.act*10)/10)}),h("small",{text:" / "+h1(Math.round(o.est*10)/10)+" h"})),
+    h("td",{"class":"r num mg-"+mgTone(o.used),text:mgPct(o.used)}),
+    h("td",{"class":"r num mg-"+mgTone(o.acc),title:o.acc==null?"No finished task yet":"Finished tasks: "+mgH(o.doneAct)+" actual for "+mgH(o.doneEst)+" estimated",text:mgPct(o.acc)}),
+    h("td",{"class":"r num"},o.overN?h("span",{"class":"pill bad",text:o.overN+" · "+mgH(o.over)}):h("span",{"class":"rv-hint",text:"—"}))));});
+  sec.append(h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,h("th",{text:"Engineer"}),h("th",{text:"Actual vs estimated"}),h("th",{"class":"r",text:"Actual / Est."}),
+    h("th",{"class":"r",title:"Actual ÷ estimated, all tasks",text:"Used"}),h("th",{"class":"r",title:"Actual ÷ estimated on finished tasks. Under 100% = faster than planned",text:"Finished"}),h("th",{"class":"r",text:"Over estimate"}))),tb)));
+  return sec;}
+function mgWeeks(list){var wk={};list.forEach(function(t){var d=parseDate(t.date);if(!d)return;var m=new Date(d);m.setDate(m.getDate()-((m.getDay()+1)%7));var k=m.getFullYear()+"-"+String(m.getMonth()+1).padStart(2,"0")+"-"+String(m.getDate()).padStart(2,"0");
+    if(!wk[k])wk[k]={est:0,act:0};wk[k].est+=estT(t);wk[k].act+=liveAct(t);});
+  var ks=Object.keys(wk).sort().slice(-12);if(ks.length<2)return null;
+  var mx=0;ks.forEach(function(k){mx=Math.max(mx,wk[k].est,wk[k].act);});mx=mx||1;
+  var g=h("div",{"class":"mg-weeks",role:"img","aria-label":"Estimated and actual hours by week"});
+  ks.forEach(function(k){var w=wk[k];g.append(h("div",{"class":"mg-wk",title:"Week of "+niceDate(k)+": "+mgH(w.act)+" actual · "+mgH(w.est)+" estimated"},
+    h("div",{"class":"mg-wcols"},h("i",{"class":"mg-est",style:"height:"+(w.est/mx*100)+"%"}),h("i",{"class":"mg-act"+(w.act>w.est+0.01?" over":""),style:"height:"+(w.act/mx*100)+"%"})),
+    h("span",{"class":"mg-wv",text:h1(Math.round(w.act))}),h("span",{"class":"mg-wl",text:niceDate(k).replace(/ \d{4}$/,"")})));});
+  return g;}
+function mgProjCard(name,list){var o=mgSum(list),mix=statusMix({by:o.by,n:o.n});
+  var c=h("button",{type:"button","class":"panel mg-pc"},
+    h("div",{"class":"mg-pch"},h("h3",{text:name}),o.late?h("span",{"class":"pill bad",text:o.late+" delayed"}):null,h("span",{"class":"mg-open",text:"Details ›"})),
+    h("div",{"class":"mg-pnums"},h("div",null,h("span",{text:"Estimated"}),h("b",{text:mgH(o.est)})),h("div",null,h("span",{text:"Actual"}),h("b",{text:mgH(o.act)})),
+      h("div",null,h("span",{text:"Used"}),h("b",{"class":"mg-"+mgTone(o.used),text:mgPct(o.used)}))),
+    mgBar(o.est,o.act,name),
+    h("div",{"class":"mg-pfoot"},h("span",{text:o.n+(o.n===1?" task":" tasks")+" · "+o.done+" finished · "+o.engN+(o.engN===1?" engineer":" engineers")}),
+      o.overN?h("span",{"class":"mg-bad",text:o.overN+" over estimate (+"+mgH(o.over)+")"}):h("span",{"class":"mg-ok",text:"none over estimate"})),
+    mix[0]);
+  return c;}
+function mgTaskTable(list){
+  var wrap=h("section",{"class":"panel mg-sec"});
+  var tools=h("div",{"class":"mg-sh"},h("h3",{text:"Tasks"}));
+  var q=h("input",{type:"search","class":"kpi-search",placeholder:"Search task, engineer, level…",value:MG.tq,"aria-label":"Search tasks"});
+  var ss=h("select",{"class":"kpi-sort","aria-label":"Status"});[["","All statuses"],["__over","Over estimate"]].concat(STATUS.map(function(s){return [s,s];})).forEach(function(o){ss.append(h("option",{value:o[0],text:o[1]}));});ss.value=MG.tStatus;
+  tools.append(h("div",{"class":"mg-tools"},q,ss));wrap.append(tools);
+  var out=h("div");wrap.append(out);
+  function draw(){clear(out);var qq=MG.tq.trim().toLowerCase();
+    var l=list.filter(function(t){if(MG.tStatus==="__over"){if(!(liveAct(t)>estT(t)+0.01))return false;}else if(MG.tStatus&&t.status!==MG.tStatus)return false;
+      return !qq||[t.task,t.engineer,t.level,t.element,t.discipline].join(" ").toLowerCase().indexOf(qq)>=0;});
+    l.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(liveAct(b)-estT(b))-(liveAct(a)-estT(a));});
+    out.append(h("p",{"class":"kpi-count",text:l.length+" of "+list.length+" tasks"}));
+    if(!l.length){out.append(h("p",{"class":"hint",text:"No task matches."}));return;}
+    var tb=h("tbody");l.slice(0,MG.tN).forEach(function(t){var e=estT(t),a=liveAct(t),d=a-e;
+      tb.append(h("tr",{"class":t.status==="Delayed"?"is-delayed":null},h("td",{"class":"nowrap num",text:niceDate(t.date)}),h("td",{"class":"nowrap"},h("strong",{text:t.engineer||"—"})),
+        h("td",{"class":"nowrap"},h("span",{"class":"code",title:t.discipline,text:discCode(t.discipline)})),h("td",{"class":"task"},t.task||"",t.level||t.element?h("small",{"class":"rv-hint",text:" · "+[t.level,t.element].filter(Boolean).join(" · ")}):null),
+        h("td",{"class":"nowrap"},h("span",{"class":"pill "+({"Completed":"ok","In Progress":"info","Comment":"cmt","Next Day":"nxt","Delayed":"bad","On Hold":"warn"}[t.status]||""),text:t.status})),
+        h("td",{"class":"r num",text:e?h1(e):"—"}),h("td",{"class":"r num",text:h1(Math.round(a*100)/100)}),
+        h("td",{"class":"r num "+(e&&d>0.01?"mg-bad":e&&t.status==="Completed"?"mg-ok":""),text:!e?"no estimate":d>0.01?"+"+h1(Math.round(d*10)/10)+" h":t.status==="Completed"?(d<-0.01?h1(Math.round(-d*10)/10)+" h saved":"on estimate"):h1(Math.round(-d*10)/10)+" h left"})));});
+    out.append(h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,["Date","Engineer","Disc.","Task","Status",["Est. h","r"],["Actual h","r"],["Vs estimate","r"]].map(function(c){return Array.isArray(c)?h("th",{"class":c[1],text:c[0]}):h("th",{text:c});}))),tb)));
+    if(l.length>MG.tN)out.append(h("div",{"class":"mg-more"},h("button",{"class":"btn",type:"button",onclick:function(){MG.tN+=50;draw();}},"Show "+Math.min(50,l.length-MG.tN)+" more"),h("span",{"class":"rv-hint",text:"showing "+MG.tN+" of "+l.length})));}
+  q.addEventListener("input",function(){MG.tq=q.value;MG.tN=25;draw();});ss.addEventListener("change",function(){MG.tStatus=ss.value;MG.tN=25;draw();});draw();
+  return wrap;}
+function renderMgmt2(){
+  hideTip();var host=clear($("m2Body")),tools=clear($("m2Tools"));
+  mgSeg(tools,PERIODS,S.period,function(v){S.period=v;render();}).setAttribute("aria-label","Period");
+  var dOpts=[["","All disciplines"]].concat(DISC.map(function(d){return [d.k,titleCase(d.k)];}));
+  var dsel=h("select",{"class":"kpi-sort","aria-label":"Discipline"});dOpts.forEach(function(o){dsel.append(h("option",{value:o[0],text:o[1]}));});dsel.value=MG.disc;
+  dsel.addEventListener("change",function(){MG.disc=dsel.value;render();});tools.append(dsel);
+  var label="";PERIODS.forEach(function(p){if(p[0]===S.period)label=p[1];});
+  if(!S.tasksLoaded){host.append(h("div",{"class":"empty"},h("p",{text:"Loading the dashboard…"})));return;}
+  var rows=mgRows(),names=allProjects().filter(function(p){return rows.some(function(t){return t.project===p;});});
+  if(rows.some(function(t){return !t.project;}))names.push("");
+  if(MG.open!=null&&names.indexOf(MG.open)<0)MG.open=null;
+  var open=MG.open;
+  $("m2Title").textContent=open!=null?(open||"No project"):"All projects";
+  $("m2Sub").textContent=(open!=null?"Project details · ":"Estimated vs actual hours · ")+label+(MG.disc?" · "+titleCase(MG.disc):"")+" · as of "+niceDate(today());
+  if(!rows.length){host.append(h("div",{"class":"empty"},h("p",{text:"No tasks in this period."})));return;}
+  if(open!=null){
+    var pl=rows.filter(function(t){return (t.project||"")===open;}),o=mgSum(pl);
+    host.append(h("div",{"class":"mg-back"},h("button",{"class":"btn",type:"button",onclick:function(){MG.open=null;render();}},"‹ All projects"),
+      h("div",{"class":"seg",role:"group","aria-label":"Project"},names.map(function(p){return h("button",{type:"button","aria-pressed":String(p===open),onclick:function(){MG.open=p;MG.tStatus="";MG.tq="";MG.tN=25;render();}},p||"No project");}))));
+    var st=h("section",{"class":"stats mg-stats"});mgTiles(o,st);host.append(st);
+    var mix=statusMix({by:o.by,n:o.n});
+    host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Task status"}),h("p",{text:o.n+" tasks"})),mix[0],mix[1]));
+    /* by discipline */
+    var tb=h("tbody"),anyD=false;DISC.forEach(function(d){var dlst=pl.filter(function(t){return t.discipline===d.k;});if(!dlst.length)return;anyD=true;var x=mgSum(dlst);
+      tb.append(h("tr",null,h("td",{"class":"mg-name"},h("strong",{text:titleCase(d.k)}),h("small",{text:x.n+" tasks · "+x.done+" finished"})),h("td",{"class":"mg-bcell"},mgBar(x.est,x.act,titleCase(d.k))),
+        h("td",{"class":"r num"},h("b",{text:h1(Math.round(x.act*10)/10)}),h("small",{text:" / "+h1(Math.round(x.est*10)/10)+" h"})),h("td",{"class":"r num mg-"+mgTone(x.used),text:mgPct(x.used)}),
+        h("td",{"class":"r num"},x.late?h("span",{"class":"pill bad",text:String(x.late)}):"0")));});
+    if(anyD)host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"By discipline"})),h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},
+      h("thead",null,h("tr",null,h("th",{text:"Discipline"}),h("th",{text:"Actual vs estimated"}),h("th",{"class":"r",text:"Actual / Est."}),h("th",{"class":"r",text:"Used"}),h("th",{"class":"r",text:"Delayed"}))),tb))));
+    host.append(mgEngTable(pl,"Hours by engineer",(open||"No project")+" · sorted by actual hours"));
+    var wk=mgWeeks(pl);if(wk)host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Hours by week"}),h("p",{text:"by task date · last 12 weeks"})),
+      h("div",{"class":"mg-legend"},h("span",null,h("i",{"class":"sw mg-act"}),"Actual (timer)"),h("span",null,h("i",{"class":"sw mg-est"}),"Estimated")),wk));
+    host.append(mgTaskTable(pl));
+    return;}
+  var st2=h("section",{"class":"stats mg-stats"});mgTiles(mgSum(rows),st2);host.append(st2);
+  var grid=h("div",{"class":"mg-pgrid"});names.forEach(function(p){var c=mgProjCard(p||"No project",rows.filter(function(t){return (t.project||"")===p;}));
+    c.addEventListener("click",function(){MG.open=p;MG.tStatus="";MG.tq="";MG.tN=25;render();try{window.scrollTo(0,0);}catch(e){}});grid.append(c);});
+  host.append(h("div",{"class":"mg-sh top"},h("h3",{text:"Projects"}),h("p",{text:"Click a project for its details"})),grid);
+  host.append(mgEngTable(rows,"Hours by engineer","All projects · sorted by actual hours"));
+  var late=rows.filter(function(t){return t.status==="Delayed";});
+  var over=rows.filter(function(t){var e=estT(t);return e>0&&liveAct(t)>e+0.01;}).sort(function(a,b){return (liveAct(b)-estT(b))-(liveAct(a)-estT(a));}).slice(0,10);
+  if(over.length){var tb2=h("tbody");over.forEach(function(t){var e=estT(t),a=liveAct(t);tb2.append(h("tr",null,h("td",{"class":"nowrap"},t.project?h("span",{"class":"tag",text:t.project}):"—"),h("td",{"class":"nowrap"},h("strong",{text:t.engineer||"—"})),
+      h("td",{"class":"task",text:t.task||""}),h("td",{"class":"nowrap",text:t.status}),h("td",{"class":"r num",text:h1(e)}),h("td",{"class":"r num",text:h1(Math.round(a*100)/100)}),h("td",{"class":"r num mg-bad",text:"+"+h1(Math.round((a-e)*10)/10)+" h ("+Math.round(a/e*100)+"%)"})));});
+    host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Most over estimate"}),h("p",{text:"top 10 tasks where the timer went beyond the estimate"})),
+      h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,["Project","Engineer","Task","Status",["Est. h","r"],["Actual h","r"],["Over by","r"]].map(function(c){return Array.isArray(c)?h("th",{"class":c[1],text:c[0]}):h("th",{text:c});}))),tb2))));}
+  if(late.length){var tb3=h("tbody");late.sort(function(a,b){return a.date<b.date?-1:1;}).slice(0,MG.lateAll?late.length:8).forEach(function(t){tb3.append(h("tr",{"class":"is-delayed"},h("td",{"class":"nowrap num",text:niceDate(t.date)}),h("td",{"class":"nowrap"},t.project?h("span",{"class":"tag",text:t.project}):"—"),
+      h("td",{"class":"nowrap"},h("strong",{text:t.engineer||"—"})),h("td",{"class":"task",text:t.task||""}),h("td",{"class":"why",text:t.reason||"No reason written yet"})));});
+    host.append(h("section",{"class":"panel mg-sec"},h("div",{"class":"mg-sh"},h("h3",{text:"Delayed tasks"}),h("p",{text:late.length+", oldest first"})),
+      h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,["Date","Project","Engineer","Task","Reason"].map(function(c){return h("th",{text:c});}))),tb3)),
+      late.length>8?h("div",{"class":"mg-more"},h("button",{"class":"btn",type:"button",onclick:function(){MG.lateAll=!MG.lateAll;render();}},MG.lateAll?"Show fewer":"Show all "+late.length)):null));}
+}
+setInterval(function(){try{if(S.view==="management"&&me&&!document.hidden&&!(document.activeElement&&/INPUT|SELECT/.test(document.activeElement.tagName)&&$("viewMgmt").contains(document.activeElement)))renderMgmt2();}catch(e){}},60000);
 
 start();
 })();
