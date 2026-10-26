@@ -799,6 +799,7 @@ table.mg-cg td,table.mg-cg th{padding-top:7px;padding-bottom:7px}.mg-cg .mg-cg-w
 .mg-cg-e{color:var(--muted);display:inline-block;min-width:48px;text-align:center}
 .mg-chead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}.mg-chead .mg-ctools{margin:0}
 .mg-cwho{margin:0 0 4px;font-size:12px;font-weight:700;color:var(--accent)}
+.u-two{display:grid;gap:4px}.u-tk{display:grid;gap:2px}.u-tk small{color:var(--muted);font-size:11px}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -1730,7 +1731,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
     </form>
     <p class="err" id="usersErr" role="alert"></p>
     <p class="ok-msg" id="usersOk" role="status"></p>
-    <p class="hint">Engineer: takes tasks and updates only the tasks under the linked name. Team leader, Senior and Mid Senior: see, edit, add and delete the tasks of one discipline. Manager: sees and edits every task and the Management dashboard. Admin: everything, including users, team and projects. Only engineers take tasks. Give each person their email and password yourself; the app does not send emails.</p>
+    <p class="hint">Engineer: takes tasks and updates only the tasks under the linked name. Team leader, Senior and Mid Senior: see, edit, add and delete the tasks of one discipline. Manager: sees and edits every task and the Management dashboard. Admin: everything, including users, team and projects. Engineers and coordinators take tasks; a section head, team leader, senior or mid senior takes tasks only when linked to a name under “Takes tasks as”, and only from someone ranked above them. Give each person their email and password yourself; the app does not send emails.</p>
   </div>
   <div class="dlg-f"><button class="btn primary" id="btnUsersClose" type="button">Done</button></div>
 </dialog>
@@ -2007,7 +2008,7 @@ function buildTable(host,rows){
       h("td",null,canEdit(t)?inlineInput(t,"level",{class:"cell-txt",type:"text",maxlength:"60",value:t.level,"aria-label":"Level for "+(t.task||"task")}):(t.level||"—")),
       h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
       h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),timerLine(t)),
-      h("td",{class:"r num"},(isEng()&&canEdit(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
+      h("td",{class:"r num"},(isMine(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
       h("td",{class:"r num act-lock",title:"Counted by the task timer. "+(canManageRows(t)?"To correct it, use Edit.":"It cannot be typed in.")},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
       h("td",{class:"r num cmt-h",title:cmtRounds(t).length?"Timer hours on "+cmtRounds(t).length+(cmtRounds(t).length===1?" comment round":" comment rounds"):"No comment rounds"},cmtRounds(t).length?h("span",{"data-live":"cmth","data-tid":t.id,text:fmt(Math.round(liveCmt(t)*100)/100)}):"—",
         cmtRounds(t).length?h("span",{class:"sub",text:cmtRounds(t).length+(cmtRounds(t).length===1?" round":" rounds")+" · est "+fmt(cmtRounds(t).reduce(function(a,r){return a+num(r.est);},0))}):null),
@@ -2222,7 +2223,7 @@ function fillSelect(sel,values,current,placeholder){
 }
 function syncEngineerOptions(current){
   var d=$("f-discipline").value,names=[];
-  S.settings.engineers.forEach(function(e){if(inDisc(e,d))names.push(e.name);});
+  S.settings.engineers.forEach(function(e){if(inDisc(e,d)&&(canGiveTo(e.name)||e.name===current))names.push(e.name);});
   fillSelect($("f-engineer"),names,current&&(names.indexOf(current)>=0||editing)?current:"","Select engineer");
 }
 function syncDerived(){
@@ -2249,10 +2250,10 @@ function openTask(t,preset){
   moreSel={};syncMoreEng();
   fillSelect($("f-project"),S.settings.projects,t?t.project:S.f.project,"Select project");
   $("f-task").value=t?(t.task||""):"";fillTaskList();$("taskHint").textContent="";
-  $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";$("f-actual").disabled=t?!canManageRows(t):!isAdmin();
+  $("f-est").value=t?num(t.est):"";$("f-actual").value=t?num(t.actual):"";$("f-actual").disabled=t?(!canManageRows(t)||(isMine(t)&&!isAdmin())):!isAdmin();
   $("f-level").value=t?(t.level||""):"";$("f-path").value=t?(t.submission_path||""):"";$("f-element").value=t?(t.element||""):"";
-  var estFixer=!!t&&!isAdmin()&&num(t.est)>0&&canFixEst(t);var canEst=!!t&&((isEng()&&t.engineer===me.engineer&&!num(t.est))||isAdmin()||estFixer);$("f-est").disabled=!canEst;
-  $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":estFixer?"Estimated hours (you can correct it · the engineer is told)":canEst?(isEng()?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
+  var estFixer=!!t&&!isAdmin()&&num(t.est)>0&&canFixEst(t);var canEst=!!t&&((isMine(t)&&!num(t.est))||isAdmin()||estFixer);$("f-est").disabled=!canEst;
+  $("estLabel").textContent=!t?"Estimated hours (the engineer enters this)":estFixer?"Estimated hours (you can correct it · the engineer is told)":canEst?(isMine(t)?"Estimated hours (set once, cannot be changed later)":"Estimated hours (admin correction)"):(num(t.est)?"Estimated hours (locked)":"Estimated hours (the engineer enters this)");
   fillSelect($("f-status"),STATUS,preset||(t?t.status:"Not Started"));
   $("f-reason").value=t?(t.reason||""):"";
   syncDerived();$("taskDlg").showModal();
@@ -2284,7 +2285,7 @@ function saveTask(ev){
   var cur=editing,extra=cur?[]:moreChosen().filter(function(n){return n!==d.engineer;});
   var rows=[d].concat(extra.map(function(n){var x=Object.assign({},d);x.engineer=n;return x;}));
   var estFix=!!cur&&!isAdmin()&&num(cur.est)>0&&canFixEst(cur)&&!$("f-est").disabled&&num(d.est)!==num(cur.est);
-  if(cur&&!isAdmin()&&!(isEng()&&cur.engineer===me.engineer&&!num(cur.est)))delete d.est;
+  if(cur&&!isAdmin()&&!(isMine(cur)&&!num(cur.est)))delete d.est;
   if(estFix&&!(num($("f-est").value)>0)){busy=false;$("btnSave").disabled=false;$("taskErr").textContent="Estimated hours have to be more than 0.";return;}
   var p=(estFix?run(sb.rpc("tt_set_est",{p_task:cur.id,p_round:null,p_est:num($("f-est").value)})).catch(function(e){if(/tt_set_est|does not exist|schema cache/i.test(String(e&&e.message)))throw {plain:true,message:"Run the new database setup (version 36) in Supabase first."};throw e;}):Promise.resolve())
     .then(function(){return run(cur?sb.from("tt_tasks").update(d).eq("id",cur.id).select().single():sb.from("tt_tasks").insert(rows).select());})
@@ -2328,7 +2329,12 @@ function loadTasks(){
   return page(0).then(function(all){S.tasks=all.map(row2task);S.tasksLoaded=true;});
 }
 function loadAll(){return Promise.all([loadTasks(),loadSettings(),loadRounds(),loadDirectory(),loadNotifs(),loadTime(),loadComments()]).then(function(){S.conn="live";render();if($("teamDlg").open)renderTeam();});}
-function refresh(){if(!sb||!me)return;loadBc();loadAll().catch(function(){S.conn="off";render();});}
+/* full reload: every 5 minutes while live updates work (90 s when they do not), never while the tab is hidden */
+var lastFull=0,liveOk=false;
+function refresh(force){if(!sb||!me)return;if(!force&&document.hidden)return;
+  if(!force&&liveOk&&Date.now()-lastFull<290000)return;
+  lastFull=Date.now();loadBc();loadAll().catch(function(){S.conn="off";render();});}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&me&&sb&&Date.now()-lastFull>120000)refresh(true);});
 function settingsChanged(){loadSettings().then(function(){render();if($("teamDlg").open)renderTeam();}).catch(function(){});}
 function subscribe(){
   unsubscribe();
@@ -2363,7 +2369,7 @@ function subscribe(){
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_kpi"},function(){if(S.view==="kpi"||$("kpiDlg").open)loadKpi();})
       .on("postgres_changes",{event:"*",schema:"public",table:"tt_requests"},function(){loadReq().then(function(){if(S.view==="attendance")renderAtt();});})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"tt_broadcast_seen"},function(){bcStatsLater();})
-      .subscribe();
+      .subscribe(function(st){liveOk=st==="SUBSCRIBED";});
   }catch(e){chan=null;}
   pollTimer=setInterval(refresh,90000);
 }
@@ -2469,13 +2475,13 @@ function commitRound(r,field,inp){
     run(sb.rpc("tt_set_est",{p_task:tk.id,p_round:r.id,p_est:v})).then(function(){r.est=v;toast("Estimate changed to "+fmt(v)+" h. "+(tk.engineer||"The engineer")+" was told.");return loadRounds();}).then(function(){render();})
       .catch(function(e){toast(/tt_set_est|does not exist|schema cache/i.test(String(e&&e.message))?"Run the new database setup (version 36) in Supabase first.":writeError(e),true);render();});
     return;}
-  if(isEng()&&field==="est"&&v>0){
+  if((isEng()||isMine(tk))&&field==="est"&&v>0){
     var ok=false;try{ok=window.confirm("Set "+fmt(v)+" h as the estimate for this comment?\n\nYou can set it only once. After that only your lead can change it.");}catch(e){ok=true;}
     if(!ok){inp.value="";return;}}
   if(isEng()&&field!=="est")return;
   var patch={};patch[field]=v;inp.disabled=true;
   run(sb.from("tt_rounds").update(patch).eq("id",r.id).select().single()).then(function(d){
-    upsertRound(d);toast((field==="est"?"Estimated hours saved":"Actual hours saved")+(isEng()?" and locked":""));render();
+    upsertRound(d);toast((field==="est"?"Estimated hours saved":"Actual hours saved")+(isEng()||isMine(tk)?" and locked":""));render();
   }).catch(function(e){toast(writeError(e),true);render();});
 }
 function roundLabel(t,r){
@@ -2484,7 +2490,7 @@ function roundLabel(t,r){
 }
 function roundRow(t,r,fl,more){
   var ed=canEdit(t),mg=canManageRows(t),done=r.status==="Done",rem=Math.max(0,num(r.est)-num(r.actual)),nd=r.kind==="nextday";
-  var fx=!nd&&!mg&&num(r.est)>0&&canFixEst(t),canE=mg||fx||(!nd&&ed&&!done&&isEng()&&t.engineer===me.engineer&&!num(r.est)),canA=mg;
+  var own=isMine(t)&&!isAdmin(),fx=!nd&&!mg&&!own&&num(r.est)>0&&canFixEst(t),canE=own?(!nd&&!done&&!num(r.est)):(mg||fx),canA=mg&&!own;
   var dateEl=null;
   if(nd){
     if(mg||(ed&&!done)){dateEl=h("input",{type:"date",value:r.work_date,"data-tid":"r"+r.id,"data-field":"work_date","aria-label":"Day to continue "+(t.task||"task")});
@@ -2494,7 +2500,7 @@ function roundRow(t,r,fl,more){
   return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"16"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
-    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":fx?"Estimated h (you can correct)":canE&&isEng()?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:isEng()&&!fx?"set once":"0",title:fx?"You gave this task, so you can correct the estimate. The engineer is told.":isEng()?"You can set it only once":null}):h("strong",{"class":"num",title:"Locked"},h("span",{"class":"lock-ic","aria-hidden":"true"}),fmt(num(r.est)))),
+    h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":fx?"Estimated h (you can correct)":canE&&own?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:own?"set once":"0",title:fx?"You gave this task, so you can correct the estimate. The engineer is told.":own?"You can set it only once":null}):h("strong",{"class":"num",title:"Locked"},h("span",{"class":"lock-ic","aria-hidden":"true"}),fmt(num(r.est)))),
     h("label",{title:"Counted by the task timer"},"Actual h",(canA&&rdFix[r.id])?roundInput(r,"actual",{value:num(r.actual)?fmt(r.actual):"",placeholder:"0"}):h("strong",{"class":"num"},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"rnd","data-rid":r.id,text:fmt(Math.round(liveRound(r)*100)/100)})),
       (canA&&!rdFix[r.id])?h("button",{"class":"btn small quiet",type:"button",title:"Correct the timed hours",onclick:function(){rdFix[r.id]=1;render();}},"correct"):null),
     rdTimer(t,r,done),
@@ -2551,7 +2557,7 @@ function commitRoundDate(r,inp){
 }
 function roundDone(r,btn){
   if(!sb)return;
-  if(isEng()&&r.kind!=="nextday"&&!num(r.est)){toast("Enter the estimated hours first.",true);return;}
+  if(isMine(taskOfRound(r))&&r.kind!=="nextday"&&!num(r.est)){toast("Enter the estimated hours first.",true);return;}
   btn.disabled=true;
   run(sb.from("tt_rounds").update({status:"Done"}).eq("id",r.id).select().single()).then(function(d){upsertRound(d);toast(r.kind==="nextday"?"Marked finished.":"Comment marked done.");return refreshTimer([r.task_id]);})
     .catch(function(e){toast(writeError(e),true);render();});
@@ -3190,7 +3196,7 @@ function createLogin(email,pw){
 }
 function addUser(ev){
   ev.preventDefault();if(busy||!sb)return;userMsg();
-  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=isWorkerRole(role)?($("uEng").value||null):null,disc=isLeadRole(role)?($("uDisc").value||null):null;
+  var email=$("uEmail").value.trim().toLowerCase(),name=$("uName").value.trim(),pw=$("uPass").value,role=$("uRole").value,eng=(isWorkerRole(role)||isLeadRole(role))?($("uEng").value||null):null,disc=isLeadRole(role)?($("uDisc").value||null):null;
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){userMsg("","Enter a valid email address.");return;}
   if(pw.length<6){userMsg("","The password must be at least 6 characters.");return;}
   if(isWorkerRole(role)&&!eng){userMsg("","Pick which engineer name this login belongs to. If the name is not in the list, add it under Team & projects first.");return;}
@@ -3235,7 +3241,7 @@ function renderUsers(){
   engOptions($("uEng"),$("uEng").value);
   var host=clear($("usersList")),tb=h("tbody");
   byRole(users,function(u){return u.role;}).forEach(function(g){
-  tb.append(h("tr",{"class":"grp-row"},h("td",{colspan:"5",text:(rolePlural(g.role)||"Other")+" · "+g.items.length+(isWorkerRole(g.role)?" · take tasks":VIEWERS.indexOf(g.role)>=0?" · follow only":g.role?" · take no tasks":"")})));
+  tb.append(h("tr",{"class":"grp-row"},h("td",{colspan:"5",text:(rolePlural(g.role)||"Other")+" · "+g.items.length+(isWorkerRole(g.role)?" · take tasks":VIEWERS.indexOf(g.role)>=0?" · follow only":isLeadRole(g.role)?" · take tasks only when linked to a name, and only from someone ranked above them":g.role?" · take no tasks":"")})));
   g.items.forEach(function(u){
     var self=!!me&&u.email===me.email;
     var role=h("select",{"aria-label":"Role for "+u.email,disabled:self});
@@ -3244,8 +3250,12 @@ function renderUsers(){
     var eng;
     if(isWorkerRole(u.role)){eng=h("select",{"aria-label":"Engineer name for "+u.email});engOptions(eng,u.engineer||"");
       eng.addEventListener("change",function(){userUpdate(u,{engineer:eng.value||null});});}
-    else if(isLeadRole(u.role)){eng=h("select",{"aria-label":"Discipline of "+u.email});discOptions(eng,u.discipline||"");
-      eng.addEventListener("change",function(){userUpdate(u,{discipline:eng.value||null});});}
+    else if(isLeadRole(u.role)){var dsel=h("select",{"aria-label":"Discipline of "+u.email});discOptions(dsel,u.discipline||"");
+      dsel.addEventListener("change",function(){userUpdate(u,{discipline:dsel.value||null});});
+      var tsel=h("select",{"aria-label":"Engineer name "+u.email+" takes tasks as",title:"Link a name from Team & projects so this person can receive tasks from someone ranked above them"});engOptions(tsel,u.engineer||"");
+      if(tsel.options.length)tsel.options[0].text="Takes no tasks";
+      tsel.addEventListener("change",function(){userUpdate(u,{engineer:tsel.value||null});});
+      eng=h("div",{"class":"u-two"},dsel,h("label",{"class":"u-tk"},h("small",{text:"Takes tasks as"}),tsel));}
     else eng=h("span",{class:"hint",text:"Takes no tasks"});
     var act=h("input",{type:"checkbox","aria-label":"Active: "+u.email,disabled:self});act.checked=!!u.active;
     act.addEventListener("change",function(){userUpdate(u,{active:act.checked});});
@@ -3269,7 +3279,9 @@ function discOptions(sel,current){
   DISC.forEach(function(d){sel.append(h("option",{value:d.k,text:d.k}));});sel.value=current||"";
 }
 function syncUserForm(){
-  var r=$("uRole").value;$("uEngWrap").hidden=!isWorkerRole(r);$("uDiscWrap").hidden=!isLeadRole(r);
+  var r=$("uRole").value;$("uEngWrap").hidden=!(isWorkerRole(r)||isLeadRole(r));$("uDiscWrap").hidden=!isLeadRole(r);
+  $("uEngWrap").querySelector("span").textContent=isLeadRole(r)?"Takes tasks as (optional, a name from Team & projects)":"Engineer name on the tracker";
+  if($("uEng").options.length)$("uEng").options[0].text=isLeadRole(r)?"Takes no tasks":"Not linked";
   if(!$("uDisc").options.length)discOptions($("uDisc"),"");
 }
 function openUsers(){
@@ -3312,7 +3324,7 @@ function enter(session){
   return run(sb.from("tt_users").select("email,full_name,role,engineer,discipline,active").eq("email",email).maybeSingle()).then(function(row){
     if(!row||!row.active){me=null;showAuth("blocked",email+" is not activated for this tracker. Ask the admin to add it under Users.");return null;}
     me=row;S.tasksLoaded=false;S.settingsLoaded=false;S.conn="wait";showApp();startPresence();startReminders();startMotd();startTick();loadReview();startLive();loadAtt();
-    return loadAll().then(function(){subscribe();startBc();startPR();loadDeliv();loadFb();if(S.view==="kpi")loadKpi();});
+    lastFull=Date.now();return loadAll().then(function(){subscribe();startBc();startPR();loadDeliv();loadFb();if(S.view==="kpi")loadKpi();});
   }).catch(function(e){
     var m=(e&&e.message)||"",c=(e&&e.code)||"";
     if(c==="42P01"||c==="PGRST205"||c==="PGRST202"||/does not exist|could not find the (table|function)/i.test(m))showAuth("blocked","The database is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then reload this page.");
@@ -3505,7 +3517,7 @@ var remindTimer=null,remindFirst=null,DAYS=["Sun","Mon","Tue","Wed","Thu","Fri",
 function loadConfig(){
   return Promise.all([run(sb.from("tt_config").select("key,value")),loadMyPerms()]).then(function(r){var d=r[0],c={};(d||[]).forEach(function(r){c[r.key]=String(r.value==null?"":r.value);});S.cfg=c;S.cfgLoaded=true;});
 }
-function runReminders(){if(sb&&me)run(sb.rpc("tt_reminders")).catch(function(){});}
+function runReminders(){if(sb&&me&&!document.hidden)run(sb.rpc("tt_reminders")).catch(function(){});}
 function startReminders(){
   stopReminders();remindFirst=setTimeout(runReminders,15000);remindTimer=setInterval(runReminders,600000);
   loadConfig().then(function(){render();}).catch(function(){});
@@ -3701,7 +3713,7 @@ function renderMotd(){
   var top=motd.filter(function(w){return w.overall;})[0];
   box.hidden=!top||!me;if(box.hidden)return;clear(box);
   var title=top.female?((S.cfg&&S.cfg.motd_title_f)||"Star of the day"):((S.cfg&&S.cfg.motd_title)||"Man of the day");box.setAttribute("aria-label",title);var dayTxt=top.today?"Today · live":niceDate(top.day);
-  var mine=isEng()&&me.engineer===top.engineer;
+  var mine=isMine(top);
   var cup=h("div",{"class":"motd-cup"});cup.innerHTML=CUP;
   box.append(h("div",{"class":"motd-main"},cup,h("div",{"class":"motd-txt"},
     h("span",{"class":"motd-kicker",text:title+" · "+dayTxt}),
@@ -3771,7 +3783,7 @@ function timeStats(t){
   var expected=t.status==="Completed"?lastWork:(est>0&&first!==null?nowMs()+liveRem(t)*3600000:null);
   return {first:first,planned:planned,expected:expected,pauseSecs:pz,pauses:pn};
 }
-function canRunTimer(t){return !!me&&!!t.ack&&((isEng()&&me.engineer===t.engineer)||canManageRows(t));}
+function canRunTimer(t){return !!me&&!!t.ack&&(isMine(t)||canManageRows(t));}
 function timerLine(t){
   if(!t.ack||!t.engineer)return null;
   var w=runningOf(t),p=openPauseOf(t),st=timeStats(t),rows=timeOf(t),ctl=canRunTimer(t),done=t.status==="Completed";
@@ -4425,7 +4437,7 @@ function openComments(t){
 }
 function renderCommentList(){
   var t=cmtTask,host=clear($("cmtList"));if(!t)return;
-  var list=cmtsOf(t),mine=isEng()&&me.engineer===t.engineer,canTick=mine||canComment(t);
+  var list=cmtsOf(t),mine=isMine(t),canTick=mine||canComment(t);
   if(!list.length){host.append(h("p",{"class":"rv-hint",text:canComment(t)?"No comments yet. Write the first one below.":"No comments on this task."}));return;}
   list.forEach(function(c){
     var cb=h("input",{type:"checkbox","aria-label":(c.done_at?"Mark not done: ":"Mark done: ")+c.body.slice(0,40)});cb.checked=!!c.done_at;cb.disabled=!canTick;
@@ -5399,9 +5411,10 @@ function loadMyPerms(){if(!sb||!me)return Promise.resolve();
 /* what each part of the app checks */
 function editAll(){return can("view_all");}
 function isTL(){return !!me&&isLeadRole(me.role)&&!!me.discipline&&!can("view_all");}
-function canEdit(t){return (can("edit_tasks")&&inScope(t.discipline))||(isEng()&&!!me.engineer&&t.engineer===me.engineer)||(!!me&&t.created_by===me.email&&can("add_tasks")&&inScope(t.discipline));}
+function isMine(t){return !!me&&!!me.engineer&&!!t&&t.engineer===me.engineer;}
+function canEdit(t){return (can("edit_tasks")&&inScope(t.discipline))||isMine(t)||(!!me&&t.created_by===me.email&&can("add_tasks")&&inScope(t.discipline));}
 function canAdd(){return can("add_tasks");}
-function canFixEst(t){return !!me&&!!t&&(isAdmin()||(can("add_tasks")&&inScope(t.discipline)&&(!isEng()||t.engineer!==me.engineer)));}
+function canFixEst(t){return !!me&&!!t&&(isAdmin()||(can("add_tasks")&&inScope(t.discipline)&&!isMine(t)));}
 function canDelete(t){return can("add_tasks")&&inScope(t.discipline);}
 function canManageRows(t){return can("manage_rows")&&inScope(t.discipline);}
 function canReview(){return can("review_page");}
@@ -6274,6 +6287,10 @@ function renderFb(){var host=clear($("fbList")),adm=isAdmin();
   $("fbPickImg").addEventListener("click",function(){$("fbFile").value="";$("fbFile").click();});$("fbFile").addEventListener("change",function(){if(this.files&&this.files[0])fbTakeImage(this.files[0]);});
   $("bcAud").addEventListener("change",renderBcRoles);
   $("fbMsg").addEventListener("paste",function(e){var it=(e.clipboardData||{}).items||[];for(var i=0;i<it.length;i++){if(it[i].type&&it[i].type.indexOf("image/")===0){fbTakeImage(it[i].getAsFile());e.preventDefault();break;}}});})();
+/* a name linked to a lead position takes tasks only from someone ranked above them (or the admin), or from themselves */
+function canGiveTo(name){if(!me||isAdmin()||name===me.engineer)return true;var rk=0;directory.forEach(function(u){if(u.active!==false&&u.engineer===name&&isLeadRole(u.role))rk=Math.max(rk,rankOf(u.role));});
+  return !rk||rankOf(me.role)>rk;}
+function taskOfRound(r){var x=null;S.tasks.forEach(function(q){if(q.id===r.task_id)x=q;});return x;}
 start();
 })();
 </script>
