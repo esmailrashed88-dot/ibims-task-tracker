@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IBIMS Task Tracker</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Cairo:wght@700;800&display=swap">
 <style>
 /* Layout: navy title-block band on top, then filter rail (project > discipline > fine filters),
    a stat strip, the engineer board grouped by discipline, and the task log table. */
@@ -6554,8 +6554,77 @@ var STK_CSS='.stk-blink{animation:stkBlink 3.6s infinite}.stk-spin{animation:stk
 function stkSvg(id){var s=null;STICKERS.forEach(function(x){if(x.id===id)s=x;});if(!s)return null;
   var span=document.createElement("span");span.className="stk";span.innerHTML='<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sticker: '+s.cap+'">'+s.svg()+'</svg>';return span;}
 
+/* Egyptian Arabic comic stickers about civil engineering (original drawings) */
+var STK_AR_FONT='Cairo,Tajawal,Segoe UI,Tahoma,Arial,sans-serif';
+function stkBubble(txt,opt){opt=opt||{};var words=txt.split(" "),l1=txt,l2="";
+  if(txt.length>15){var best=0,bd=1e9;for(var i=1;i<words.length;i++){var a=words.slice(0,i).join(" "),b=words.slice(i).join(" "),d=Math.abs(a.length-b.length);if(d<bd){bd=d;best=i;}}l1=words.slice(0,best).join(" ");l2=words.slice(best).join(" ");}
+  var lines=l2?[l1,l2]:[l1],fs=l2?12.5:14,longest=Math.max.apply(null,lines.map(function(s){return s.length;})),w=Math.min(114,Math.max(54,longest*(fs*.56)+20)),hh=l2?36:24,x=60-w/2,y=opt.y||3;
+  var tx=opt.tail||(60+w/4),ty=y+hh;
+  var out='<g class="stk-pop"><path d="M'+(x+10)+' '+y+' h'+(w-20)+' q10 0 10 10 v'+(hh-20)+' q0 10 -10 10 h-'+((x+w-10)-(tx+6))+' l-4 9 l-6 -9 h-'+((tx-6)-(x+10))+' q-10 0 -10 -10 v-'+(hh-20)+' q0 -10 10 -10 z" fill="'+(opt.fill||"#fff")+'" '+STK_O+' stroke-width="2.5"/>';
+  lines.forEach(function(s,i){out+='<text x="60" y="'+(y+(l2?15+i*15:17))+'" text-anchor="middle" direction="rtl" font-family="'+STK_AR_FONT+'" font-weight="800" font-size="'+fs+'" fill="#1B2A3A">'+s+'</text>';});
+  return out+'</g>';}
+function stkHalftone(c){var s='';for(var i=0;i<7;i++)for(var j=0;j<4;j++)s+='<circle cx="'+(86+i*5+(j%2)*2.5)+'" cy="'+(98+j*5)+'" r="'+(1.8-j*.3)+'" fill="'+(c||"#FF7A1A")+'" opacity=".35"/>';return s;}
+function stkEng(cx,cy,o){o=o||{};var r=o.r||17,hc=o.helmet||"#FFC72C";
+  var body=o.nobody?'':'<path d="M'+(cx-20)+' '+(cy+r+24)+' q2 -20 20 -22 q18 2 20 22 z" fill="'+(o.vest||"#FF7A1A")+'" '+STK_O+'/><path d="M'+(cx-16)+' '+(cy+r+14)+' h32" stroke="#E8F0F5" stroke-width="3"/>';
+  return body+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+(o.skin||"#F6C99B")+'" '+STK_O+'/>'+
+   (o.hair?'<path d="M'+(cx-r+2)+' '+(cy-4)+' q'+(r-2)+' -12 '+(2*r-4)+' 0" fill="#3A2A20" '+STK_O+' stroke-width="2"/>':'')+
+   (o.nohelmet?'':'<path d="M'+(cx-r-2)+' '+(cy-5)+' a'+(r+2)+' '+(r)+' 0 0 1 '+(2*r+4)+' 0 z" fill="'+hc+'" '+STK_O+'/><rect x="'+(cx-r-6)+' " y="'+(cy-7)+'" width="'+(2*r+12)+'" height="5" rx="2.5" fill="'+hc+'" '+STK_O+' stroke-width="2.5"/>')+
+   stkEyes(cx-6,cx+6,cy+3,o.eyes)+(o.mouth==="grin"?'<path d="M'+(cx-6)+' '+(cy+8)+' q6 8 12 0 z" fill="#7A2E2E" stroke="#1B2A3A" stroke-width="2" stroke-linejoin="round"/>':o.mouth==="o"?'<ellipse cx="'+cx+'" cy="'+(cy+11)+'" rx="3" ry="4" fill="#7A2E2E" stroke="#1B2A3A" stroke-width="2"/>':stkMouth(cx,cy+9,o.mouth))+(o.cheeks?stkCheeks(cx-11,cx+11,cy+8):'');}
+var STK_MASRY=[
+ {id:"m_tamam",cap:"تمام يا هندسة",svg:function(){return stkHalftone()+stkBubble("تمام يا هندسة")+stkEng(52,70,{eyes:"happy",mouth:"grin",cheeks:1})+
+   '<g class="stk-wave" style="transform-origin:82px 92px"><path d="M74 96 l8 -14 q3 -5 6 -1 l-2 8 h6 q4 0 3 4 l-3 8 q-1 3 -5 3 h-11 z" fill="#F6C99B" '+STK_O+' stroke-width="2.5"/></g>';}},
+ {id:"m_bokra",cap:"بكرة الصبح إن شاء الله",svg:function(){return stkBubble("بكرة الصبح إن شاء الله")+stkEng(44,74,{eyes:"wink",mouth:""})+
+   '<g class="stk-swing" style="transform-origin:92px 70px"><circle cx="92" cy="84" r="14" fill="#fff" '+STK_O+'/><path d="M92 84 v-8 M92 84 l6 3" '+STK_O+' stroke-width="2.5"/><circle cx="83" cy="70" r="4" fill="#FFC72C" '+STK_O+' stroke-width="2"/><circle cx="101" cy="70" r="4" fill="#FFC72C" '+STK_O+' stroke-width="2"/></g>';}},
+ {id:"m_emta",cap:"هتسلّم إمتى؟!",svg:function(){return stkBubble("هتسلّم إمتى؟!",{fill:"#FFD2CF"})+'<g class="stk-shake" style="transform-origin:60px 80px">'+stkEng(60,72,{helmet:"#fff",vest:"#2E3D4C",eyes:"shock",mouth:"o"})+
+   '<path d="M38 62 l-6 -6 M82 62 l6 -6 M36 70 h-7 M84 70 h7" stroke="#FF5A4E" stroke-width="3" stroke-linecap="round"/></g>'+'<path d="M56 96 l4 8 l4 -8 z" fill="#C62828" '+STK_O+' stroke-width="1.5"/>';}},
+ {id:"m_shaghal",cap:"شغال فيها والله",svg:function(){return stkBubble("شغال فيها والله")+stkEng(60,64,{eyes:"shock",mouth:"worry",nobody:1})+
+   '<path class="stk-drop" d="M80 56 q4 6 0 9 q-4 -3 0 -9 z" fill="#5BC0FF" stroke="#1B2A3A" stroke-width="1.5"/><rect x="26" y="82" width="68" height="24" rx="3" fill="#2E3D4C" '+STK_O+'/><path d="M18 106 h84 l-5 8 h-74 z" fill="#8FA4B5" '+STK_O+'/>'+
+   '<g class="stk-type"><path d="M36 92 h20 M60 92 h22 M36 98 h30" stroke="#9BE7C6" stroke-width="2.5" stroke-linecap="round"/></g>';}},
+ {id:"m_estshary",cap:"الاستشاري رفضها تاني",svg:function(){return stkBubble("الاستشاري رفضها تاني",{fill:"#FFD2CF"})+stkEng(46,72,{eyes:"sleepy",mouth:"worry"})+
+   '<path class="stk-drop" d="M38 78 q3 5 0 8 q-3 -3 0 -8 z" fill="#5BC0FF" stroke="#1B2A3A" stroke-width="1.2"/><g class="stk-stamp" style="transform-origin:92px 86px"><g transform="rotate(-14 92 86)"><rect x="72" y="74" width="40" height="22" rx="4" fill="#FDECEC" stroke="#C62828" stroke-width="3"/><text x="92" y="90" text-anchor="middle" font-size="11" font-weight="900" fill="#C62828" font-family="Arial Black,Arial">REJECT</text></g></g>';}},
+ {id:"m_rev15",cap:"التعديل رقم ١٥",svg:function(){return stkBubble("التعديل رقم ١٥ 🙃")+'<g class="stk-bounce">'+
+   '<rect x="40" y="50" width="46" height="58" rx="3" fill="#fff" '+STK_O+' transform="rotate(-8 63 79)"/><rect x="36" y="48" width="46" height="58" rx="3" fill="#fff" '+STK_O+' transform="rotate(5 59 77)"/><rect x="38" y="46" width="46" height="58" rx="3" fill="#EAF2FB" '+STK_O+'/>'+
+   '<path d="M44 56 h34 M44 64 h28 M44 72 h32" stroke="#8DA4BA" stroke-width="2"/><rect x="50" y="82" width="34" height="16" rx="3" fill="#C62828"/><text x="67" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="#fff" font-family="Arial">REV 15</text></g>';}},
+ {id:"m_shay",cap:"الشاي يا ريّس",svg:function(){return stkBubble("الشاي يا ريّس")+'<g class="stk-steam"><path d="M54 40 q-5 7 0 12 q5 5 0 12" fill="none" stroke="#9AA9B8" stroke-width="3" stroke-linecap="round"/><path d="M66 38 q-5 7 0 12 q5 5 0 12" fill="none" stroke="#9AA9B8" stroke-width="3" stroke-linecap="round"/></g>'+
+   '<path d="M44 66 h32 l-5 42 q-1 5 -6 5 h-10 q-5 0 -6 -5 z" fill="#fff" fill-opacity=".85" '+STK_O+'/><path d="M46 76 h28 l-4 30 q-1 4 -5 4 h-10 q-4 0 -5 -4 z" fill="#B5531F"/><path d="M60 64 q-6 -8 2 -12 q4 6 -2 12" fill="#4CAF50" '+STK_O+' stroke-width="2"/>'+
+   '<ellipse cx="60" cy="114" rx="22" ry="4" fill="#fff" '+STK_O+' stroke-width="2"/>'+stkEyes(54,66,90,"happy")+'<path d="M56 98 q4 3 8 0" fill="none" stroke="#fff" stroke-width="2"/>';}},
+ {id:"m_share5",cap:"ده شرخ ولا بيتهيألي؟",svg:function(){return stkBubble("ده شرخ ولا بيتهيألي؟")+'<rect x="60" y="44" width="54" height="70" fill="#D8D0C4" '+STK_O+'/><path class="stk-crack" d="M86 44 l-6 14 l8 8 l-10 14 l6 10 l-8 24" fill="none" stroke="#1B2A3A" stroke-width="3" stroke-linejoin="round"/>'+
+   stkEng(32,76,{eyes:"shock",mouth:"o"})+'<path d="M48 60 l6 -4 M50 68 h7" stroke="#FF5A4E" stroke-width="3" stroke-linecap="round"/>';}},
+ {id:"m_mokawel",cap:"المقاول اختفى",svg:function(){return stkBubble("المقاول اختفى")+'<g class="stk-dust"><circle cx="34" cy="96" r="10" fill="#D6CDBF"/><circle cx="46" cy="90" r="8" fill="#E4DCD0"/><circle cx="26" cy="86" r="6" fill="#E4DCD0"/><path d="M14 80 h10 M10 88 h10 M12 96 h8" stroke="#9AA9B8" stroke-width="3" stroke-linecap="round"/></g>'+
+   '<g class="stk-wobble" style="transform-origin:80px 104px"><path d="M64 100 a16 14 0 0 1 32 0 z" fill="#FFC72C" '+STK_O+'/><rect x="58" y="98" width="44" height="6" rx="3" fill="#FFC72C" '+STK_O+' stroke-width="2.5"/></g><text x="94" y="70" font-size="20" font-weight="900" fill="#1B2A3A" font-family="Arial">?</text>';}},
+ {id:"m_code",cap:"الكود بيقول كده",svg:function(){return stkBubble("الكود بيقول كده")+'<rect x="28" y="48" width="50" height="62" rx="4" fill="#1D5FA8" '+STK_O+'/><rect x="32" y="52" width="42" height="54" rx="2" fill="none" stroke="#8DB6F0" stroke-width="1.5"/>'+
+   '<text x="53" y="76" text-anchor="middle" direction="rtl" font-family="'+STK_AR_FONT+'" font-weight="800" font-size="13" fill="#fff">الكود</text><text x="53" y="94" text-anchor="middle" font-size="9" font-weight="700" fill="#BFD7F7" font-family="Arial">ECP 203</text>'+
+   '<g class="stk-poke"><path d="M108 84 l-22 0 q-4 0 -4 -4 q0 -4 4 -4 l8 0 l-4 -6 q-2 -4 2 -5 l14 9 z" fill="#F6C99B" '+STK_O+' stroke-width="2.5"/></g>';}},
+ {id:"m_mawke3",cap:"نازل الموقع حالًا",svg:function(){return stkBubble("نازل الموقع حالًا")+'<g class="stk-run">'+stkEng(62,68,{eyes:"",mouth:"grin"})+
+   '<path d="M50 104 l-10 10 M74 104 l10 8" '+STK_O+' stroke-width="5"/></g><path d="M12 76 h18 M8 86 h20 M14 96 h14" stroke="#9AA9B8" stroke-width="3" stroke-linecap="round"/>';}},
+ {id:"m_rawa7",cap:"عايز أروّح بقى",svg:function(){return stkBubble("عايز أروّح بقى")+stkEng(56,72,{eyes:"sleepy",mouth:"flat"})+
+   '<rect x="80" y="92" width="26" height="20" rx="4" fill="#7B4A2B" '+STK_O+'/><path d="M88 92 v-5 h10 v5" fill="none" '+STK_O+' stroke-width="2.5"/><text x="80" y="58" font-size="13" font-weight="800" fill="#1B2A3A" font-family="Arial" class="stk-steam">z z</text>';}},
+ {id:"m_3allah",cap:"على الله تمشي",svg:function(){return stkBubble("على الله تمشي")+'<path d="M16 116 v-74 M10 116 h14" '+STK_O+' stroke-width="4"/><path d="M16 44 h88" '+STK_O+'/>'+
+   '<g class="stk-wobble" style="transform-origin:76px 44px"><path d="M76 44 v22" stroke="#1B2A3A" stroke-width="2"/><rect x="46" y="66" width="60" height="10" fill="#B8C4CF" '+STK_O+'/>'+stkEyes(70,82,71,"shock")+'</g>'+
+   '<g transform="translate(-6,6)">'+stkEng(38,92,{eyes:"shock",mouth:"o",r:12,nobody:1})+'</g><path d="M50 98 q2 -6 6 -4" fill="none" stroke="#1B2A3A" stroke-width="2"/>';}},
+ {id:"m_sabba",cap:"صبّينا يا رجالة",svg:function(){return stkBubble("صبّينا يا رجالة",{fill:"#D8F3E3"})+'<rect x="10" y="80" width="40" height="24" rx="4" fill="#FFC72C" '+STK_O+'/><circle cx="20" cy="108" r="6" fill="#2E3D4C" '+STK_O+' stroke-width="2"/><circle cx="42" cy="108" r="6" fill="#2E3D4C" '+STK_O+' stroke-width="2"/>'+
+   '<g class="stk-spinslow" style="transform-origin:68px 82px"><ellipse cx="68" cy="82" rx="22" ry="16" fill="#E8E2D6" '+STK_O+'/><path d="M52 74 q16 6 32 -2 M50 88 q18 6 36 -2" fill="none" stroke="#FF7A1A" stroke-width="4"/></g>'+
+   '<path d="M88 90 l14 10 v12" fill="none" '+STK_O+' stroke-width="4"/><path class="stk-pour" d="M102 104 q-4 6 0 12 q4 -6 0 -12" fill="#9A9488" stroke="#1B2A3A" stroke-width="1.5"/>'+stkEyes(62,74,82)+stkMouth(68,88);}},
+ {id:"m_tshok",cap:"استنى لما تشك",svg:function(){return stkBubble("استنى لما تشك")+'<rect x="22" y="56" width="58" height="50" rx="4" fill="#B9BDC2" '+STK_O+'/><g fill="#9AA0A6"><circle cx="34" cy="68" r="2"/><circle cx="60" cy="64" r="1.5"/><circle cx="70" cy="90" r="2"/><circle cx="40" cy="96" r="1.5"/></g>'+
+   stkEyes(44,58,78,"sleepy")+stkMouth(51,88,"flat")+'<g class="stk-swing" style="transform-origin:96px 64px"><path d="M90 66 h12 l-6 10 l6 10 h-12 l6 -10 z" fill="#FFE9A6" '+STK_O+' stroke-width="2.5"/><path d="M93 84 h6 l-3 -4 z" fill="#C98B4A"/></g>';}},
+ {id:"m_3amood",cap:"مين شال العمود؟!",svg:function(){return stkBubble("مين شال العمود؟!",{fill:"#FFD2CF"})+'<rect x="8" y="50" width="104" height="10" fill="#B8C4CF" '+STK_O+'/><rect x="12" y="60" width="14" height="50" fill="#C9CED3" '+STK_O+'/><rect x="94" y="60" width="14" height="50" fill="#C9CED3" '+STK_O+'/>'+
+   '<rect x="53" y="60" width="14" height="50" fill="none" stroke="#C62828" stroke-width="2.5" stroke-dasharray="5 4" class="stk-blinkt"/><g class="stk-press"><path d="M54 62 q6 6 12 0" fill="none" stroke="#1B2A3A" stroke-width="2"/></g>'+
+   '<g transform="translate(0,4)">'+stkEng(36,86,{eyes:"shock",mouth:"o",r:11,nobody:1})+stkEng(84,86,{eyes:"dizzy",mouth:"worry",r:11,nobody:1,helmet:"#fff"})+'</g>';}},
+ {id:"m_7adid",cap:"حديد يشيل عمارة",svg:function(){var r='',i;for(i=0;i<9;i++)r+='<path d="M'+(16+i*11)+' 52 v58" stroke="#8A5A3C" stroke-width="4"/>';for(i=0;i<6;i++)r+='<path d="M12 '+(56+i*10)+' h96" stroke="#8A5A3C" stroke-width="4"/>';
+   return stkBubble("حديد يشيل عمارة 😂")+'<g stroke="#1B2A3A" stroke-width="1">'+r+'</g><rect x="40" y="68" width="40" height="24" rx="6" fill="#fff" '+STK_O+' stroke-width="2"/>'+stkEyes(52,68,78,"shock")+stkMouth(60,84,"o");}},
+ {id:"m_estlam",cap:"اتسلّمت الحمد لله",svg:function(){return stkBubble("اتسلّمت الحمد لله",{fill:"#D8F3E3"})+'<g class="stk-stamp" style="transform-origin:86px 84px"><circle cx="86" cy="84" r="22" fill="#E8F7EE" stroke="#1B8A52" stroke-width="4"/><path d="M76 84 l7 7 l14 -15" fill="none" stroke="#1B8A52" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>'+
+   stkEng(38,72,{eyes:"happy",mouth:"grin",cheeks:1})+'<g class="stk-sparkle"><path d="M104 54 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 z" fill="#FFC72C"/></g>';}}
+];
+STK_CSS+='.stk-pop{animation:stkPop 2.6s ease-in-out infinite;transform-origin:60px 20px}.stk-type{animation:stkFlash .6s steps(1) infinite}.stk-crack{stroke-dasharray:90;animation:stkCrack 2.4s ease-in-out infinite}.stk-dust{animation:stkDust 1.6s ease-in-out infinite}'+
+ '.stk-spinslow{animation:stkSpin 3s linear infinite}.stk-poke{animation:stkPoke .9s ease-in-out infinite}.stk-run{animation:stkRun .5s ease-in-out infinite}.stk-wobble{animation:stkSwing 1.1s ease-in-out infinite}.stk-pour{animation:stkDrop 1.2s ease-in infinite}'+
+ '@keyframes stkPop{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}@keyframes stkCrack{0%{stroke-dashoffset:90}60%,100%{stroke-dashoffset:0}}@keyframes stkDust{0%,100%{transform:translateX(0);opacity:.9}50%{transform:translateX(-6px);opacity:.5}}'+
+ '@keyframes stkPoke{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}@keyframes stkRun{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}';
+
+var STK_ALL=STICKERS.concat(STK_MASRY);
+stkSvg=function(id){var s=null;STK_ALL.forEach(function(x){if(x.id===id)s=x;});if(!s)return null;
+  var span=document.createElement("span");span.className="stk";span.innerHTML='<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sticker: '+s.cap+'">'+s.svg()+'</svg>';return span;};
 var stkCssDone=false;function stkCss(){if(stkCssDone)return;stkCssDone=true;var st=document.createElement("style");st.textContent=STK_CSS;document.head.appendChild(st);}
-function stkOf(body){var m=/^\[\[sticker:([a-z0-9_-]+)\]\]$/.exec(String(body||"").trim());if(!m)return null;var s=null;STICKERS.forEach(function(x){if(x.id===m[1])s=x;});return s;}
+function stkOf(body){var m=/^\[\[sticker:([a-z0-9_-]+)\]\]$/.exec(String(body||"").trim());if(!m)return null;var s=null;STK_ALL.forEach(function(x){if(x.id===m[1])s=x;});return s;}
 function chatPreview(body){var s=stkOf(body);return s?"Sticker · "+s.cap:body;}
 /* ---------- task chat: only the person who gave the task and the engineer who got it ---------- */
 var chatList={},chatMsgs={},chatOpen="",chatDraft={image:null},chatQ="",chatReads={},chatReactFor="";
@@ -6640,11 +6709,11 @@ function reactChat(m,e){var id=chatOpen;var before=m.rx[me.email];if(before===e)
     .catch(function(err){if(before)m.rx[me.email]=before;else delete m.rx[me.email];renderChatThread();toast(/tt_chat_react|does not exist|schema cache/i.test(String(err&&err.message))?"Run the database update (version 40) in Supabase first.":writeError(err),true);});}
 function chatUpdated(o){var id=String(o.task_id),l=chatMsgs[id];if(!l)return;var n=chatMsgRow(o);l.forEach(function(m){if(m.id===n.id)m.rx=n.rx;});if(chatOpen===id&&$("chatDlg").open)renderChatThread();}
 function chatReadChanged(o){var id=String(o.task_id);var m=chatReads[id]||(chatReads[id]={});m[String(o.email)]=String(o.read_at);if(chatOpen===id&&$("chatDlg").open)renderChatThread();}
-var chatPickTab="emoji";
-function renderEmoji(){stkCss();var host=clear($("chatEmoji"));host.classList.toggle("stk-mode",chatPickTab==="stk");
-  var tabs=h("div",{"class":"chat-ptabs"});[["emoji","😊 Emoji"],["stk","🏗️ Stickers"]].forEach(function(o){tabs.append(h("button",{type:"button","class":chatPickTab===o[0]?"on":"",onclick:function(ev){ev.stopPropagation();chatPickTab=o[0];renderEmoji();}},o[1]));});
-  host.append(tabs);var grid=h("div",{"class":chatPickTab==="stk"?"chat-stks":"chat-emos"});host.append(grid);
-  if(chatPickTab==="stk")STICKERS.forEach(function(s){var b=h("button",{type:"button",title:"Send: "+s.cap,onclick:function(){$("chatEmoji").hidden=true;sendSticker(s.id);}});b.append(stkSvg(s.id));grid.append(b);});
+var chatPickTab="emoji";try{chatPickTab=localStorage.getItem("tt-pick")||"emoji";}catch(e){}
+function renderEmoji(){stkCss();var host=clear($("chatEmoji"));host.classList.toggle("stk-mode",chatPickTab!=="emoji");
+  var tabs=h("div",{"class":"chat-ptabs"});[["emoji","😊 Emoji"],["masry","🇪🇬 مصري"],["stk","🏗️ Stickers"]].forEach(function(o){tabs.append(h("button",{type:"button","class":chatPickTab===o[0]?"on":"",onclick:function(ev){ev.stopPropagation();chatPickTab=o[0];try{localStorage.setItem("tt-pick",o[0]);}catch(e){}renderEmoji();}},o[1]));});
+  host.append(tabs);var grid=h("div",{"class":chatPickTab==="emoji"?"chat-emos":"chat-stks"});host.append(grid);
+  if(chatPickTab!=="emoji")(chatPickTab==="masry"?STK_MASRY:STICKERS).forEach(function(s){var b=h("button",{type:"button",title:"Send: "+s.cap,onclick:function(){$("chatEmoji").hidden=true;sendSticker(s.id);}});b.append(stkSvg(s.id));grid.append(b);});
   else CHAT_EMOJI.forEach(function(e){grid.append(h("button",{type:"button",title:e,onclick:function(){insertChat(e);}},e));});}
 function sendSticker(id){var tid=chatOpen;if(!tid)return;run(sb.rpc("tt_chat_send",{p_task:tid,p_body:"[[sticker:"+id+"]]",p_image:null})).then(function(r){
     var m=chatMsgRow(r);(chatMsgs[tid]=chatMsgs[tid]||[]).push(m);var c=chatList[tid]||(chatList[tid]={unread:0,total:0});c.total++;c.last_at=m.at;c.last_from=m.name;c.last_body=m.body;
