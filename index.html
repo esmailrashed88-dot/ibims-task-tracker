@@ -902,6 +902,10 @@ dialog.kpi-dlg.chat-dlg{width:min(1000px,96vw);max-width:96vw}
 .chat-wrap{grid-template-columns:300px minmax(0,1fr)!important}.chat-row textarea{min-width:0}
 @media (max-width:720px){.chat-wrap{grid-template-columns:minmax(0,1fr)!important}}.chat-about select{min-width:0}
 .chat-about{display:flex;gap:8px;align-items:center;margin:0 0 6px;font-size:12px;color:var(--muted)}.chat-about select{flex:1;max-width:420px;font:inherit;font-size:12.5px;padding:3px 6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.pr-who{display:inline-flex;gap:10px;align-items:center;margin:2px auto 8px;padding:6px 14px 6px 6px;border-radius:999px;background:color-mix(in srgb,currentColor 8%,transparent);text-align:left}
+.pr-who:empty{display:none}.pr-who b{display:block;font-size:15px}.pr-who small{display:block;font-size:12px;opacity:.75}
+.pr-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:16px;animation:prAv 1.8s ease-in-out infinite}
+@keyframes prAv{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -1713,6 +1717,7 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="pr-in">
     <div class="pr-ic" aria-hidden="true"><span class="pr-ring"></span><span class="pr-ring r2"></span><span class="pr-clock"><i class="pr-h"></i><i class="pr-m"></i></span></div>
     <h3 id="prKick">Clock in</h3>
+    <div class="pr-who" id="prWho"></div>
     <p id="prMsg"></p>
     <div class="pr-acts"><button class="btn pr-go" id="prGo" type="button">Clock in now</button><button class="btn ghost pr-later" id="prLater" type="button">Later</button></div>
   </div>
@@ -5541,18 +5546,20 @@ function prCheck(){
 }
 function prShow(kind,st,at,last){
   prKind=kind;prSave(st);
-  var n=officeNow(),name=(me.full_name||"").split(" ")[0]||"there";
+  var n=officeNow(),full=niceName(me.full_name||me.engineer||""),name=full.split(" ")[0]||"there",hr=+String(n.hm||"").slice(0,2);
+  var greet=hr<12?"Good morning":hr<17?"Good afternoon":"Good evening";
   $("prPop").className="pr-pop "+kind+(last?" last":"");
-  $("prKick").textContent=kind==="in"?"Good morning, "+name:"Don't forget to clock out";
-  $("prMsg").textContent=kind==="in"?"You have not clocked in yet today. Clock in now so your day counts.":
-    (last?"It is "+n.hm+" and you are still clocked in. Clock out before you leave, or your day stays open.":"It is "+n.hm+". If you are leaving, clock out first.");
+  $("prKick").textContent=kind==="in"?greet+", "+name+"!":name+", don't forget to clock out";
+  var who=$("prWho");if(who){clear(who);who.append(h("span",{"class":"pr-av",text:(name||"?").slice(0,1).toUpperCase()}),h("span",null,h("b",{text:full||me.email}),h("small",{text:[roleName(me.role),me.engineer||"",n.hm?"it is "+n.hm:""].filter(Boolean).join(" · ")})));}
+  $("prMsg").textContent=kind==="in"?name+", you have not clocked in yet today. Clock in now so your day counts.":
+    (last?name+", it is "+n.hm+" and you are still clocked in. Clock out before you leave, or your day stays open.":name+", it is "+n.hm+". If you are leaving, clock out first.");
   $("prGo").textContent=kind==="in"?"Clock in now":"Clock out now";
   $("prLater").textContent=kind==="in"?"Remind me in 10 minutes":"I am still working";
   try{$("prPop").showModal();}catch(e){}
   beep();prStopFx();var on=false;
-  prFlash=setInterval(function(){on=!on;document.title=on?(kind==="in"?"⏰ CLOCK IN":"⏰ CLOCK OUT"):baseTitle;},900);
+  prFlash=setInterval(function(){on=!on;document.title=on?(kind==="in"?"⏰ "+name+", CLOCK IN":"⏰ "+name+", CLOCK OUT"):baseTitle;},900);
   prRing=setInterval(function(){if($("prPop").open)beep();},20000);
-  osNotify(kind==="in"?"Clock in":"Clock out",$("prMsg").textContent,{kind:"clock",tag:"pr-"+kind,always:true,sticky:true,head:kind==="in"?"Time to clock in":"Time to clock out",line2:$("prMsg").textContent});
+  osNotify(kind==="in"?greet+", "+name:name+", clock out",$("prMsg").textContent,{kind:"clock",tag:"pr-"+kind,always:true,sticky:true,head:kind==="in"?name+", time to clock in":name+", time to clock out",line2:$("prMsg").textContent});
 }
 function prStopFx(){if(prFlash)clearInterval(prFlash);if(prRing)clearInterval(prRing);prFlash=prRing=null;if(me)document.title=baseTitle;}
 function prClose(how){
