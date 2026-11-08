@@ -2180,9 +2180,9 @@ function buildTable(host,rows){
       h("td",{"class":"path"},canEdit(t)?inlineInput(t,"submission_path",{"class":"cell-path",type:"text",maxlength:"400",value:t.submission_path,placeholder:"Folder or link","aria-label":"Submission path for "+(t.task||"task")}):(t.submission_path||"—")),
       h("td",{"class":"send"},sendCell(t)),
       h("td",{class:"r"},h("div",{"class":"row-acts"},canPing(t)?h("button",{"class":"btn small alert-btn",type:"button","aria-label":"Alert "+t.engineer+" about "+(t.task||"this task"),onclick:function(){openAlert(t);}},"Alert"):null,canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null))));
-    var shownR=rds;if(rds.length&&!rowsOpen(t,rds)){var run_=runningOf(t);shownR=rds.filter(function(r){return run_&&run_.round_id===r.id;});}
+    var folded=!!rds.length&&!rowsOpen(t,rds),shownR=folded?[]:rds;
     shownR.forEach(function(r,i){tb.append(roundRow(t,r,fl,paused||i<shownR.length-1));});
-    if(paused)tb.append(pauseRow(t,fl));
+    if(paused&&!folded)tb.append(pauseRow(t,fl));
   });
   host.append(h("div",{class:"tablewrap"},h("table",null,
     h("thead",null,h("tr",null,head.map(function(c){return Array.isArray(c)?h("th",{class:c[1],text:c[0]}):h("th",{text:c});}))),tb)));
@@ -6878,10 +6878,10 @@ function loadHours(){var day=$("hrDay").value||today(),host=clear($("hrBody"));h
   $("hrNext").addEventListener("click",function(){var x=parseDate(d.value||today());x.setDate(x.getDate()+1);d.value=ymd(x);loadHours();});})();
 /* ---------- comment rows: fold or unfold per task ---------- */
 var rowsPref=(function(){try{return JSON.parse(localStorage.getItem("tt-rows")||"{}")||{};}catch(e){return {};}})();
-function rowsOpen(t,rds){if(t.id in rowsPref)return !!rowsPref[t.id];return rds.length<=2;}
+function rowsOpen(t,rds){if(t.id in rowsPref)return !!rowsPref[t.id];return false;}
 function saveRowsPref(){try{var k=Object.keys(rowsPref);if(k.length>400)k.slice(0,k.length-400).forEach(function(x){delete rowsPref[x];});localStorage.setItem("tt-rows",JSON.stringify(rowsPref));}catch(e){}}
 function roundsToggle(t,rds){if(!rds.length)return null;var open=rowsOpen(t,rds),c=rds.filter(function(r){return r.kind==="comment";}).length,nd=rds.length-c,openN=rds.filter(function(r){return r.status!=="Done";}).length;
-  var label=[c?c+(c===1?" comment":" comments"):"",nd?nd+" next day":""].filter(Boolean).join(" · ")+(openN?" · "+openN+" open":"");
+  var label=[c?c+(c===1?" comment":" comments"):"",nd?nd+" next day":""].filter(Boolean).join(" · ")+(openN?" · "+openN+" open":"");var run_=runningOf(t);if(!open&&run_&&run_.round_id&&rds.some(function(r){return r.id===run_.round_id;}))label+=" · timer on";
   return h("button",{"class":"rows-tg"+(open?" on":""),type:"button","aria-expanded":String(open),title:open?"Hide the rows under this task":"Show the rows under this task",onclick:function(ev){ev.stopPropagation();rowsPref[t.id]=!open;saveRowsPref();render();}},(open?"▾ ":"▸ ")+label);}
 function setAllRows(rows,open){rows.forEach(function(t){if(roundsOf(t).length)rowsPref[t.id]=open;});saveRowsPref();render();}
 
