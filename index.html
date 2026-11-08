@@ -916,7 +916,10 @@ dialog.kpi-dlg.chat-dlg{width:min(1000px,96vw);max-width:96vw}
 .ts-dot{width:8px;height:8px;border-radius:50%;background:var(--s-act);animation:prAv 1.6s ease-in-out infinite}
 th.today-h,td.today-h{background:color-mix(in srgb,var(--s-act) 6%,transparent)}
 .rows-all{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin:-4px 0 6px}
-.rows-tg{display:inline-flex;margin:4px 6px 0 0;padding:2px 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.rows-tg{display:flex;flex-direction:column;align-items:flex-start;gap:1px;margin:8px 0 0;padding:4px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);font:inherit;font-size:12px;line-height:1.2;cursor:pointer;white-space:nowrap}
+.rows-tg .tg-main{font-weight:600}
+.rows-tg .tg-n{font-size:10.5px;opacity:.8}
+.rows-tg.live{box-shadow:inset 3px 0 0 #16a34a}
 .rows-tg:hover{border-color:var(--cmt);color:var(--cmt)}.rows-tg.on{background:var(--cmt-soft);border-color:var(--cmt);color:var(--cmt)}
 .hr-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}.hr-tools input{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .hr-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 12px}
@@ -2162,13 +2165,13 @@ function buildTable(host,rows){
     var ov=overrun(t);
     var delayed=t.status==="Delayed",paused=delayed||t.status==="On Hold",rds=roundsOf(t),fl=flashing&&t.id===flashId?" flash":"";
     tb.append(h("tr",{class:(((delayed?"is-delayed ":t.status==="On Hold"?"is-hold ":"")+((paused||rds.length)?"has-sub":""))+fl).trim()||null},
-      h("td",{class:"nowrap num",title:niceDate(t.date)},shortDate(t.date),h("span",{class:"sub",text:dayName(t.date)})),
+      h("td",{class:"nowrap num",title:niceDate(t.date)},shortDate(t.date),h("span",{class:"sub",text:dayName(t.date)}),roundsToggle(t,rds)),
       h("td",{class:"nowrap"},h("strong",{text:t.engineer||"—"})),
       h("td",{class:"nowrap"},t.project?h("span",{class:"tag",text:t.project}):"—"),
       h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
       h("td",null,canEdit(t)?inlineInput(t,"level",{class:"cell-txt",type:"text",maxlength:"60",value:t.level,"aria-label":"Level for "+(t.task||"task")}):(t.level||"—")),
       h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
-      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),chatNote(t),roundsToggle(t,rds),timerLine(t)),
+      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),chatNote(t),timerLine(t)),
       h("td",{class:"r num"},(isMine(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
       h("td",{class:"r num act-lock",title:"Counted by the task timer. "+(canManageRows(t)?"To correct it, use Edit.":"It cannot be typed in.")},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
       h("td",{class:"r num today-h",title:"Timer hours on this task today"},(function(){var v=todayTask(t);return v>0.001?h("span",{"data-today-tid":t.id,text:hmTxt(v)}):h("span",{"class":"rv-hint","data-today-tid":t.id,text:"—"});})()),
@@ -6882,7 +6885,8 @@ function rowsOpen(t,rds){if(t.id in rowsPref)return !!rowsPref[t.id];return fals
 function saveRowsPref(){try{var k=Object.keys(rowsPref);if(k.length>400)k.slice(0,k.length-400).forEach(function(x){delete rowsPref[x];});localStorage.setItem("tt-rows",JSON.stringify(rowsPref));}catch(e){}}
 function roundsToggle(t,rds){if(!rds.length)return null;var open=rowsOpen(t,rds),c=rds.filter(function(r){return r.kind==="comment";}).length,nd=rds.length-c,openN=rds.filter(function(r){return r.status!=="Done";}).length;
   var label=[c?c+(c===1?" comment":" comments"):"",nd?nd+" next day":""].filter(Boolean).join(" · ")+(openN?" · "+openN+" open":"");var run_=runningOf(t);if(!open&&run_&&run_.round_id&&rds.some(function(r){return r.id===run_.round_id;}))label+=" · timer on";
-  return h("button",{"class":"rows-tg"+(open?" on":""),type:"button","aria-expanded":String(open),title:open?"Hide the rows under this task":"Show the rows under this task",onclick:function(ev){ev.stopPropagation();rowsPref[t.id]=!open;saveRowsPref();render();}},(open?"▾ ":"▸ ")+label);}
+  return h("button",{"class":"rows-tg"+(open?" on":"")+(/timer on/.test(label)?" live":""),type:"button","aria-expanded":String(open),title:(open?"Hide":"Show")+" the rows under this task: "+label,onclick:function(ev){ev.stopPropagation();rowsPref[t.id]=!open;saveRowsPref();render();}},
+    h("span",{"class":"tg-main",text:(open?"▾ Collapse":"▸ Expand")}),h("span",{"class":"tg-n",text:rds.length+(rds.length===1?" row":" rows")}));}
 function setAllRows(rows,open){rows.forEach(function(t){if(roundsOf(t).length)rowsPref[t.id]=open;});saveRowsPref();render();}
 
 /* ---------- a task for yourself (anyone who gives tasks) ---------- */
