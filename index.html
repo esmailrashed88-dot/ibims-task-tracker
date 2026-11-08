@@ -906,6 +906,23 @@ dialog.kpi-dlg.chat-dlg{width:min(1000px,96vw);max-width:96vw}
 .pr-who:empty{display:none}.pr-who b{display:block;font-size:15px}.pr-who small{display:block;font-size:12px;opacity:.75}
 .pr-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:16px;animation:prAv 1.8s ease-in-out infinite}
 @keyframes prAv{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
+.today-strip{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:0 0 12px;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--s-act);border-radius:10px;background:var(--surface)}
+.today-strip[hidden]{display:none}.ts-k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.ts-me{display:grid;grid-template-columns:auto auto;gap:2px 12px;align-items:center}.ts-me b{font-size:22px;line-height:1}.ts-me .ts-bar{grid-column:1/-1;height:8px;border-radius:4px;background:var(--surface-2,var(--line));overflow:hidden;min-width:200px}
+.ts-me .ts-bar i{display:block;height:100%;background:var(--s-act);border-radius:4px}.ts-me small{grid-column:1/-1;color:var(--muted);font-size:12px}.ts-me.run b{color:var(--s-act)}
+.ts-team{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;flex:1}.ts-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ts-chip{display:inline-flex;gap:6px;align-items:center;padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--s-act) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--s-act) 35%,var(--line));font-size:12.5px}
+.ts-chip b{font-weight:700}.ts-chip.zero{background:var(--surface);border-color:var(--line);color:var(--muted)}
+.ts-dot{width:8px;height:8px;border-radius:50%;background:var(--s-act);animation:prAv 1.6s ease-in-out infinite}
+th.today-h,td.today-h{background:color-mix(in srgb,var(--s-act) 6%,transparent)}
+.rows-all{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin:-4px 0 6px}
+.rows-tg{display:inline-flex;margin:4px 6px 0 0;padding:2px 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.rows-tg:hover{border-color:var(--cmt);color:var(--cmt)}.rows-tg.on{background:var(--cmt-soft);border-color:var(--cmt);color:var(--cmt)}
+.hr-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}.hr-tools input{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.hr-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 12px}
+.hr-bar{position:relative;height:12px;border-radius:6px;background:var(--surface-2,var(--line));min-width:120px}.hr-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.hr-bar i.t-ok{background:var(--ok)}.hr-bar i.t-warn{background:var(--warn)}.hr-bar i.t-bad{background:var(--bad)}
+.hr-8{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5}
 .mg-more{display:flex;gap:12px;align-items:center;margin-top:10px}
 .mg-tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .mg-body{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -1815,6 +1832,12 @@ dialog.wide{width:min(980px,calc(100vw - 32px))}
   <div class="dlg-f"><span class="hint left">A chat is private: only the two people in it can see it.</span><button class="btn" id="chatClose" type="button">Close</button></div>
 </dialog>
 
+<dialog id="hrDlg" class="kpi-dlg" aria-labelledby="hrTitle">
+  <div class="dlg-h"><h3 id="hrTitle">Hours worked</h3></div>
+  <div class="team-b"><div class="hr-tools"><button class="btn small" id="hrPrev" type="button">‹ Day before</button><input type="date" id="hrDay" aria-label="Day"><button class="btn small" id="hrNext" type="button">Next day ›</button></div><div id="hrBody"></div></div>
+  <div class="dlg-f"><button class="btn" id="hrClose" type="button">Close</button></div>
+</dialog>
+
 <dialog id="attDlg" aria-labelledby="attTitle">
   <div class="dlg-h"><h3 id="attTitle">Correct attendance</h3></div>
   <div class="team-b">
@@ -1964,7 +1987,7 @@ function loadFilters(){try{var o=JSON.parse(localStorage.getItem("stt.filters")|
 function setFilter(k,v){S.f[k]=v;if(k==="discipline"&&S.f.engineer){var d=engineerDisc(S.f.engineer);if(v&&d&&d!==v)S.f.engineer="";}saveFilters();render();}
 function match(t){var f=S.f;
   return (!f.project||t.project===f.project)&&(!f.discipline||t.discipline===f.discipline)&&(!f.engineer||t.engineer===f.engineer)
-      &&(!f.status||t.status===f.status)&&(!f.from||t.date>=f.from)&&(!f.to||t.date<=f.to)&&(!f.q||taskHay(t).indexOf(f.q.trim().toLowerCase())>=0);}
+      &&(!f.status||t.status===f.status)&&(!f.from||t.date>=f.from||!!runningOf(t))&&(!f.to||t.date<=f.to||!!runningOf(t))&&(!f.q||taskHay(t).indexOf(f.q.trim().toLowerCase())>=0);}
 function taskHay(t){return [t.task,t.level,t.element,t.project,t.engineer,t.reason,t.submission_path,t.status].join(" ").toLowerCase();}
 function activeFilters(){var f=S.f,o=[];
   if(f.project)o.push("Project "+f.project);if(f.discipline)o.push(titleCase(f.discipline));if(f.engineer)o.push(f.engineer);if(f.status)o.push("Status "+f.status);if(f.q&&f.q.trim())o.push("Search \u201c"+f.q.trim()+"\u201d");
@@ -2126,7 +2149,10 @@ function buildTable(host,rows){
   if(!rows.length){host.append(h("div",{class:"empty"},h("p",{text:"No tasks match these filters."})));return;}
   var flashing=flashId&&Date.now()-flashAt<4000;
   var sorted=rows.slice().sort(taskOrder);
-  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h (timer)","r"],["Comment h","r"],["Rem. h","r"],"Status","Comments","Submission Path","Send to",""];
+  host.append(todayStrip(rows));
+  if(rows.some(function(t){return roundsOf(t).length;}))host.append(h("div",{"class":"rows-all"},h("span",{"class":"rv-hint",text:"Comment rows:"}),
+    h("button",{"class":"btn small quiet",type:"button",onclick:function(){setAllRows(rows,true);}},"▾ Expand all"),h("button",{"class":"btn small quiet",type:"button",onclick:function(){setAllRows(rows,false);}},"▸ Collapse all")));
+  var head=["Date","Engineer","Project","Disc.","Level","Element","Task",["Est. h","r"],["Actual h (timer)","r"],["Today h","r today-h"],["Comment h","r"],["Rem. h","r"],"Status","Comments","Submission Path","Send to",""];
   var tb=h("tbody");
   sorted.forEach(function(t){
     var ov=overrun(t);
@@ -2138,9 +2164,10 @@ function buildTable(host,rows){
       h("td",{class:"nowrap"},h("span",{class:"code",title:t.discipline,text:discCode(t.discipline)})),
       h("td",null,canEdit(t)?inlineInput(t,"level",{class:"cell-txt",type:"text",maxlength:"60",value:t.level,"aria-label":"Level for "+(t.task||"task")}):(t.level||"—")),
       h("td",null,canEdit(t)?inlineInput(t,"element",{class:"cell-txt",type:"text",maxlength:"60",value:t.element,"aria-label":"Element for "+(t.task||"task")}):(t.element||"—")),
-      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),chatNote(t),timerLine(t)),
+      h("td",{class:"task"},t.task||"",ackNote(t),resumeNote(t),pingNote(t),chatNote(t),roundsToggle(t,rds),timerLine(t)),
       h("td",{class:"r num"},(isMine(t)&&!num(t.est))?inlineInput(t,"est",{class:"cell-in",type:"number",min:"0",step:"0.5",inputmode:"decimal",value:"",placeholder:"once",title:"You can set the estimated hours once","aria-label":"Estimated hours for "+(t.task||"task")}):fmt(num(t.est)),totNote(t,"est")),
       h("td",{class:"r num act-lock",title:"Counted by the task timer. "+(canManageRows(t)?"To correct it, use Edit.":"It cannot be typed in.")},h("span",{"class":"lock-ic","aria-hidden":"true"}),h("span",{"data-live":"main","data-tid":t.id,text:fmt(liveMain(t))}),totNote(t,"act")),
+      h("td",{class:"r num today-h",title:"Timer hours on this task today"},(function(){var v=todayTask(t);return v>0.001?h("span",{"data-today-tid":t.id,text:hmTxt(v)}):h("span",{"class":"rv-hint","data-today-tid":t.id,text:"—"});})()),
       h("td",{class:"r num cmt-h",title:cmtRounds(t).length?"Timer hours on "+cmtRounds(t).length+(cmtRounds(t).length===1?" comment round":" comment rounds"):"No comment rounds"},cmtRounds(t).length?h("span",{"data-live":"cmth","data-tid":t.id,text:fmt(Math.round(liveCmt(t)*100)/100)}):"—",
         cmtRounds(t).length?h("span",{class:"sub",text:cmtRounds(t).length+(cmtRounds(t).length===1?" round":" rounds")+" · est "+fmt(cmtRounds(t).reduce(function(a,r){return a+num(r.est);},0))}):null),
       h("td",{class:"r num"},h("span",{"data-live":"rem","data-tid":t.id,text:fmt(liveRem(t))}),ov>0?h("span",{class:"over",text:"over by "+fmt(ov)+" h"}):null),
@@ -2149,7 +2176,8 @@ function buildTable(host,rows){
       h("td",{"class":"path"},canEdit(t)?inlineInput(t,"submission_path",{"class":"cell-path",type:"text",maxlength:"400",value:t.submission_path,placeholder:"Folder or link","aria-label":"Submission path for "+(t.task||"task")}):(t.submission_path||"—")),
       h("td",{"class":"send"},sendCell(t)),
       h("td",{class:"r"},h("div",{"class":"row-acts"},canPing(t)?h("button",{"class":"btn small alert-btn",type:"button","aria-label":"Alert "+t.engineer+" about "+(t.task||"this task"),onclick:function(){openAlert(t);}},"Alert"):null,canEdit(t)?h("button",{class:"btn small",type:"button","aria-label":"Edit task",onclick:function(){openTask(t);}},"Edit"):null))));
-    rds.forEach(function(r,i){tb.append(roundRow(t,r,fl,paused||i<rds.length-1));});
+    var shownR=rds;if(rds.length&&!rowsOpen(t,rds)){var run_=runningOf(t);shownR=rds.filter(function(r){return run_&&run_.round_id===r.id;});}
+    shownR.forEach(function(r,i){tb.append(roundRow(t,r,fl,paused||i<shownR.length-1));});
     if(paused)tb.append(pauseRow(t,fl));
   });
   host.append(h("div",{class:"tablewrap"},h("table",null,
@@ -2691,7 +2719,7 @@ function roundRow(t,r,fl,more){
       dateEl.addEventListener("change",function(){commitRoundDate(r,dateEl);});}
     else dateEl=h("strong",{text:r.work_date?niceDate(r.work_date):"—"});
   }
-  return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"16"},h("div",{"class":"round-line"+(nd?" nd":"")},
+  return h("tr",{"class":"subrow"+(more?" has-sub2":"")+fl},h("td",{colspan:"17"},h("div",{"class":"round-line"+(nd?" nd":"")},
     h("span",{"class":"label",text:roundLabel(t,r)}),
     nd?h("label",null,"Continue on",dateEl):null,
     h("label",{title:nd?"The hours that were still remaining on the task when it moved to the next day":null},nd?"Estimated h (remaining)":fx?"Estimated h (you can correct)":canE&&own?"Estimated h (once)":"Estimated h",canE?roundInput(r,"est",{value:num(r.est)?fmt(r.est):"",placeholder:own?"set once":"0",title:fx?"You gave this task, so you can correct the estimate. The engineer is told.":own?"You can set it only once":null}):h("strong",{"class":"num",title:"Locked"},h("span",{"class":"lock-ic","aria-hidden":"true"}),fmt(num(r.est)))),
@@ -2701,7 +2729,6 @@ function roundRow(t,r,fl,more){
     done?h("span",{"class":"rd-pill rd-done",text:(nd?"Finished":"Comment done")+(r.done_at?" · "+niceStamp(r.done_at):"")})
         :h("span",{"class":"rd-pill rd-open",text:nd?"In progress":"Comment open"}),
     (!done&&ed)?h("button",{"class":"btn small primary",type:"button",onclick:function(ev){roundDone(r,ev.currentTarget);}},nd?"Mark finished":"Mark comment done"):null,
-    (done&&mg)?h("button",{"class":"btn small",type:"button",onclick:function(ev){roundReopen(r,ev.currentTarget);}},"Reopen"):null,
     h("span",{"class":"pause-meta",text:"Remaining "+fmt(rem)+" h"+(r.created_at?" · added "+niceStamp(r.created_at):"")}),
     mg?rowDeleteBtn("r"+r.id,roundLabel(t,r),function(btn){roundDelete(t,r,btn);}):null)));
 }
@@ -2871,7 +2898,7 @@ function gotNotif(o){
   notifs.unshift(n);paintNotifs();render();
   if(n.kind==="ping"||n.message==="Urgent reminder"){showPings(true);if(n.message==="Urgent reminder")loadReview();if($("notifDlg").open)renderNotifs();return;}
   if(n.kind==="remind"){var mineNote=n.message==="Reminder";
-    var rgo=n.task_id?function(){goTask(n.task_id);}:(/TIDP|Drawings/.test(n.message)?function(){setView("deliv");}:null);
+    var rgo=n.message==="Daily hours report"?function(){openHours(n.project||today());}:n.task_id?function(){goTask(n.task_id);}:(/TIDP|Drawings/.test(n.message)?function(){setView("deliv");}:null);
     showFlash({kind:"remind",tag:"r-"+n.id,title:mineNote?n.task:n.message,body:mineNote?n.note:(n.note||n.task),sub:n.project||"",sticky:mineNote,ms:12000,click:rgo,actions:rgo?[{label:"Open",primary:true,fn:rgo}]:[]});
     osNotify(n.message,mineNote?n.task+(n.note?"\n"+n.note:""):n.note||n.task,{kind:"remind",always:!document.hasFocus()||mineNote,sticky:mineNote,tag:"r-"+n.id,head:mineNote?n.task:n.message,line2:mineNote?n.note:(n.note||n.task),click:rgo||undefined});
     if(mineNote){beep();loadReview();}if($("notifDlg").open)renderNotifs();return;}
@@ -2919,7 +2946,7 @@ function pauseRow(t,fl){
   var reasonEl=editing
     ?inlineInput(t,"reason",{"class":"reason-in"+(t.reason?"":" missing"),type:"text",maxlength:"500",value:t.reason,placeholder:hold?"Write why this task is on hold, then press Enter":"Write why this task is delayed, then press Enter","aria-label":(hold?"Reason for hold for ":"Reason for delay for ")+(t.task||"task")})
     :h("span",{"class":"reason-text",text:t.reason||"No reason written yet."});
-  return h("tr",{"class":"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"16"},h("div",{"class":"reason-line"+(hold?" hold":"")},
+  return h("tr",{"class":"subrow "+(hold?"is-hold":"is-delayed")+fl},h("td",{colspan:"17"},h("div",{"class":"reason-line"+(hold?" hold":"")},
     h("span",{"class":"label",text:hold?"Reason for hold":"Reason for delay"}),
     reasonEl,
     (ed&&!editing)?h("button",{"class":"btn small",type:"button",onclick:function(){editReason[t.id]=true;focusReq={tid:t.id,field:"reason"};render();}},"Edit reason"):null,
@@ -5509,6 +5536,7 @@ var taskSort=(function(){try{var v=localStorage.getItem("stt.sort");return v==="
 /* newest on top: by day, then by when the task was added */
 function taskNewer(a,b){if(a.date!==b.date)return a.date<b.date?1:-1;var x=a.created_at||"",y=b.created_at||"";if(x!==y)return x<y?1:-1;return String(a.task).localeCompare(String(b.task));}
 function taskOrder(a,b){
+  var ra=runningOf(a),rb=runningOf(b);if(ra&&!rb)return -1;if(rb&&!ra)return 1;if(ra&&rb&&ra.started_at!==rb.started_at)return ra.started_at<rb.started_at?1:-1;
   if(taskSort==="old")return -taskNewer(a,b);
   if(taskSort==="eng"){var e=String(a.engineer).localeCompare(String(b.engineer));if(e)return e;}
   return taskNewer(a,b);}
@@ -6797,6 +6825,55 @@ function gotChat(o){if(!me)return;var m=chatMsgRow(o);if(m.from===me.email||chat
   $("chatEmoBtn").addEventListener("click",function(ev){ev.stopPropagation();var p=$("chatEmoji");if(!p.childNodes.length)renderEmoji();p.hidden=!p.hidden;});
   $("chatDlg").addEventListener("click",function(ev){var p=$("chatEmoji");if(!p.hidden&&!p.contains(ev.target)&&ev.target!==$("chatEmoBtn"))p.hidden=true;
     if(chatReactFor&&!(ev.target.closest&&ev.target.closest(".chat-rbar,.chat-addr"))){chatReactFor="";renderChatThread();}});})();
+/* ---------- hours worked today (timer) ---------- */
+function dayBounds(day){var d=parseDate(day||today());var a=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();return [a,a+864e5];}
+function todayTask(t){var b=dayBounds(),s=0;timeOf(t).forEach(function(w){if(w.kind!=="work")return;var x=Date.parse(w.started_at),y=w.ended_at?Date.parse(w.ended_at):nowMs();
+  var lo=Math.max(x,b[0]),hi=Math.min(y,b[1]);if(hi>lo)s+=(hi-lo)/36e5;});return s;}
+function hmTxt(hrs){var m=Math.round(hrs*60);if(m<1)return "0m";var hh=Math.floor(m/60),mm=m%60;return (hh?hh+"h ":"")+(mm||!hh?mm+"m":"").trim();}
+function todayEng(name){var s=0,n=0,run=false;S.tasks.forEach(function(t){if(t.engineer!==name)return;var v=todayTask(t);if(v>0.001){s+=v;n++;}if(runningOf(t))run=true;});return {h:s,n:n,run:run};}
+function canHoursReport(){return !!me&&(isAdmin()||can("mgmt_dash")||can("att_view_team")||can("view_all"));}
+var DAY_H=8;
+function todayStrip(rows){var box=h("div",{"class":"today-strip",id:"todayStrip"});fillToday(box,rows);return box;}
+var todayRows=null;
+function fillToday(box,rows){todayRows=rows||todayRows||[];clear(box);
+  if(me&&me.engineer){var x=todayEng(me.engineer),pc=Math.min(100,x.h/DAY_H*100);
+    box.append(h("div",{"class":"ts-me"+(x.run?" run":"")},h("span",{"class":"ts-k",text:"You worked today"}),h("b",{text:hmTxt(x.h)}),
+      h("span",{"class":"ts-bar",title:Math.round(pc)+"% of "+DAY_H+" h"},h("i",{style:"width:"+pc+"%"})),h("small",{text:(x.n?x.n+(x.n===1?" task":" tasks"):"no timer yet today")+(x.run?" · timer running":"")})));}
+  var names=[];todayRows.forEach(function(t){if(t.engineer&&names.indexOf(t.engineer)<0&&(!me||t.engineer!==me.engineer))names.push(t.engineer);});
+  if(names.length&&(canAdd()||canHoursReport())){var list=names.map(function(n){return {n:n,x:todayEng(n)};}).sort(function(a,b){return b.x.h-a.x.h;});
+    var chips=h("div",{"class":"ts-chips"});list.forEach(function(o){chips.append(h("span",{"class":"ts-chip"+(o.x.run?" run":"")+(o.x.h<0.01?" zero":""),title:o.n+": "+hmTxt(o.x.h)+" on "+o.x.n+" tasks today"+(o.x.run?" · timer running":"")},
+      o.x.run?h("i",{"class":"ts-dot"}):null,h("b",{text:o.n}),hmTxt(o.x.h)));});
+    box.append(h("div",{"class":"ts-team"},h("span",{"class":"ts-k",text:"Worked today (timer)"}),chips,canHoursReport()?h("button",{"class":"btn small",type:"button",onclick:function(){openHours(today());}},"Daily report"):null));}
+  box.hidden=!box.childNodes.length;}
+setInterval(function(){try{var b=$("todayStrip");if(b&&S.view==="tracker")fillToday(b);Array.prototype.forEach.call(document.querySelectorAll("[data-today-tid]"),function(e){var t=null;S.tasks.forEach(function(q){if(q.id===e.getAttribute("data-today-tid"))t=q;});if(!t)return;var v=todayTask(t);e.textContent=v>0.001?hmTxt(v):"—";e.className=v>0.001?"":"rv-hint";});}catch(e){}},30000);
+function openHours(day){if(!canHoursReport())return;$("hrDay").value=day||today();$("hrDlg").showModal();loadHours();}
+function loadHours(){var day=$("hrDay").value||today(),host=clear($("hrBody"));host.append(h("p",{"class":"hint",text:"Loading…"}));
+  run(sb.rpc("tt_hours_day",{p_day:day})).then(function(d){clear(host);var rows=(d||[]).map(function(o){return {eng:String(o.engineer),name:String(o.full_name||o.engineer),disc:String(o.discipline||""),h:num(o.hours),n:Number(o.tasks)||0,first:o.first_at?String(o.first_at):"",last:o.last_at?String(o.last_at):"",run:!!o.running};});
+    if(!rows.length){host.append(h("p",{"class":"hint",text:"No engineers to show."}));return;}
+    var tot=0,worked=0;rows.forEach(function(r){tot+=r.h;if(r.h>0.01)worked++;});var mx=Math.max(DAY_H,rows.reduce(function(a,r){return Math.max(a,r.h);},0));
+    host.append(h("div",{"class":"stats hr-stats"},stat("Total",hmTxt(tot),"",worked+" of "+rows.length+" engineers worked"),stat("Average",worked?hmTxt(tot/worked):"—","","per engineer who worked"),
+      stat("Under 4 h",String(rows.filter(function(r){return r.h<4;}).length),"","engineers",rows.some(function(r){return r.h<4;}))));
+    var tb=h("tbody");rows.forEach(function(r){var tone=r.h>=DAY_H-0.5?"ok":r.h>=4?"warn":"bad";
+      tb.append(h("tr",null,h("td",{"class":"mg-name"},h("strong",{text:r.name}),h("small",{text:r.eng+(r.disc?" · "+titleCase(r.disc):"")})),
+        h("td",{"class":"mg-bcell"},h("div",{"class":"hr-bar"},h("i",{"class":"t-"+tone,style:"width:"+(r.h/mx*100)+"%"}),h("span",{"class":"hr-8",style:"left:"+(DAY_H/mx*100)+"%",title:DAY_H+" h"}))),
+        h("td",{"class":"r num"},h("b",{"class":"mg-"+tone,text:hmTxt(r.h)})),h("td",{"class":"r num",text:String(r.n)}),
+        h("td",{"class":"num",text:r.first?new Date(r.first).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"—"}),
+        h("td",{"class":"num",text:r.last&&!r.run?new Date(r.last).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):r.run?"working now":"—"})));});
+    host.append(h("div",{"class":"tablewrap"},h("table",{"class":"plain mg-t"},h("thead",null,h("tr",null,["Engineer","Hours on the timer",["Hours","r"],["Tasks","r"],"Started","Stopped"].map(function(c){return Array.isArray(c)?h("th",{"class":c[1],text:c[0]}):h("th",{text:c});}))),tb)));
+    host.append(h("p",{"class":"hint",text:"Hours are the task timer's working time inside this day (comments included, pauses not). The line in each bar is "+DAY_H+" h."}));},
+  function(e){clear(host);host.append(h("p",{"class":"err",text:/tt_hours_day|does not exist|schema cache/i.test(String(e&&e.message))?"Run the database update (version 42) in Supabase first.":writeError(e)}));});}
+(function(){var d=$("hrDay");if(!d)return;d.addEventListener("change",loadHours);$("hrClose").addEventListener("click",function(){$("hrDlg").close();});
+  $("hrPrev").addEventListener("click",function(){var x=parseDate(d.value||today());x.setDate(x.getDate()-1);d.value=ymd(x);loadHours();});
+  $("hrNext").addEventListener("click",function(){var x=parseDate(d.value||today());x.setDate(x.getDate()+1);d.value=ymd(x);loadHours();});})();
+/* ---------- comment rows: fold or unfold per task ---------- */
+var rowsPref=(function(){try{return JSON.parse(localStorage.getItem("tt-rows")||"{}")||{};}catch(e){return {};}})();
+function rowsOpen(t,rds){if(t.id in rowsPref)return !!rowsPref[t.id];return rds.length<=2;}
+function saveRowsPref(){try{var k=Object.keys(rowsPref);if(k.length>400)k.slice(0,k.length-400).forEach(function(x){delete rowsPref[x];});localStorage.setItem("tt-rows",JSON.stringify(rowsPref));}catch(e){}}
+function roundsToggle(t,rds){if(!rds.length)return null;var open=rowsOpen(t,rds),c=rds.filter(function(r){return r.kind==="comment";}).length,nd=rds.length-c,openN=rds.filter(function(r){return r.status!=="Done";}).length;
+  var label=[c?c+(c===1?" comment":" comments"):"",nd?nd+" next day":""].filter(Boolean).join(" · ")+(openN?" · "+openN+" open":"");
+  return h("button",{"class":"rows-tg"+(open?" on":""),type:"button","aria-expanded":String(open),title:open?"Hide the rows under this task":"Show the rows under this task",onclick:function(ev){ev.stopPropagation();rowsPref[t.id]=!open;saveRowsPref();render();}},(open?"▾ ":"▸ ")+label);}
+function setAllRows(rows,open){rows.forEach(function(t){if(roundsOf(t).length)rowsPref[t.id]=open;});saveRowsPref();render();}
+
 start();
 })();
 </script>
